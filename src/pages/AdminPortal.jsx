@@ -42,8 +42,13 @@ export default function AdminPortal() {
 
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchAgents(), fetchLeads(), fetchPolicies(), fetchClaims()]);
-    setLoading(false);
+    try {
+      await Promise.all([fetchAgents(), fetchLeads(), fetchPolicies(), fetchClaims()]);
+    } catch (e) {
+      console.error('Error fetching dashboard data:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchAgents = async () => {

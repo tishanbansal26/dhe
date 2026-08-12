@@ -34,11 +34,11 @@ serve(async (req) => {
     // Create a regular client using the user's token to check their identity
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
     if (userError || !user) {
       console.error("getUser failed:", userError, "User is:", user ? "found" : "not found");
       throw new Error(`Unauthorized: ${userError?.message || 'No user found'}`);
