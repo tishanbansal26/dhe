@@ -292,8 +292,30 @@ export default function AdminAgents() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Company Name</label>
-                <input type="text" value={formData.company_name} onChange={e => setFormData({...formData, company_name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="Tata AIA, LIC, etc." />
+                <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                <select 
+                  required
+                  value={formData.company_name} 
+                  onChange={e => setFormData({...formData, company_name: e.target.value})} 
+                  className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-teal-500"
+                >
+                  <option value="">-- Select Company --</option>
+                  <option value="Tata AIA">Tata AIA Life Insurance</option>
+                  <option value="HDFC Life">HDFC Life Insurance</option>
+                  <option value="LIC">Life Insurance Corporation (LIC)</option>
+                  <option value="Max Life">Max Life Insurance</option>
+                  <option value="SBI Life">SBI Life Insurance</option>
+                  <option value="ICICI Prudential">ICICI Prudential Life</option>
+                  <option value="Bajaj Allianz">Bajaj Allianz Life</option>
+                  <option value="Kotak Life">Kotak Life Insurance</option>
+                  <option value="PNB MetLife">PNB MetLife</option>
+                  <option value="Reliance Nippon">Reliance Nippon Life</option>
+                  <option value="Star Health">Star Health Insurance</option>
+                  <option value="Niva Bupa">Niva Bupa Health</option>
+                  <option value="Care Health">Care Health Insurance</option>
+                  <option value="Aditya Birla">Aditya Birla Capital</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
