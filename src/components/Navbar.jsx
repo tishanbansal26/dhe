@@ -13,6 +13,8 @@ export default function Navbar() {
   const isHome = location.pathname === '/';
   const { user, agentProfile, userProfile } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -41,12 +43,13 @@ export default function Navbar() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(45,212,191,0.4)]">
               <TrendingUp className="text-white w-6 h-6" />
             </div>
-            <span className="font-bold text-2xl tracking-tight">Radhe<span className="text-teal-400">Invest</span></span>
+            <span className="font-bold text-2xl tracking-tight">Radhe<span className="text-teal-400">Invest</span> {isAdminSubdomain && <span className="text-sm font-normal text-rose-400 ml-2 border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 rounded-full">Admin</span>}</span>
           </Link>
           
           {/* Desktop Menu */}
-          <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
+          {!isAdminSubdomain && (
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-8">
               <Link to={isHome ? '#home' : '/'} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</Link>
               <Link to="/#plans" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Insurance Plans</Link>
               <Link to="/#calculator" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">SIP Calculator</Link>
@@ -88,6 +91,7 @@ export default function Navbar() {
               ) : null}
             </div>
           </div>
+          )}
           
           <div className="hidden md:flex items-center gap-4">
             {user && (
@@ -121,50 +125,54 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'} bg-slate-800 border-b border-slate-700 max-h-[calc(100vh-5rem)] overflow-y-auto`}>
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <Link to={isHome ? '#home' : '/'} onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Home</Link>
-            <Link to="/#plans" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Insurance Plans</Link>
-            <Link to="/#calculator" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">SIP Calculator</Link>
-            
-            <div className="px-3 py-2">
-              <div className="relative flex items-center w-full">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3" />
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleSearch}
-                  placeholder="Search..." 
-                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-teal-500 w-full transition-all"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button 
-                onClick={() => setIsMobileClaimsOpen(!isMobileClaimsOpen)}
-                className="w-full flex items-center justify-between text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
-              >
-                Claim
-                <ChevronDown className={`w-4 h-4 transition-transform ${isMobileClaimsOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isMobileClaimsOpen && (
-                <div className="pl-4 space-y-1 mt-1">
-                  <Link to="/claims/new" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">File a new claim</Link>
-                  <Link to="/claims/existing" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Claim is already filed with the Insurer</Link>
-                  <Link to="/claims/info" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Know more about filing claim</Link>
-                  <Link to="/claims/track" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Track existing claim</Link>
-                  <Link to="/claims/cashless" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Cashless network</Link>
+            {!isAdminSubdomain && (
+              <>
+                <Link to={isHome ? '#home' : '/'} onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Home</Link>
+                <Link to="/#plans" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Insurance Plans</Link>
+                <Link to="/#calculator" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">SIP Calculator</Link>
+                
+                <div className="px-3 py-2">
+                  <div className="relative flex items-center w-full">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3" />
+                    <input 
+                      type="text" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={handleSearch}
+                      placeholder="Search..." 
+                      className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-teal-500 w-full transition-all"
+                    />
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {userProfile?.role === 'customer' ? (
-              <Link to="/dashboard" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">My Dashboard</Link>
-            ) : agentProfile?.role === 'admin' ? (
-              <Link to="/admin" onClick={closeMenu} className="block text-rose-300 hover:text-rose-100 hover:bg-rose-900/30 px-3 py-2 rounded-md text-base font-medium">Admin Portal</Link>
-            ) : agentProfile ? (
-              <Link to="/agents" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">Agent Portal</Link>
-            ) : null}
+                <div>
+                  <button 
+                    onClick={() => setIsMobileClaimsOpen(!isMobileClaimsOpen)}
+                    className="w-full flex items-center justify-between text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
+                  >
+                    Claim
+                    <ChevronDown className={`w-4 h-4 transition-transform ${isMobileClaimsOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {isMobileClaimsOpen && (
+                    <div className="pl-4 space-y-1 mt-1">
+                      <Link to="/claims/new" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">File a new claim</Link>
+                      <Link to="/claims/existing" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Claim is already filed with the Insurer</Link>
+                      <Link to="/claims/info" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Know more about filing claim</Link>
+                      <Link to="/claims/track" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Track existing claim</Link>
+                      <Link to="/claims/cashless" onClick={closeMenu} className="block px-3 py-2 text-sm text-gray-400 hover:text-white">Cashless network</Link>
+                    </div>
+                  )}
+                </div>
+
+                {userProfile?.role === 'customer' ? (
+                  <Link to="/dashboard" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">My Dashboard</Link>
+                ) : agentProfile?.role === 'admin' ? (
+                  <Link to="/admin" onClick={closeMenu} className="block text-rose-300 hover:text-rose-100 hover:bg-rose-900/30 px-3 py-2 rounded-md text-base font-medium">Admin Portal</Link>
+                ) : agentProfile ? (
+                  <Link to="/agents" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">Agent Portal</Link>
+                ) : null}
+              </>
+            )}
 
             <div className="mt-4 pt-4 border-t border-slate-700 pb-2">
               {user ? (

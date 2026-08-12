@@ -56,10 +56,7 @@ export default function Home() {
     <>
       {/* Hero Section */}
       <section id="home" className="pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8 border border-teal-500/30">
-          <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-          <span className="text-sm text-teal-100 font-medium">Multi-Brand Insurance Aggregator</span>
-        </div>
+
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
           Find the Best Policy With <br />
           <span className="gradient-text">Radhe Investments</span>
