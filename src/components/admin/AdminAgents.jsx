@@ -15,7 +15,8 @@ export default function AdminAgents() {
     email: '',
     role: 'agent',
     type: 'sub',
-    gwp: '₹0'
+    gwp: '₹0',
+    company_name: ''
   });
   const [saving, setSaving] = useState(false);
 
@@ -48,7 +49,8 @@ export default function AdminAgents() {
             name: formData.name,
             role: formData.role,
             type: formData.type,
-            gwp: formData.gwp
+            gwp: formData.gwp,
+            company_name: formData.company_name
           })
           .eq('id', editingAgent.id);
         if (error) throw error;
@@ -67,7 +69,8 @@ export default function AdminAgents() {
             name: formData.name,
             role: formData.role,
             type: formData.type,
-            gwp: formData.gwp
+            gwp: formData.gwp,
+            company_name: formData.company_name
           }
         });
 
@@ -106,7 +109,8 @@ export default function AdminAgents() {
         email: agent.email || '', // In case email isn't in agents table
         role: agent.role,
         type: agent.type,
-        gwp: agent.gwp || '₹0'
+        gwp: agent.gwp || '₹0',
+        company_name: agent.company_name || ''
       });
     } else {
       setEditingAgent(null);
@@ -115,7 +119,8 @@ export default function AdminAgents() {
         email: '',
         role: 'agent',
         type: 'sub',
-        gwp: '₹0'
+        gwp: '₹0',
+        company_name: ''
       });
     }
     setShowModal(true);
@@ -285,6 +290,11 @@ export default function AdminAgents() {
                   </div>
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-400 mb-1">Company Name</label>
+                <input type="text" value={formData.company_name} onChange={e => setFormData({...formData, company_name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-teal-500" placeholder="Tata AIA, LIC, etc." />
+              </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>

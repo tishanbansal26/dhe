@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import AgentPortal from './pages/AgentPortal';
+import EmployeePortal from './pages/EmployeePortal';
 import Login from './pages/Login';
 import PlanDetails from './pages/PlanDetails';
 import CategoryList from './pages/CategoryList';
@@ -90,10 +90,10 @@ export default function App() {
                   } 
                 />
                 <Route 
-                  path="/agents" 
+                  path="/employee" 
                   element={
-                    <ProtectedRoute allowedRoles={['admin', 'agent']}>
-                      <AgentPortal />
+                    <ProtectedRoute allowedRoles={['agent', 'staff']}>
+                      <EmployeePortal />
                     </ProtectedRoute>
                   } 
                 />

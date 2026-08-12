@@ -7,7 +7,7 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('customer');
+  const role = 'customer';
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
@@ -132,20 +132,6 @@ export default function Signup() {
                     placeholder="••••••••"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-2">Account Role</label>
-                <select
-                  id="role"
-                  name="role"
-                  value={role}
-                  onChange={e => setRole(e.target.value)}
-                  className="block w-full px-3 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="agent">Agent</option>
-                </select>
               </div>
 
               <button 

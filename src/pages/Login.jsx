@@ -39,11 +39,25 @@ export default function Login() {
       const role = userData?.role || authData.user.user_metadata?.role || 'customer';
       
       if (['admin', 'super_admin'].includes(role)) {
-        navigate('/admin');
-      } else if (['agent', 'staff'].includes(role)) {
-        navigate('/agents');
+        if (isAdminSubdomain) {
+          navigate('/');
+        } else {
+          navigate('/admin');
+        }
+      } else if (role === 'agent' || role === 'staff') {
+        if (isAdminSubdomain) {
+          // If they somehow login as agent on admin subdomain, redirect them out
+          window.location.href = `https://${window.location.hostname.replace('admin.', '')}/employee`;
+        } else {
+          navigate('/employee');
+        }
       } else {
-        navigate('/dashboard'); 
+        if (isAdminSubdomain) {
+          // If they somehow login as customer on admin subdomain, redirect them out
+          window.location.href = `https://${window.location.hostname.replace('admin.', '')}/dashboard`;
+        } else {
+          navigate('/dashboard');
+        }
       }
     } catch (err) {
       setError(err.message || 'Invalid credentials');

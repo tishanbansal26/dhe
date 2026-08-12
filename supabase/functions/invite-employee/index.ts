@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    const { email, role, name, type, gwp } = await req.json();
+    const { email, role, name, type, gwp, company_name } = await req.json();
 
     if (!email || !role || !name) {
       throw new Error('Email, role, and name are required.');
@@ -76,14 +76,11 @@ serve(async (req) => {
     if (['agent', 'staff', 'admin'].includes(role)) {
         const { error: agentError } = await supabaseAdmin.from('agents').insert([
             {
-                id: 'AGT-' + newUserId.substring(0, 6),
                 user_id: newUserId,
                 name: name,
-                email: email,
-                role: role,
-                type: type || 'sub',
                 status: 'active',
-                gwp: gwp || '₹0'
+                gwp: gwp || '₹0',
+                company_name: company_name || ''
             }
         ]);
         if (agentError) {

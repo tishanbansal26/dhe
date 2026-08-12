@@ -87,7 +87,7 @@ export default function Navbar() {
               ) : agentProfile?.role === 'admin' ? (
                 <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10">Admin Portal</Link>
               ) : agentProfile ? (
-                <Link to="/agents" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">Agent Portal</Link>
+                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">Employee Portal</Link>
               ) : null}
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function Navbar() {
                 ) : agentProfile?.role === 'admin' ? (
                   <Link to="/admin" onClick={closeMenu} className="block text-rose-300 hover:text-rose-100 hover:bg-rose-900/30 px-3 py-2 rounded-md text-base font-medium">Admin Portal</Link>
                 ) : agentProfile ? (
-                  <Link to="/agents" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">Agent Portal</Link>
+                  <Link to="/employee" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">Employee Portal</Link>
                 ) : null}
               </>
             )}

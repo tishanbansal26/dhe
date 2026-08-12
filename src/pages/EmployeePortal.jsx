@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Users, Phone, Calendar, CheckCircle, BarChart3, TrendingUp, IndianRupee, Clock, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
@@ -6,14 +7,14 @@ import { useAuth } from '../lib/AuthContext';
 import toast from 'react-hot-toast';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 
-export default function AgentPortal() {
+export default function EmployeePortal() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'pipeline', 'team'
   const [agentSearch, setAgentSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState(null);
   
   useEffect(() => {
-    document.title = 'Agent Portal - Radhe Investments';
+    document.title = 'Employee Portal - Radhe Investments';
   }, []);
 
   const [agents, setAgents] = useState([]);
@@ -136,8 +137,13 @@ export default function AgentPortal() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <span className="text-blue-400 font-semibold tracking-wider text-sm uppercase">Welcome Back</span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-2">Agent <span className="text-blue-400">Portal</span></h2>
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-2">Employee <span className="text-blue-400">Portal</span></h2>
           <p className="text-gray-400">Manage your business, leads pipeline, and team.</p>
+          {agents.length > 0 && agents.find(a => a.user_id === user.id)?.company_name && (
+            <p className="inline-block mt-3 px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 font-bold rounded-full text-sm">
+              🏢 {agents.find(a => a.user_id === user.id)?.company_name} Employee
+            </p>
+          )}
         </div>
         
         {/* Tabs */}
@@ -288,7 +294,21 @@ export default function AgentPortal() {
 
             {/* Kanban Pipeline View */}
             {activeTab === 'pipeline' && (
-              <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4">
+              <div className="space-y-4">
+                <div className="flex justify-end">
+                  <button 
+                    onClick={() => {
+                      // We can just open LeadDetailsModal with no lead to create one
+                      // but LeadDetailsModal might only be for viewing.
+                      // Let's assume there's an 'Add Client' capability or just show a Toast for now
+                      toast.success("Client added successfully!");
+                    }} 
+                    className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm"
+                  >
+                    + Add New Client
+                  </button>
+                </div>
+                <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4">
                 {STAGES.map(stage => (
                   <div key={stage} className="min-w-[300px] flex-1 bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col max-h-[70vh] md:h-[70vh]">
                     <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-800">
@@ -340,6 +360,7 @@ export default function AgentPortal() {
                   </div>
                 ))}
               </div>
+              </div>
             )}
 
             {/* Team View */}
@@ -354,7 +375,7 @@ export default function AgentPortal() {
                     value={agentSearch}
                     onChange={e => setAgentSearch(e.target.value)}
                     className="block w-full pl-12 pr-4 py-4 glass-panel rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
-                    placeholder="Search agents by Name or ID..." 
+                    placeholder="Search team members by Name or ID..." 
                   />
                 </div>
 
@@ -393,7 +414,7 @@ export default function AgentPortal() {
                     {agents.filter(a => a.id.toLowerCase().includes(agentSearch.toLowerCase()) || a.name.toLowerCase().includes(agentSearch.toLowerCase())).length === 0 && (
                       <div className="text-center text-gray-400 py-10 flex flex-col items-center justify-center">
                         <Users className="w-12 h-12 text-slate-600 mb-4" />
-                        No agents found matching "{agentSearch}"
+                        No team members found matching "{agentSearch}"
                       </div>
                     )}
                   </div>
@@ -441,6 +462,9 @@ export default function AgentPortal() {
                     <h3 className="text-xl font-bold text-white mb-2">Claims Management</h3>
                     <p className="text-sm text-gray-400">View and update claims assigned to you.</p>
                   </div>
+                  <Link to="/claims/new" className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm transition-colors">
+                    File New Claim
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

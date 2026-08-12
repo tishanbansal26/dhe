@@ -5,7 +5,7 @@ import { useAuth } from '../../lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function FileClaim() {
-  const { customerProfile, user } = useAuth();
+  const { customerProfile, agentProfile, user } = useAuth();
   const navigate = useNavigate();
   const [policies, setPolicies] = useState([]);
   
@@ -14,7 +14,8 @@ export default function FileClaim() {
     incident_date: '',
     claim_type: 'medical',
     claim_amount: '',
-    description: ''
+    description: '',
+    document: null
   });
   
   const [loading, setLoading] = useState(false);
@@ -36,26 +37,58 @@ export default function FileClaim() {
         .then(({ data }) => {
           if (data) setPolicies(data);
         });
+    } else if (agentProfile) {
+      // Fetch policies assigned to this agent
+      supabase
+        .from('policies')
+        .select('id, policy_number, insurance_plans(name)')
+        .eq('agent_id', agentProfile.id)
+        .eq('status', 'active')
+        .then(({ data }) => {
+          if (data) setPolicies(data);
+        });
     }
-  }, [customerProfile]);
+  }, [customerProfile, agentProfile]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!customerProfile) {
-      setError('You must be logged in as a customer to file a claim.');
+    if (!customerProfile && !agentProfile) {
+      setError('You must be logged in to file a claim.');
       return;
     }
     setError('');
     setLoading(true);
 
     try {
+      let documentUrl = null;
+      if (formData.document) {
+        const fileExt = formData.document.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
+        
+        const { error: uploadError, data } = await supabase.storage
+          .from('claim_documents')
+          .upload(filePath, formData.document);
+          
+        if (uploadError) throw uploadError;
+        documentUrl = data.path;
+      }
+
+      // We need customer_id if it's customer. If employee files, they choose policy. We can fetch customer_id from policy.
+      let customerId = customerProfile?.id;
+      if (!customerId) {
+         const { data: policyData } = await supabase.from('policies').select('customer_id').eq('id', formData.policy_id).single();
+         if (policyData) customerId = policyData.customer_id;
+      }
+
       const { error: insertError } = await supabase.from('claims').insert([{
-        customer_id: customerProfile.id,
+        customer_id: customerId,
         policy_id: formData.policy_id,
         claim_type: formData.claim_type,
         claim_amount: parseFloat(formData.claim_amount) || 0,
         incident_date: formData.incident_date,
         description: formData.description,
+        document_url: documentUrl,
         status: 'pending'
       }]);
 
@@ -173,6 +206,17 @@ export default function FileClaim() {
               className="block w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500" 
               placeholder="Please describe the incident..."
             ></textarea>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Supporting Documents</label>
+            <input 
+              type="file" 
+              onChange={e => setFormData({...formData, document: e.target.files[0]})}
+              className="block w-full px-4 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-500/20 file:text-teal-400 hover:file:bg-teal-500/30"
+              accept=".pdf,.jpg,.jpeg,.png"
+            />
+            <p className="text-xs text-gray-500 mt-2">Upload medical bills, police reports, or relevant proofs (PDF, JPG, PNG)</p>
           </div>
           <button 
             type="submit" 
