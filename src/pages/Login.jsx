@@ -13,6 +13,8 @@ export default function Login() {
   const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
   const { login, loginWithOtp, resetPassword } = useAuth();
+  
+  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
 
   useEffect(() => {
     document.title = 'Login - Radhe Investments';
@@ -74,7 +76,7 @@ export default function Login() {
           <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
             <Lock className="w-8 h-8 text-teal-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Welcome Back</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">{isAdminSubdomain ? 'Admin Login' : 'Welcome Back'}</h2>
           <p className="text-sm text-gray-400">Please authenticate to continue.</p>
         </div>
 
@@ -112,7 +114,7 @@ export default function Login() {
                 onChange={e => setEmail(e.target.value)}
                 required
                 className="block w-full pl-10 pr-3 py-3 bg-slate-800/50 border border-slate-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all"
-                placeholder="agent@radheinvest.com"
+                placeholder={isAdminSubdomain ? "admin@radheinv.site" : "agent@radheinvest.com"}
               />
             </div>
           </div>

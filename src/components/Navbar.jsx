@@ -104,7 +104,7 @@ export default function Navbar() {
               </button>
             ) : (
               <Link to="/login" className="glow-button bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-2.5 rounded-full font-semibold text-sm shadow-lg flex items-center gap-2 inline-flex">
-                Agent Login <ArrowRight className="w-4 h-4" />
+                {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
               </Link>
             )}
           </div>
@@ -181,7 +181,7 @@ export default function Navbar() {
                 </button>
               ) : (
                 <Link to="/login" onClick={closeMenu} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white px-4 py-3 rounded-xl font-medium">
-                  Agent Login <ArrowRight className="w-4 h-4" />
+                  {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
             </div>
