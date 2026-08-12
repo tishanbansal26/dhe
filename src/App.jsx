@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import AgentPortal from './pages/AgentPortal';
@@ -28,6 +28,8 @@ import { Toaster } from 'react-hot-toast';
 import CustomerDashboard from './pages/CustomerDashboard';
 
 export default function App() {
+  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
+
   return (
     <AuthProvider>
       <Router>
@@ -46,47 +48,60 @@ export default function App() {
           <Navbar />
           
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/category/:type" element={<CategoryList />} />
-            <Route path="/plan/:id" element={<PlanDetails />} />
-            <Route path="/compare" element={<ComparePlans />} />
-            <Route path="/claims/new" element={<FileClaim />} />
-            <Route path="/claims/existing" element={<ExistingClaim />} />
-            <Route path="/claims/info" element={<ClaimInfo />} />
-            <Route path="/claims/track" element={<TrackClaim />} />
-            <Route path="/claims/cashless" element={<CashlessNetwork />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsOfService />} />
-            <Route path="/cookies" element={<CookiePolicy />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute allowedRoles={['customer']}>
-                  <CustomerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/agents" 
-              element={
-                <ProtectedRoute allowedRoles={['admin', 'agent']}>
-                  <AgentPortal />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/admin" 
-              element={
-                <ProtectedRoute allowedRoles={['admin']}>
-                  <AdminPortal />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
+            {isAdminSubdomain ? (
+              // Admin Subdomain Routes
+              <>
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <AdminPortal />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route path="/login" element={<Login />} />
+                <Route path="*" element={<NotFound />} />
+              </>
+            ) : (
+              // Main Domain Routes
+              <>
+                <Route path="/" element={<Home />} />
+                <Route path="/category/:type" element={<CategoryList />} />
+                <Route path="/plan/:id" element={<PlanDetails />} />
+                <Route path="/compare" element={<ComparePlans />} />
+                <Route path="/claims/new" element={<FileClaim />} />
+                <Route path="/claims/existing" element={<ExistingClaim />} />
+                <Route path="/claims/info" element={<ClaimInfo />} />
+                <Route path="/claims/track" element={<TrackClaim />} />
+                <Route path="/claims/cashless" element={<CashlessNetwork />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
+                <Route path="/search" element={<SearchResults />} />
+                <Route 
+                  path="/dashboard" 
+                  element={
+                    <ProtectedRoute allowedRoles={['customer']}>
+                      <CustomerDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/agents" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin', 'agent']}>
+                      <AgentPortal />
+                    </ProtectedRoute>
+                  } 
+                />
+                {/* Redirect /admin to the admin subdomain or show 404 */}
+                <Route path="/admin" element={<Navigate to={`https://admin.${window.location.hostname}`} replace />} />
+                <Route path="*" element={<NotFound />} />
+              </>
+            )}
           </Routes>
           <Footer />
         </div>
