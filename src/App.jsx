@@ -99,7 +99,7 @@ export default function App() {
                   } 
                 />
                 {/* Redirect /admin to the admin subdomain or show 404 */}
-                <Route path="/admin" element={<Navigate to={`https://admin.${window.location.hostname}`} replace />} />
+                <Route path="/admin" element={<Navigate to={`https://portal.${window.location.hostname.replace('www.', '')}`} replace />} />
                 <Route path="*" element={<NotFound />} />
               </>
             )}
