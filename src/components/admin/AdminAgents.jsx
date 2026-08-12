@@ -16,7 +16,7 @@ export default function AdminAgents() {
     role: 'agent',
     type: 'sub',
     gwp: '₹0',
-    company_name: ''
+    company_name: []
   });
   const [saving, setSaving] = useState(false);
 
@@ -110,7 +110,7 @@ export default function AdminAgents() {
         role: agent.role,
         type: agent.type,
         gwp: agent.gwp || '₹0',
-        company_name: agent.company_name || ''
+        company_name: Array.isArray(agent.company_name) ? agent.company_name : (agent.company_name ? [agent.company_name] : [])
       });
     } else {
       setEditingAgent(null);
@@ -120,7 +120,7 @@ export default function AdminAgents() {
         role: 'agent',
         type: 'sub',
         gwp: '₹0',
-        company_name: ''
+        company_name: []
       });
     }
     setShowModal(true);
@@ -242,6 +242,15 @@ export default function AdminAgents() {
                       <span className={`text-xs px-2 py-0.5 rounded mt-1 inline-block ${agent.type === 'leader' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-700 text-gray-400'}`}>
                         {agent.type === 'leader' ? 'Leader' : 'Sub-Agent'}
                       </span>
+                      {agent.company_name && agent.company_name.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1 max-w-[200px]">
+                          {agent.company_name.map(c => (
+                            <span key={c} className="text-[10px] px-1.5 py-0.5 bg-slate-800 border border-slate-700 rounded text-gray-400">
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-teal-400 font-bold">{agent.gwp}</p>
@@ -292,30 +301,32 @@ export default function AdminAgents() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
-                <select 
-                  required
-                  value={formData.company_name} 
-                  onChange={e => setFormData({...formData, company_name: e.target.value})} 
-                  className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-2 text-white focus:outline-none focus:border-teal-500"
-                >
-                  <option value="">-- Select Company --</option>
-                  <option value="Tata AIA">Tata AIA Life Insurance</option>
-                  <option value="HDFC Life">HDFC Life Insurance</option>
-                  <option value="LIC">Life Insurance Corporation (LIC)</option>
-                  <option value="Max Life">Max Life Insurance</option>
-                  <option value="SBI Life">SBI Life Insurance</option>
-                  <option value="ICICI Prudential">ICICI Prudential Life</option>
-                  <option value="Bajaj Allianz">Bajaj Allianz Life</option>
-                  <option value="Kotak Life">Kotak Life Insurance</option>
-                  <option value="PNB MetLife">PNB MetLife</option>
-                  <option value="Reliance Nippon">Reliance Nippon Life</option>
-                  <option value="Star Health">Star Health Insurance</option>
-                  <option value="Niva Bupa">Niva Bupa Health</option>
-                  <option value="Care Health">Care Health Insurance</option>
-                  <option value="Aditya Birla">Aditya Birla Capital</option>
-                  <option value="Other">Other</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Companies (Select multiple)</label>
+                <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 bg-slate-800/50 border border-slate-600 rounded-xl">
+                  {[
+                    "Tata AIA", "HDFC Life", "LIC", "Max Life", "SBI Life", "ICICI Prudential",
+                    "Bajaj Allianz", "Kotak Life", "PNB MetLife", "Reliance Nippon", "Star Health",
+                    "Niva Bupa", "Care Health", "Aditya Birla", "Other"
+                  ].map(company => {
+                    const isSelected = formData.company_name.includes(company);
+                    return (
+                      <button
+                        type="button"
+                        key={company}
+                        onClick={() => {
+                          if (isSelected) {
+                            setFormData({...formData, company_name: formData.company_name.filter(c => c !== company)});
+                          } else {
+                            setFormData({...formData, company_name: [...formData.company_name, company]});
+                          }
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${isSelected ? 'bg-teal-500/20 text-teal-300 border-teal-500/50' : 'bg-slate-700/50 text-gray-400 border-slate-600 hover:bg-slate-700'}`}
+                      >
+                        {company}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

@@ -80,7 +80,7 @@ serve(async (req) => {
                 name: name,
                 status: 'active',
                 gwp: gwp || '₹0',
-                company_name: company_name || ''
+                company_name: Array.isArray(company_name) ? company_name : (company_name ? [company_name] : [])
             }
         ]);
         if (agentError) {
@@ -97,11 +97,17 @@ serve(async (req) => {
       }
     );
   } catch (error) {
+    console.error("Edge Function Error:", error);
+    
+    // Add detailed error properties if available
+    const errorMsg = error.message || String(error);
+    const errorStatus = error.status || 400;
+
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMsg, details: error }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 400,
+        status: errorStatus,
       }
     );
   }
