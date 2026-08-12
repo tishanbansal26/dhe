@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import EmployeePortal from './pages/EmployeePortal';
@@ -35,6 +36,7 @@ export default function App() {
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-[#020617] text-slate-50 font-sans relative overflow-x-hidden">
+          <Analytics />
           <Toaster position="bottom-right" toastOptions={{
             style: { background: '#1e293b', color: '#fff', border: '1px solid #334155' },
             success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
