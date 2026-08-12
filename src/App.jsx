@@ -28,7 +28,8 @@ import { Toaster } from 'react-hot-toast';
 import CustomerDashboard from './pages/CustomerDashboard';
 
 export default function App() {
-  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
+  const hostname = window.location.hostname;
+  const isAdminSubdomain = hostname.startsWith('admin.') || hostname.startsWith('portal.');
 
   return (
     <AuthProvider>
