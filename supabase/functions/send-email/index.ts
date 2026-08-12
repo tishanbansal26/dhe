@@ -60,27 +60,20 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ message: "Unsupported table or action" }), { status: 400 });
     }
 
-    const MAILERCLOUD_API_KEY = Deno.env.get("MAILERCLOUD_API_KEY");
-    if (!MAILERCLOUD_API_KEY) {
-      throw new Error("Missing MAILERCLOUD_API_KEY environment variable");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    if (!RESEND_API_KEY) {
+      throw new Error("Missing RESEND_API_KEY environment variable");
     }
 
-    const res = await fetch("https://cloudapi.mailercloud.com/v1/emails/send", {
+    const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": MAILERCLOUD_API_KEY,
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: {
-          email: "notifications@radheinvestments.com",
-          name: "Radhe Investments"
-        },
-        to: [
-          {
-            email: toEmail
-          }
-        ],
+        from: "Radhe Investments <notifications@radheinv.site>",
+        to: [toEmail],
         subject: subject,
         html: htmlBody,
       }),
@@ -88,11 +81,11 @@ Deno.serve(async (req) => {
 
     if (!res.ok) {
       const errorText = await res.text();
-      throw new Error(`MailerCloud API Error: ${errorText}`);
+      throw new Error(`Resend API Error: ${errorText}`);
     }
 
     const resData = await res.json();
-    return new Response(JSON.stringify({ success: true, id: resData.id || resData.message }), { status: 200, headers: { "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({ success: true, id: resData.id }), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (error) {
     console.error(error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
