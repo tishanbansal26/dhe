@@ -40,7 +40,8 @@ serve(async (req) => {
 
     const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
     if (userError || !user) {
-      throw new Error('Unauthorized');
+      console.error("getUser failed:", userError, "User is:", user ? "found" : "not found");
+      throw new Error(`Unauthorized: ${userError?.message || 'No user found'}`);
     }
 
     // Check if caller is admin (metadata)
