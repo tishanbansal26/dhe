@@ -104,6 +104,22 @@ export default function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route 
+                  path="/admin/product-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/product-builder/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/login" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
               </>
@@ -111,6 +127,38 @@ export default function App() {
               // Main Domain Routes
               <>
                 <Route path="/" element={<Home />} />
+                <Route 
+                  path="/product-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/product-builder/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/product-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/product-builder/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/category/:type" element={<CategoryList />} />
                 <Route path="/plan/:id" element={<PlanDetails />} />
                 <Route path="/compare" element={<ComparePlans />} />

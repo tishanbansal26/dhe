@@ -124,7 +124,7 @@ export default function ProductBuilder() {
       <div className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700 shadow-lg px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/admin')} className="text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-slate-800 rounded-lg" title="Back to Plans">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
