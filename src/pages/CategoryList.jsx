@@ -36,8 +36,9 @@ export default function CategoryList() {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedQuotePlan, setSelectedQuotePlan] = useState(null);
 
-  // Default to health-insurance structure if type is missing or invalid in our static content for now
-  const content = categoryContent[type] || categoryContent['health-insurance'] || {};
+  const normalizedType = type ? type.toLowerCase() : '';
+  // Default to health structure if type is missing or invalid in our static content for now
+  const content = categoryContent[normalizedType] || categoryContent['health'] || {};
 
   useEffect(() => {
     document.title = `${content.seo?.title || 'Insurance'} - Radhe Investments`;
@@ -49,7 +50,7 @@ export default function CategoryList() {
         const { data, error } = await supabase
           .from('insurance_plans')
           .select('*, insurance_companies(name)')
-          .eq('category', type)
+          .ilike('category', type)
           .eq('status', 'published')
           .eq('active', true);
         

@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { Plus, Edit2, Trash2, Shield, BrainCircuit } from 'lucide-react';
@@ -27,21 +28,6 @@ export default function AdminPlans() {
     }
   };
 
-  const openEdit = (plan) => {
-    setFormData({
-      id: plan.id,
-      company_id: plan.company_id,
-      name: plan.name,
-      category: plan.category,
-      type: plan.type,
-      tag: plan.tag,
-      active: plan.active,
-      summary: plan.metadata?.summary || '',
-      premium: plan.metadata?.premium || '',
-      iconName: plan.metadata?.iconName || 'Shield'
-    });
-    setShowModal(true);
-  };
 
   return (
     <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-700/50">

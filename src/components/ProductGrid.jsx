@@ -50,8 +50,8 @@ export default function ProductGrid() {
         const { data, error } = await supabase.from('insurance_plans').select('category');
         if (error) throw error;
         const uniqueCategories = [...new Set(data.map(item => item.category))].map(id => ({
-          id,
-          ...(categoryMeta[id] || {
+          id: id.toLowerCase(),
+          ...(categoryMeta[id.toLowerCase()] || {
             name: id,
             icon: <Shield className="w-8 h-8 text-gray-400" />,
             color: 'from-gray-500/20 to-gray-500/10',
