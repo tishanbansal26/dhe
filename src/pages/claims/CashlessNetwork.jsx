@@ -16,42 +16,101 @@ export default function CashlessNetwork() {
   const [locationSearch, setLocationSearch] = useState('');
   const [hospitalSearch, setHospitalSearch] = useState('');
   const [treatmentSearch, setTreatmentSearch] = useState('');
+  const [searching, setSearching] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const PAGE_SIZE = 30;
   
   const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
     document.title = 'Cashless Hospital Network - Radhe Investments';
-    
-    const fetchData = async () => {
-      try {
-        const [hospitalsRes, testimonialsRes, faqsRes] = await Promise.all([
-          supabase.from('hospitals').select('*'),
-          supabase.from('network_testimonials').select('*').order('created_at', { ascending: false }),
-          supabase.from('network_faqs').select('*').order('display_order', { ascending: true })
-        ]);
-        
-        if (hospitalsRes.error) throw hospitalsRes.error;
-        if (testimonialsRes.error) throw testimonialsRes.error;
-        if (faqsRes.error) throw faqsRes.error;
-        
-        setHospitals(hospitalsRes.data || []);
-        setTestimonials(testimonialsRes.data || []);
-        setFaqs(faqsRes.data || []);
-      } catch (err) {
-        console.error("Error fetching data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchInitialData();
   }, []);
 
-  const filteredHospitals = hospitals.filter(h => {
-    const matchLoc = locationSearch === '' || h.location?.toLowerCase().includes(locationSearch.toLowerCase()) || h.address?.toLowerCase().includes(locationSearch.toLowerCase());
-    const matchHosp = hospitalSearch === '' || h.name?.toLowerCase().includes(hospitalSearch.toLowerCase());
-    const matchTreat = treatmentSearch === '' || h.type?.toLowerCase().includes(treatmentSearch.toLowerCase());
-    return matchLoc && matchHosp && matchTreat;
-  });
+  const fetchInitialData = async () => {
+    try {
+      const [testimonialsRes, faqsRes] = await Promise.all([
+        supabase.from('network_testimonials').select('*').order('created_at', { ascending: false }),
+        supabase.from('network_faqs').select('*').order('display_order', { ascending: true })
+      ]);
+      
+      if (testimonialsRes.data) setTestimonials(testimonialsRes.data);
+      if (faqsRes.data) setFaqs(faqsRes.data);
+      
+      await performSearch(0, true);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const performSearch = async (pageNum = 0, isNewSearch = false, overrideLoc = null) => {
+    setSearching(true);
+    try {
+      let query = supabase.from('hospitals').select('*', { count: 'exact' });
+
+      const locToSearch = overrideLoc !== null ? overrideLoc : locationSearch;
+      if (locToSearch.trim()) {
+        const term = locToSearch.trim();
+        // If numeric (e.g., PIN code), search address; otherwise filter strictly by city name in location
+        if (/^\d+$/.test(term)) {
+          query = query.ilike('address', `%${term}%`);
+        } else {
+          query = query.ilike('location', `%${term}%`);
+        }
+      }
+      if (hospitalSearch.trim()) {
+        query = query.ilike('name', `%${hospitalSearch.trim()}%`);
+      }
+      if (treatmentSearch.trim()) {
+        query = query.ilike('type', `%${treatmentSearch.trim()}%`);
+      }
+
+      const from = pageNum * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      
+      const { data, count, error } = await query
+        .order('name', { ascending: true })
+        .range(from, to);
+
+      if (error) throw error;
+
+      if (isNewSearch) {
+        setHospitals(data || []);
+        setPage(0);
+      } else {
+        setHospitals(prev => [...prev, ...(data || [])]);
+        setPage(pageNum);
+      }
+
+      setTotalCount(count || 0);
+      setHasMore((data || []).length === PAGE_SIZE && (from + (data || []).length) < count);
+    } catch (err) {
+      console.error("Search error:", err);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSearchSubmit = (e) => {
+    if (e) e.preventDefault();
+    performSearch(0, true);
+  };
+
+  const handleCityClick = (city) => {
+    const nextCity = locationSearch.toLowerCase() === city.toLowerCase() ? '' : city;
+    setLocationSearch(nextCity);
+    performSearch(0, true, nextCity);
+  };
+
+  const loadMore = () => {
+    if (!searching && hasMore) {
+      performSearch(page + 1, false);
+    }
+  };
 
   return (
     <div className="pt-24 pb-20 min-h-screen bg-navy-900">
@@ -94,7 +153,7 @@ export default function CashlessNetwork() {
 
       {/* 2. ADVANCED TRI-SEARCH MODULE */}
       <section className="py-12 px-4 max-w-6xl mx-auto relative z-20">
-        <div className="bg-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-emerald-500/30">
+        <form onSubmit={handleSearchSubmit} className="bg-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl border border-emerald-500/30">
           <div className="flex flex-col md:flex-row gap-4">
             
             {/* Location */}
@@ -104,7 +163,7 @@ export default function CashlessNetwork() {
                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input 
                   type="text" 
-                  placeholder="City, State, or PIN" 
+                  placeholder="City or PIN (e.g. Mansa, Chandigarh)" 
                   value={locationSearch}
                   onChange={e => setLocationSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition-colors" 
@@ -119,7 +178,7 @@ export default function CashlessNetwork() {
                 <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input 
                   type="text" 
-                  placeholder="Hospital Name" 
+                  placeholder="Hospital Name (e.g. Fortis, Apollo)" 
                   value={hospitalSearch}
                   onChange={e => setHospitalSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition-colors" 
@@ -134,7 +193,7 @@ export default function CashlessNetwork() {
                 <Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 <input 
                   type="text" 
-                  placeholder="e.g. Cardiology, Maternity" 
+                  placeholder="e.g. Cardiology, Eye Care" 
                   value={treatmentSearch}
                   onChange={e => setTreatmentSearch(e.target.value)}
                   className="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-emerald-500 transition-colors" 
@@ -144,18 +203,37 @@ export default function CashlessNetwork() {
 
             {/* Search Button */}
             <div className="flex items-end mt-4 md:mt-0">
-              <button className="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 h-[46px] shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                <Search className="w-5 h-5" /> Find
+              <button 
+                type="submit" 
+                disabled={searching}
+                className="w-full md:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 h-[46px] shadow-[0_0_15px_rgba(16,185,129,0.3)] disabled:opacity-50"
+              >
+                {searching ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />} Find
               </button>
             </div>
           </div>
-        </div>
+
+          {/* Quick City Filters */}
+          <div className="mt-4 pt-4 border-t border-slate-700/60 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-gray-400 font-medium mr-1">Popular Cities:</span>
+            {['Mansa', 'Chandigarh', 'Bathinda', 'Ludhiana', 'Patiala', 'Amritsar', 'Delhi', 'Jaipur', 'Mumbai'].map(city => (
+              <button
+                key={city}
+                type="button"
+                onClick={() => handleCityClick(city)}
+                className={`text-xs px-3 py-1 rounded-full transition-all border ${locationSearch.toLowerCase() === city.toLowerCase() ? 'bg-emerald-500 text-slate-900 border-emerald-400 font-bold' : 'bg-slate-900/80 text-gray-300 border-slate-700 hover:border-emerald-500/50'}`}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </form>
       </section>
 
       {/* 3. HOSPITAL RESULTS GRID */}
       <section className="py-12 px-4 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold text-white">Network Hospitals <span className="text-emerald-400 text-lg">({filteredHospitals.length} Found)</span></h2>
+          <h2 className="text-2xl font-bold text-white">Network Hospitals <span className="text-emerald-400 text-lg">({totalCount} Found)</span></h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -163,15 +241,15 @@ export default function CashlessNetwork() {
             <div className="col-span-full flex justify-center p-12">
               <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
             </div>
-          ) : filteredHospitals.length === 0 ? (
+          ) : hospitals.length === 0 ? (
             <div className="col-span-full p-16 text-center text-gray-400 bg-slate-800/30 border-2 border-dashed border-slate-700 rounded-3xl">
               <Building2 className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-xl font-bold text-white mb-2">No hospitals found</h3>
               <p>Try adjusting your search filters to find nearby network hospitals.</p>
             </div>
           ) : (
-            filteredHospitals.map((hospital, index) => (
-              <div key={hospital.id} className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden hover:border-emerald-500/50 transition-all hover:shadow-2xl hover:-translate-y-1 group flex flex-col">
+            hospitals.map((hospital, index) => (
+              <div key={hospital.id || index} className="bg-slate-800 border border-slate-700 rounded-2xl overflow-hidden hover:border-emerald-500/50 transition-all hover:shadow-2xl hover:-translate-y-1 group flex flex-col">
                 <div className="p-6 flex-1">
                   <div className="flex justify-between items-start mb-4 gap-2">
                     <h3 className="text-xl font-bold text-white leading-tight">{hospital.name}</h3>
@@ -205,14 +283,33 @@ export default function CashlessNetwork() {
                   <span className="text-xs text-gray-500 font-medium flex items-center gap-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Cashless Available
                   </span>
-                  <button className="text-emerald-400 font-semibold text-sm hover:text-emerald-300">
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hospital.name + ' ' + hospital.address)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-emerald-400 font-semibold text-sm hover:text-emerald-300"
+                  >
                     Get Directions
-                  </button>
+                  </a>
                 </div>
               </div>
             ))
           )}
         </div>
+
+        {/* Load More Button */}
+        {hasMore && !loading && (
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={loadMore}
+              disabled={searching}
+              className="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold px-8 py-3 rounded-xl transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              Load More Hospitals ({hospitals.length} of {totalCount})
+            </button>
+          </div>
+        )}
       </section>
 
       {/* 4. UNRECOGNIZED HOSPITALS WARNING */}
