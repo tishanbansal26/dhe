@@ -3,6 +3,7 @@ import { FileText, ArrowRight, ShieldAlert } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import SEO from '../../components/SEO';
 
 export default function FileClaim() {
   const { customerProfile, agentProfile, user } = useAuth();
@@ -22,9 +23,6 @@ export default function FileClaim() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    document.title = 'File a Claim - Radhe Investments';
-  }, []);
 
   useEffect(() => {
     if (customerProfile) {
@@ -103,7 +101,9 @@ export default function FileClaim() {
 
   if (success) {
     return (
-      <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
+      <>
+        <SEO title="Claim Submitted Successfully" description="Your claim has been successfully submitted." />
+        <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
         <div className="w-full max-w-md p-8 glass-panel rounded-3xl border border-slate-700/50 text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
             <FileText className="w-8 h-8 text-emerald-400" />
@@ -118,12 +118,19 @@ export default function FileClaim() {
           </button>
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-2xl p-8 glass-panel rounded-3xl border border-slate-700/50">
+    <>
+      <SEO 
+        title="File an Insurance Claim"
+        description="Easily file your health, life, or motor insurance claim with Radhe Investments. Get fast assistance and tracking for your policy."
+        canonicalUrl="https://www.radheinv.site/claims/new"
+      />
+      <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
+        <div className="w-full max-w-2xl p-8 glass-panel rounded-3xl border border-slate-700/50">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center mx-auto mb-4">
             <FileText className="w-8 h-8 text-teal-400" />
@@ -228,5 +235,6 @@ export default function FileClaim() {
         </form>
       </div>
     </div>
+    </>
   );
 }

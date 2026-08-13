@@ -14,19 +14,19 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center">
                 <TrendingUp className="text-navy-900 w-5 h-5" />
               </div>
-              <span className="font-bold text-xl tracking-tight text-white">Radhe<span className="text-gold-400">Investments</span></span>
+              <span className="font-bold text-xl tracking-tight text-white">Radhe<span className="text-teal-400">Investments</span></span>
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed">
               Securing futures and building wealth. Radhe Investments offers top-tier insurance policies and investment plans tailored for your peace of mind.
             </p>
             <div className="flex gap-4">
-              <a href="https://facebook.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400/50 transition-all"><Globe className="w-4 h-4" /></a>
-              <a href="https://twitter.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400/50 transition-all"><MessageCircle className="w-4 h-4" /></a>
-              <a href="https://instagram.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400/50 transition-all"><Share2 className="w-4 h-4" /></a>
-              <a href="https://linkedin.com/company/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-gold-400 hover:border-gold-400/50 transition-all"><Hash className="w-4 h-4" /></a>
+              <a href="https://facebook.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Globe className="w-4 h-4" /></a>
+              <a href="https://twitter.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><MessageCircle className="w-4 h-4" /></a>
+              <a href="https://instagram.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Share2 className="w-4 h-4" /></a>
+              <a href="https://linkedin.com/company/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Hash className="w-4 h-4" /></a>
             </div>
           </div>
 
@@ -34,10 +34,10 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-6">Quick Links</h3>
             <ul className="space-y-4">
-              <li><Link to="/#products" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Insurance Plans</Link></li>
-              <li><Link to="/#calculator" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>SIP Calculator</Link></li>
-              <li><Link to="/compare" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Compare Plans</Link></li>
-              <li><Link to="/login" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Agent Portal</Link></li>
+              <li><Link to="/#products" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Insurance Plans</Link></li>
+              <li><Link to="/#calculator" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>SIP Calculator</Link></li>
+              <li><Link to="/compare" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Compare Plans</Link></li>
+              <li><Link to="/login" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Agent Portal</Link></li>
             </ul>
           </div>
 
@@ -45,10 +45,10 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-6">Claims & Support</h3>
             <ul className="space-y-4">
-              <li><Link to="/claims/new" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>File a Claim</Link></li>
-              <li><Link to="/claims/track" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Track Claim Status</Link></li>
-              <li><Link to="/claims/cashless" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Cashless Network</Link></li>
-              <li><Link to="/claims/info" className="text-gray-400 hover:text-gold-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-gold-500/50"></span>Claim Process Guide</Link></li>
+              <li><Link to="/claims/new" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>File a Claim</Link></li>
+              <li><Link to="/claims/track" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Track Claim Status</Link></li>
+              <li><Link to="/claims/cashless" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Cashless Network</Link></li>
+              <li><Link to="/claims/info" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Claim Process Guide</Link></li>
             </ul>
           </div>
 
@@ -57,20 +57,20 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-6">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-gray-400 text-sm">
-                <MapPin className="w-5 h-5 text-gold-400 shrink-0" />
+                <MapPin className="w-5 h-5 text-teal-400 shrink-0" />
                 <span>Opp More Super Market,<br/>Mansa, Punjab</span>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <Phone className="w-5 h-5 text-gold-400 shrink-0" />
-                <a href="tel:9603610000" className="hover:text-gold-400 transition-colors">+91 96036 10000</a>
+                <Phone className="w-5 h-5 text-teal-400 shrink-0" />
+                <a href="tel:9603610000" className="hover:text-teal-400 transition-colors">+91 96036 10000</a>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <MessageCircle className="w-5 h-5 text-gold-400 shrink-0" />
-                <a href="https://wa.me/919603610000" target="_blank" rel="noopener noreferrer" className="hover:text-gold-400 transition-colors">WhatsApp Support</a>
+                <MessageCircle className="w-5 h-5 text-teal-400 shrink-0" />
+                <a href="https://wa.me/919603610000" target="_blank" rel="noopener noreferrer" className="hover:text-teal-400 transition-colors">WhatsApp Support</a>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
-                <Mail className="w-5 h-5 text-gold-400 shrink-0" />
-                <a href="mailto:ertishanbansal@gmail.com" className="hover:text-gold-400 transition-colors">ertishanbansal@gmail.com</a>
+                <Mail className="w-5 h-5 text-teal-400 shrink-0" />
+                <a href="mailto:ertishanbansal@gmail.com" className="hover:text-teal-400 transition-colors">ertishanbansal@gmail.com</a>
               </li>
             </ul>
           </div>

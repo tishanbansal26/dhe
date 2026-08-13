@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /portal/
+Disallow: /employee/
+Disallow: /api/
+
+# Block all crawlers from the admin/portal subdomains specifically if they ignore the protocol
+User-agent: *
+Disallow: /*?*login*
+Disallow: /*?*token*
+
+Sitemap: https://www.radheinv.site/sitemap.xml

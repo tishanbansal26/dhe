@@ -1,19 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Plus, Edit2, Trash2, Shield } from 'lucide-react';
+import { Plus, Edit2, Trash2, Shield, BrainCircuit } from 'lucide-react';
 import toast from 'react-hot-toast';
+import EmptyState from '../EmptyState';
 
 export default function AdminPlans() {
+  const navigate = useNavigate();
   const [plans, setPlans] = useState([]);
-  const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ 
-    id: null, company_id: '', name: '', category: 'Health', 
-    type: '', tag: '', active: true,
-    summary: '', premium: '', iconName: 'Shield'
-  });
 
   useEffect(() => {
     fetchData();
@@ -21,43 +15,9 @@ export default function AdminPlans() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [plansRes, compRes] = await Promise.all([
-      supabase.from('insurance_plans').select('*, insurance_companies(name)').order('name'),
-      supabase.from('insurance_companies').select('*').order('name')
-    ]);
-    if (!plansRes.error) setPlans(plansRes.data || []);
-    if (!compRes.error) setCompanies(compRes.data || []);
+    const { data, error } = await supabase.from('insurance_plans').select('*, insurance_companies(name)').order('name');
+    if (!error) setPlans(data || []);
     setLoading(false);
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-    const metadata = {
-      summary: formData.summary,
-      premium: formData.premium,
-      iconName: formData.iconName,
-      iconColor: 'text-teal-400',
-      color: 'from-teal-500/20 to-blue-500/10',
-      borderColor: 'border-teal-500/30'
-    };
-
-    const payload = {
-      company_id: formData.company_id,
-      name: formData.name,
-      category: formData.category,
-      type: formData.type,
-      tag: formData.tag,
-      active: formData.active,
-      metadata: metadata
-    };
-
-    if (formData.id) {
-      const { error } = await supabase.from('insurance_plans').update(payload).eq('id', formData.id);
-      if (!error) { setShowModal(false); fetchData(); } else toast.error(error.message);
-    } else {
-      const { error } = await supabase.from('insurance_plans').insert([payload]);
-      if (!error) { setShowModal(false); fetchData(); } else toast.error(error.message);
-    }
   };
 
   const handleDelete = async (id) => {
@@ -88,13 +48,10 @@ export default function AdminPlans() {
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-white">Insurance Plans</h3>
         <button 
-          onClick={() => { 
-            setFormData({ id: null, company_id: companies[0]?.id || '', name: '', category: 'Health', type: '', tag: '', active: true, summary: '', premium: '', iconName: 'Shield' }); 
-            setShowModal(true); 
-          }}
-          className="bg-teal-500 text-slate-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2"
+          onClick={() => navigate('/admin/product-builder')}
+          className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(20,184,166,0.2)] transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Plan
+          <BrainCircuit className="w-4 h-4" /> Policy Product Builder
         </button>
       </div>
 
@@ -145,81 +102,41 @@ export default function AdminPlans() {
               {plans.map(p => (
                 <tr key={p.id} className="hover:bg-slate-800/30">
                   <td className="px-4 py-4 text-white font-medium">{p.name}</td>
-                  <td className="px-4 py-4 text-teal-400">{p.insurance_companies?.name}</td>
-                  <td className="px-4 py-4 text-gray-300">{p.category}</td>
-                  <td className="px-4 py-4 text-gray-300">{p.metadata?.premium || 'N/A'}</td>
-                  <td className="px-4 py-4">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${p.active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                      {p.active ? 'Active' : 'Inactive'}
+              {plans.map(plan => (
+                <tr key={plan.id} className="hover:bg-slate-800/30">
+                  <td className="px-4 py-4 text-white font-medium">{plan.name}</td>
+                  <td className="px-4 py-4 text-teal-400">{plan.insurance_companies?.name}</td>
+                  <td className="px-4 py-4 text-gray-300">{plan.category}</td>
+                  <td className="px-4 py-4 text-gray-300">{plan.metadata?.premium || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${plan.active ? 'bg-teal-500/10 text-teal-400 border-teal-500/30' : 'bg-red-500/10 text-red-400 border-red-500/30'}`}>
+                      {plan.active ? 'ACTIVE' : 'INACTIVE'}
                     </span>
                   </td>
-                  <td className="px-4 py-4 flex gap-2">
-                    <button onClick={() => openEdit(p)} className="p-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30"><Edit2 className="w-4 h-4" /></button>
-                    <button onClick={() => handleDelete(p.id)} className="p-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30"><Trash2 className="w-4 h-4" /></button>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => navigate(`/admin/product-builder/${plan.id}`)} className="text-blue-400 hover:text-blue-300 transition-colors p-2 bg-blue-500/10 rounded-lg" title="Edit in Builder">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => handleDelete(plan.id)} className="text-red-400 hover:text-red-300 transition-colors p-2 bg-red-500/10 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
+              {plans.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="px-4 py-8">
+                    <EmptyState 
+                      title="No Plans Found" 
+                      description="There are currently no insurance plans listed."
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 p-6 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-xl font-bold text-white mb-4">{formData.id ? 'Edit Plan' : 'Add Plan'}</h3>
-            <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-              <div className="md:col-span-2">
-                <label className="block text-sm text-gray-400 mb-1">Plan Name</label>
-                <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" />
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Company</label>
-                <select required value={formData.company_id} onChange={e => setFormData({...formData, company_id: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white">
-                  <option value="">Select Company</option>
-                  {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Category</label>
-                <select required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white">
-                  <option value="Health">Health</option>
-                  <option value="Life">Life</option>
-                  <option value="Term">Term</option>
-                  <option value="Investment">Investment</option>
-                  <option value="Motor">Motor</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Premium Info (e.g. Starting ₹750 / month)</label>
-                <input type="text" value={formData.premium} onChange={e => setFormData({...formData, premium: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" />
-              </div>
-
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Tag (e.g. Bestseller)</label>
-                <input type="text" value={formData.tag} onChange={e => setFormData({...formData, tag: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm text-gray-400 mb-1">Summary</label>
-                <textarea rows="2" value={formData.summary} onChange={e => setFormData({...formData, summary: e.target.value})} className="w-full bg-slate-800 border border-slate-600 rounded-lg p-2 text-white"></textarea>
-              </div>
-
-              <div className="md:col-span-2 flex items-center gap-2 mt-2">
-                <input type="checkbox" checked={formData.active} onChange={e => setFormData({...formData, active: e.target.checked})} className="rounded bg-slate-800 border-slate-600 text-teal-500" />
-                <label className="text-sm text-gray-400">Active</label>
-              </div>
-
-              <div className="md:col-span-2 flex justify-end gap-2 mt-4">
-                <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 bg-slate-800 text-white rounded-lg">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-teal-500 text-slate-900 font-bold rounded-lg">Save Plan</button>
-              </div>
-            </form>
-          </div>
         </div>
       )}
     </div>

@@ -32,11 +32,39 @@ export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'Gene
     setLoading(true);
     setError('');
 
+    // Strict Input Validation
+    if (!name || name.trim().length < 2) {
+      setError('Please enter a valid full name.');
+      setLoading(false);
+      return;
+    }
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      setError('Please enter a valid 10-digit mobile number.');
+      setLoading(false);
+      return;
+    }
+    if (!pincode || !/^[0-9]{6}$/.test(pincode)) {
+      setError('Please enter a valid 6-digit pincode.');
+      setLoading(false);
+      return;
+    }
+    const ageNum = parseInt(age);
+    if (isNaN(ageNum) || ageNum < 18 || ageNum > 99) {
+      setError('Age must be between 18 and 99.');
+      setLoading(false);
+      return;
+    }
+    if (!gender || !['male', 'female'].includes(gender)) {
+      setError('Please select a valid gender.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error: insertError } = await supabase.from('leads').insert([
         {
-          name,
-          age: parseInt(age),
+          name: name.trim(),
+          age: ageNum,
           gender,
           phone,
           pincode,
@@ -142,12 +170,12 @@ export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'Gene
               {step === 2 && (
                 <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Age of Eldest Member</label>
-                    <input type="number" required min="18" max="99" value={age} onChange={(e)=>setAge(e.target.value)} placeholder="e.g. 30" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                    <label htmlFor="age" className="block text-sm font-medium text-gray-400 mb-1">Age of Eldest Member</label>
+                    <input id="age" name="age" type="number" required min="18" max="99" value={age} onChange={(e)=>setAge(e.target.value)} placeholder="e.g. 30" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Gender</label>
-                    <select required value={gender} onChange={(e)=>setGender(e.target.value)} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500">
+                    <label htmlFor="gender" className="block text-sm font-medium text-gray-400 mb-1">Gender</label>
+                    <select id="gender" name="gender" required value={gender} onChange={(e)=>setGender(e.target.value)} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500">
                       <option value="">Select</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -160,16 +188,16 @@ export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'Gene
               {step === 3 && (
                 <div className="space-y-4 animate-in slide-in-from-right-4 duration-300">
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
-                    <input type="text" required value={name} onChange={(e)=>setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
+                    <input id="fullName" name="fullName" type="text" required value={name} onChange={(e)=>setName(e.target.value)} placeholder="e.g. Rahul Sharma" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Mobile Number</label>
-                    <input type="tel" required pattern="[0-9]{10}" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="Enter 10-digit number" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                    <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-1">Mobile Number</label>
+                    <input id="phone" name="phone" type="tel" required pattern="[0-9]{10}" value={phone} onChange={(e)=>setPhone(e.target.value)} placeholder="Enter 10-digit number" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-1">Pincode</label>
-                    <input type="text" required pattern="[0-9]{6}" value={pincode} onChange={(e)=>setPincode(e.target.value)} placeholder="e.g. 400001" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
+                    <label htmlFor="pincode" className="block text-sm font-medium text-gray-400 mb-1">Pincode</label>
+                    <input id="pincode" name="pincode" type="text" required pattern="[0-9]{6}" value={pincode} onChange={(e)=>setPincode(e.target.value)} placeholder="e.g. 400001" className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-teal-500" />
                   </div>
                 </div>
               )}

@@ -14,7 +14,8 @@ export default function Login() {
   const navigate = useNavigate();
   const { login, loginWithOtp, resetPassword } = useAuth();
   
-  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
+  const hostname = window.location.hostname;
+  const isAdminSubdomain = hostname.startsWith('admin.') || hostname.startsWith('portal.');
 
   useEffect(() => {
     document.title = 'Login - Radhe Investments';

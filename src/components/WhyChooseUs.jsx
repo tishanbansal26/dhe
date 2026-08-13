@@ -56,19 +56,32 @@ export default function WhyChooseUs() {
   React.useEffect(() => {
     async function fetchStats() {
       try {
-        const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
-        const { count: claimsCount } = await supabase.from('claims').select('*', { count: 'exact', head: true }).eq('status', 'approved');
+        const { count: customersCount } = await supabase.from('customers').select('*', { count: 'exact', head: true });
+        
+        const { count: totalClaims } = await supabase.from('claims').select('*', { count: 'exact', head: true });
+        const { count: approvedClaims } = await supabase.from('claims').select('*', { count: 'exact', head: true }).eq('status', 'approved');
+        
+        // Total Coverage -> Total sum_insured of active policies
+        const { data: policiesData } = await supabase.from('policies').select('sum_insured').eq('status', 'active');
+        const coverage = policiesData ? policiesData.reduce((acc, p) => acc + (p.sum_insured || 0), 0) : 0;
+        const coverageFormatted = coverage > 10000000 ? `₹${(coverage / 10000000).toFixed(1)}Cr+` : '₹50Cr+';
+
         const { count: plansCount } = await supabase.from('insurance_plans').select('*', { count: 'exact', head: true });
+
+        const settlementRatio = totalClaims ? ((approvedClaims / totalClaims) * 100).toFixed(1) : '99.4';
 
         setStats(prevStats => prevStats.map(stat => {
           if (stat.key === 'users') {
-            return { ...stat, title: `${userCount || '10K'}+ Users`, subtitle: 'Happy Customers' };
+            return { ...stat, title: `${customersCount || '10'}K+`, subtitle: 'Families Protected' };
           }
           if (stat.key === 'claims') {
-            return { ...stat, title: `${claimsCount || '99'}%`, subtitle: 'Claim Settlement' };
+            return { ...stat, title: coverageFormatted, subtitle: 'Total Coverage Provided' };
+          }
+          if (stat.key === 'settlement') {
+            return { ...stat, title: `${settlementRatio}%`, subtitle: 'Claim Settlement Ratio' };
           }
           if (stat.key === 'plans') {
-            return { ...stat, title: `${plansCount || '50'}+ Plans`, subtitle: 'Insurance Partners' };
+            return { ...stat, title: `${plansCount || '50'}+`, subtitle: 'Insurance Partners & Plans' };
           }
           return stat;
         }));

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider, Helmet } from 'react-helmet-async';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import EmployeePortal from './pages/EmployeePortal';
@@ -23,6 +24,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
 import SearchResults from './pages/SearchResults';
+import ProductBuilder from './pages/ProductBuilder';
 import { Toaster } from 'react-hot-toast';
 
 import CustomerDashboard from './pages/CustomerDashboard';
@@ -32,9 +34,15 @@ export default function App() {
   const isAdminSubdomain = hostname.startsWith('admin.') || hostname.startsWith('portal.');
 
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-navy-900 text-slate-50 font-sans relative overflow-x-hidden">
+    <HelmetProvider>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen bg-navy-900 text-slate-50 font-sans relative overflow-x-hidden">
+            {isAdminSubdomain && (
+              <Helmet>
+                <meta name="robots" content="noindex, nofollow" />
+              </Helmet>
+            )}
           <Toaster position="bottom-right" toastOptions={{
             style: { background: '#1e293b', color: '#fff', border: '1px solid #334155' },
             success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },
@@ -57,6 +65,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <AdminPortal />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/product-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/product-builder/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilder />
                     </ProtectedRoute>
                   } 
                 />
@@ -108,5 +132,6 @@ export default function App() {
         </div>
       </Router>
     </AuthProvider>
+    </HelmetProvider>
   );
 }

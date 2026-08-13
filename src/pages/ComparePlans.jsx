@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { ShieldCheck, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function ComparePlans() {
   const [searchParams] = useSearchParams();
@@ -11,9 +12,6 @@ export default function ComparePlans() {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    document.title = 'Compare Insurance Plans - Radhe Investments';
-  }, []);
 
   useEffect(() => {
     if (planIds.length > 0) {
@@ -86,8 +84,14 @@ export default function ComparePlans() {
   }
 
   return (
-    <div className="pt-32 pb-20 min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <>
+      <SEO 
+        title="Compare Insurance Plans"
+        description="Compare health, life, and term insurance plans side-by-side to find the best coverage for your needs at Radhe Investments in Mansa, Punjab."
+        canonicalUrl="https://www.radheinv.site/compare"
+      />
+      <div className="pt-32 pb-20 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white flex items-center gap-2 mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back
@@ -156,7 +160,8 @@ export default function ComparePlans() {
             </tbody>
           </table>
         </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

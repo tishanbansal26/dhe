@@ -4,16 +4,15 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ProductGrid from '../components/ProductGrid';
 import WhyChooseUs from '../components/WhyChooseUs';
-
+import SEO from '../components/SEO';
+import { generateOrganizationSchema, generateLocalBusinessSchema } from '../lib/schema';
 import QuoteRequestModal from '../components/QuoteRequestModal';
 
 export default function Home() {
   
-  useEffect(() => {
-    document.title = "Radhe Investments - Insurance & Financial Protection";
-  }, []);
-
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
+
   const [monthlyInvest, setMonthlyInvest] = useState(10000);
   const [returnRate, setReturnRate] = useState(12);
   const [timePeriod, setTimePeriod] = useState(10);
@@ -57,6 +56,18 @@ export default function Home() {
 
   return (
     <>
+      <SEO 
+        title="Radhe Investments | Insurance & Financial Protection in Mansa, Punjab"
+        description="Radhe Investments provides expert health, life, and term insurance services in Mansa, Punjab. Compare quotes and get expert financial advice today."
+        canonicalUrl="https://www.radheinv.site/"
+      >
+        <script type="application/ld+json">
+          {JSON.stringify(generateOrganizationSchema())}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(generateLocalBusinessSchema())}
+        </script>
+      </SEO>
       <QuoteRequestModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} />
 
       {/* Hero Section */}
@@ -64,22 +75,22 @@ export default function Home() {
         {/* Background Accents */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-navy-800/50 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-800/80 border border-gold-500/30 text-gold-400 text-sm font-semibold tracking-wide uppercase mb-8 shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-800/80 border border-teal-500/30 text-teal-400 text-sm font-semibold tracking-wide uppercase mb-8 shadow-[0_0_15px_rgba(212,175,55,0.15)]">
           <BadgeCheck className="w-4 h-4" /> Trusted Financial Partners
         </div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-white">
           Insurance & Financial Protection, <br className="hidden md:block" />
-          <span className="text-gold-accent bg-clip-text text-transparent bg-gradient-to-r from-gold-400 to-gold-600">Built Around You</span>
+          <span className="text-teal-accent bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-teal-600">Built Around You</span>
         </h1>
         <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-300 mb-10 font-inter">
           Protect your health, family and financial future with trusted, personalized guidance from Radhe Investments.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-          <button onClick={() => setIsQuoteModalOpen(true)} className="bg-gold-500 text-navy-900 hover:bg-gold-400 px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2 transition-colors">
+          <button onClick={() => setIsQuoteModalOpen(true)} className="bg-teal-500 text-navy-900 hover:bg-teal-400 px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2 transition-colors">
             Get a Free Consultation <ArrowRight className="w-5 h-5" />
           </button>
-          <a href="#products" className="glass-panel px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 hover:bg-navy-800 transition-colors border border-navy-700 hover:border-gold-500/50 text-white">
+          <a href="#products" className="glass-panel px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 hover:bg-navy-800 transition-colors border border-navy-700 hover:border-teal-500/50 text-white">
             Explore Insurance Plans
           </a>
         </div>
@@ -87,13 +98,13 @@ export default function Home() {
         {/* Floating Quick Contacts for Desktop (optional) */}
         <div className="mt-16 flex flex-wrap justify-center gap-8 text-gray-400 text-sm font-medium">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-gold-500" /> 50+ Insurance Partners
+            <CheckCircle2 className="w-5 h-5 text-teal-500" /> 50+ Insurance Partners
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-gold-500" /> Dedicated Claim Support
+            <CheckCircle2 className="w-5 h-5 text-teal-500" /> Dedicated Claim Support
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-gold-500" /> Expert Local Advisors
+            <CheckCircle2 className="w-5 h-5 text-teal-500" /> Expert Local Advisors
           </div>
         </div>
       </section>

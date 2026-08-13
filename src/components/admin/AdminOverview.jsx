@@ -101,7 +101,7 @@ export default function AdminOverview({ leads = [], agents = [], policies = [], 
           <div className="flex justify-between items-start mb-4">
             <div>
               <p className="text-gray-400 text-sm font-medium mb-1">Active Policies</p>
-              <h3 className="text-3xl font-bold text-white">{convertedLeads + 142}</h3>
+              <h3 className="text-3xl font-bold text-white">{policies.filter(p => p.status === 'active').length}</h3>
             </div>
             <div className="p-3 bg-rose-500/20 text-rose-400 rounded-xl">
               <ShieldCheck className="w-6 h-6" />

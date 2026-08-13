@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import EmptyState from '../EmptyState';
 
 export default function AdminCompanies() {
   const [companies, setCompanies] = useState([]);
@@ -122,6 +123,16 @@ export default function AdminCompanies() {
                   </td>
                 </tr>
               ))}
+              {companies.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="px-4 py-8">
+                    <EmptyState 
+                      title="No Companies Found" 
+                      description="There are currently no insurance companies listed."
+                    />
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

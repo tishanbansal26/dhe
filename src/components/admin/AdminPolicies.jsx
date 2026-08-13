@@ -3,7 +3,7 @@ import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2, X, Upload } from 'lucide-react';
 import { uploadDocument } from '../../lib/SupabaseStorageService';
-
+import EmptyState from '../EmptyState';
 export default function AdminPolicies() {
   const [policies, setPolicies] = useState([]);
   const [customers, setCustomers] = useState([]);
@@ -217,7 +217,12 @@ export default function AdminPolicies() {
               ))}
               {policies.length === 0 && (
                 <tr>
-                  <td colSpan="7" className="px-4 py-8 text-center text-gray-400">No policies found.</td>
+                  <td colSpan="8" className="px-4 py-8">
+                    <EmptyState 
+                      title="No Policies Found" 
+                      description="There are currently no policies in the system."
+                    />
+                  </td>
                 </tr>
               )}
             </tbody>

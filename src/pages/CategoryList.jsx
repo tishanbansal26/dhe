@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, ShieldCheck, Filter, Star, Scale, HeartPulse, Shield, Car, TrendingUp, Package, ArrowRight, Check, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import SEO from '../components/SEO';
+import { generateBreadcrumbSchema } from '../lib/schema';
 
 const categoryMeta = {
   health: {
@@ -135,10 +137,24 @@ export default function CategoryList() {
   }
 
   return (
-    <div className="pt-24 pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative">
-      <div className="mb-8">
-        <button 
-          onClick={() => navigate('/')} 
+    <>
+      <SEO 
+        title={`${meta.name} in Mansa, Punjab`}
+        description={`Explore the best ${meta.name} plans at Radhe Investments. Serving Mansa, Punjab with expert financial guidance.`}
+        canonicalUrl={`https://www.radheinv.site/category/${type}`}
+      >
+        <script type="application/ld+json">
+          {JSON.stringify(generateBreadcrumbSchema([
+            { name: "Home", url: "https://www.radheinv.site" },
+            { name: "Categories", url: "https://www.radheinv.site/#products" },
+            { name: meta.name, url: `https://www.radheinv.site/category/${type}` }
+          ]))}
+        </script>
+      </SEO>
+      <div className="pt-24 pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto relative">
+        <div className="mb-8">
+          <button 
+            onClick={() => navigate('/')} 
           className="mb-8 flex items-center gap-2 text-gray-400 hover:text-teal-400 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Categories

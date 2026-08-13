@@ -11,7 +11,7 @@ import AdminPolicies from '../components/admin/AdminPolicies';
 import AdminClaims from '../components/admin/AdminClaims';
 import AdminRenewals from '../components/admin/AdminRenewals';
 import AdminAudit from '../components/admin/AdminAudit';
-
+import EmptyState from '../components/EmptyState';
 export default function AdminPortal() {
   const { user, agentProfile } = useAuth();
   const navigate = useNavigate();
@@ -255,6 +255,16 @@ export default function AdminPortal() {
                           </td>
                         </tr>
                       ))}
+                      {leads.length === 0 && (
+                        <tr>
+                          <td colSpan="5" className="px-4 py-8">
+                            <EmptyState 
+                              title="No Leads Found" 
+                              description="There are currently no leads in the system."
+                            />
+                          </td>
+                        </tr>
+                      )}
                     </tbody>
                   </table>
                 </div>

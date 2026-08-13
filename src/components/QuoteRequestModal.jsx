@@ -72,7 +72,7 @@ export default function QuoteRequestModal({ isOpen, onClose }) {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                     <User className="w-4 h-4" />
                   </div>
-                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-gold-500" placeholder="John Doe" />
+                  <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-teal-500" placeholder="John Doe" />
                 </div>
               </div>
 
@@ -82,14 +82,14 @@ export default function QuoteRequestModal({ isOpen, onClose }) {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">
                     <Phone className="w-4 h-4" />
                   </div>
-                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-gold-500" placeholder="+91 XXXXX XXXXX" />
+                  <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-10 pr-4 py-2.5 text-white focus:outline-none focus:border-teal-500" placeholder="+91 XXXXX XXXXX" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-gray-400 uppercase tracking-wider">Insurance Type</label>
-                  <select value={formData.insurance_type} onChange={e => setFormData({...formData, insurance_type: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-gold-500 text-sm">
+                  <select value={formData.insurance_type} onChange={e => setFormData({...formData, insurance_type: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-teal-500 text-sm">
                     <option>Health Insurance</option>
                     <option>Term Life</option>
                     <option>Pension / Retirement</option>
@@ -103,12 +103,12 @@ export default function QuoteRequestModal({ isOpen, onClose }) {
                     <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none text-gray-500">
                       <MapPin className="w-4 h-4" />
                     </div>
-                    <input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-8 pr-3 py-2.5 text-white focus:outline-none focus:border-gold-500 text-sm" placeholder="Mansa" />
+                    <input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-slate-800/50 border border-slate-600 rounded-xl pl-8 pr-3 py-2.5 text-white focus:outline-none focus:border-teal-500 text-sm" placeholder="Mansa" />
                   </div>
                 </div>
               </div>
 
-              <button disabled={loading} type="submit" className="w-full bg-gold-500 hover:bg-gold-400 text-slate-900 font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-2">
+              <button disabled={loading} type="submit" className="w-full bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mt-2">
                 {loading ? 'Submitting...' : 'Request My Quote'} <ChevronRight className="w-5 h-5" />
               </button>
             </form>
