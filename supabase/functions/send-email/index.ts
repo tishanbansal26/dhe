@@ -17,7 +17,8 @@ Deno.serve(async (req) => {
     if (payload.table === 'leads' && payload.type === 'INSERT') {
       const lead = payload.record;
       
-      toEmail = "admin@radheinvestments.com"; 
+      // Pull admin email from environment variables, fallback to owner's email
+      toEmail = Deno.env.get("ADMIN_EMAIL") || "ertishanbansal@gmail.com"; 
       subject = `New Lead Received: ${lead.plan_interest}`;
       htmlBody = `
         <h2>New Quote Request</h2>

@@ -75,18 +75,12 @@ export default function Navbar() {
               >
                 Insurance Plans
               </a>
-              <a 
-                href={isHome ? '#calculator' : '/#calculator'} 
+              <Link 
+                to="/calculators"
                 className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                onClick={(e) => {
-                  if (isHome) {
-                    e.preventDefault();
-                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
               >
-                SIP Calculator
-              </a>
+                Calculators
+              </Link>
               
               <div className="relative flex items-center">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3" />
@@ -117,11 +111,11 @@ export default function Navbar() {
               </div>
 
               {userProfile?.role === 'customer' ? (
-                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">My Dashboard</Link>
+                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">My Dashboard</Link>
               ) : agentProfile?.role === 'admin' ? (
-                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10">Admin Portal</Link>
+                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10 whitespace-nowrap">Admin Portal</Link>
               ) : agentProfile ? (
-                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">Employee Portal</Link>
+                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">Employee Portal</Link>
               ) : null}
             </div>
           </div>
@@ -187,19 +181,13 @@ export default function Navbar() {
                 >
                   Insurance Plans
                 </a>
-                <a 
-                  href={isHome ? '#calculator' : '/#calculator'} 
-                  onClick={(e) => {
-                    closeMenu();
-                    if (isHome) {
-                      e.preventDefault();
-                      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }} 
+                <Link 
+                  to="/calculators"
+                  onClick={closeMenu}
                   className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
                 >
-                  SIP Calculator
-                </a>
+                  Calculators
+                </Link>
                 
                 <div className="px-3 py-2">
                   <div className="relative flex items-center w-full">

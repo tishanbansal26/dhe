@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calculator, Shield, HeartPulse, ShieldCheck, PieChart, Users, ArrowRight, TrendingUp } from 'lucide-react';
+import { Calculator, Shield, HeartPulse, ShieldCheck, PieChart, Users, ArrowRight, TrendingUp, Activity, Flame, Baby, CalendarDays, Clock, Calendar } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { generateBreadcrumbSchema } from '../../lib/schema';
 
@@ -63,6 +63,73 @@ const calculators = [
   }
 ];
 
+const healthCalculators = [
+  {
+    id: 'bmi',
+    title: 'BMI Calculator',
+    description: 'Calculate your Body Mass Index to understand your health category and insurance premium impact.',
+    icon: <Activity className="w-8 h-8 text-teal-400" />,
+    path: '/calculators/bmi-calculator',
+    color: 'bg-teal-500/10 border-teal-500/20 group-hover:border-teal-500/50'
+  },
+  {
+    id: 'bmr',
+    title: 'BMR Calculator',
+    description: 'Calculate your Basal Metabolic Rate to understand how many calories your body burns at rest.',
+    icon: <Flame className="w-8 h-8 text-orange-400" />,
+    path: '/calculators/bmr-calculator',
+    color: 'bg-orange-500/10 border-orange-500/20 group-hover:border-orange-500/50'
+  },
+  {
+    id: 'gfr',
+    title: 'GFR Calculator',
+    description: 'Calculate your Estimated Glomerular Filtration Rate (eGFR), an important kidney function metric.',
+    icon: <Activity className="w-8 h-8 text-cyan-400" />,
+    path: '/calculators/gfr-calculator',
+    color: 'bg-cyan-500/10 border-cyan-500/20 group-hover:border-cyan-500/50'
+  },
+  {
+    id: 'ovulation',
+    title: 'Ovulation Calculator',
+    description: 'Calculate your ovulation date and fertile window to plan for pregnancy.',
+    icon: <HeartPulse className="w-8 h-8 text-pink-400" />,
+    path: '/calculators/ovulation-calculator',
+    color: 'bg-pink-500/10 border-pink-500/20 group-hover:border-pink-500/50'
+  },
+  {
+    id: 'pregnancy',
+    title: 'Pregnancy Calculator',
+    description: 'Calculate your estimated due date and current timeline based on your Last Menstrual Period.',
+    icon: <Baby className="w-8 h-8 text-purple-400" />,
+    path: '/calculators/pregnancy-calculator',
+    color: 'bg-purple-500/10 border-purple-500/20 group-hover:border-purple-500/50'
+  },
+  {
+    id: 'pregnancy-calendar',
+    title: 'Pregnancy Calendar',
+    description: 'Track your pregnancy trimesters and key milestones based on your conception date.',
+    icon: <Calendar className="w-8 h-8 text-fuchsia-400" />,
+    path: '/calculators/pregnancy-calendar',
+    color: 'bg-fuchsia-500/10 border-fuchsia-500/20 group-hover:border-fuchsia-500/50'
+  },
+  {
+    id: 'conception',
+    title: 'Conception Date Calculator',
+    description: 'Work backwards from your expected due date to find out when you likely conceived.',
+    icon: <CalendarDays className="w-8 h-8 text-indigo-400" />,
+    path: '/calculators/conception-date-calculator',
+    color: 'bg-indigo-500/10 border-indigo-500/20 group-hover:border-indigo-500/50'
+  },
+  {
+    id: 'lmp',
+    title: 'LMP Calculator',
+    description: 'Calculate your Last Menstrual Period (LMP) based on your expected due date.',
+    icon: <Clock className="w-8 h-8 text-rose-400" />,
+    path: '/calculators/lmp-calculator',
+    color: 'bg-rose-500/10 border-rose-500/20 group-hover:border-rose-500/50'
+  }
+];
+
 export default function CalculatorHub() {
   const navigate = useNavigate();
 
@@ -84,12 +151,37 @@ export default function CalculatorHub() {
       <div className="pt-24 pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-500/10 border border-teal-500/20 mb-6">
-            <Calculator className="w-8 h-8 text-teal-400" />
+            <HeartPulse className="w-8 h-8 text-teal-400" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Insurance & Financial Calculators</h1>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">Health & Maternity Calculators</h1>
           <p className="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto">
-            Use our simple calculators to understand insurance needs, potential coverage gaps, and financial planning concepts before exploring suitable plans.
+            Track your health metrics, calculate due dates, and plan for maternity coverage with our specialized tools.
           </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {healthCalculators.map((calc) => (
+            <div 
+              key={calc.id}
+              onClick={() => navigate(calc.path)}
+              className="group bg-slate-800/40 border border-slate-700/50 hover:bg-slate-800/60 rounded-3xl p-6 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative overflow-hidden flex flex-col h-full"
+            >
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 border transition-colors ${calc.color}`}>
+                {calc.icon}
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2 group-hover:text-teal-400 transition-colors">{calc.title}</h3>
+              <p className="text-sm text-gray-400 mb-6 flex-grow">{calc.description}</p>
+              
+              <div className="flex items-center gap-2 text-teal-400 font-semibold text-xs mt-auto">
+                Calculate Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-24 mb-12">
+          <h2 className="text-3xl font-bold text-white mb-4">Financial & Insurance Calculators</h2>
+          <p className="text-gray-400 text-lg max-w-3xl">Understand your insurance needs, coverage gaps, and financial planning requirements.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

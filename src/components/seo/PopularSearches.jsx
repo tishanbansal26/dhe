@@ -81,11 +81,22 @@ const searchCategories = {
   locations: {
     title: 'Insurance by Location',
     links: [
-      { label: 'Insurance Services in Mansa', url: '/contact' },
+      { label: 'Best Insurance in Mansa', url: '/contact' },
       { label: 'Health Insurance in Punjab', url: '/category/health' },
+      { label: 'Insurance Advisor in Bathinda', url: '/contact' },
       { label: 'Life Insurance in Chandigarh', url: '/category/life' },
-      { label: 'Best Insurance Advisor in Bathinda', url: '/contact' },
-      { label: 'Term Insurance in Ludhiana', url: '/category/term' }
+      { label: 'Term Insurance in Ludhiana', url: '/category/term' },
+      { label: 'Insurance Agents in Punjab', url: '/contact' }
+    ]
+  },
+  radhe: {
+    title: 'Radhe Investments',
+    links: [
+      { label: 'Radhe Investments Mansa', url: '/' },
+      { label: 'Radhe Investment Insurance Advisor', url: '/contact' },
+      { label: 'Best Insurance Agency in Punjab', url: '/' },
+      { label: 'Radhe Investments Bathinda', url: '/contact' },
+      { label: 'Radhe Investments Health Insurance', url: '/category/health' }
     ]
   }
 };
@@ -97,11 +108,11 @@ export default function PopularSearches({ activeCategory = null }) {
   
   let orderedKeys = allKeys;
   if (activeCategory && allKeys.includes(activeCategory)) {
-    const remaining = allKeys.filter(k => k !== activeCategory && k !== 'locations');
-    orderedKeys = [activeCategory, 'locations', ...remaining];
+    const remaining = allKeys.filter(k => k !== activeCategory && k !== 'locations' && k !== 'radhe');
+    orderedKeys = [activeCategory, 'radhe', 'locations', ...remaining];
   } else {
     // Default order
-    orderedKeys = ['health', 'life', 'term', 'family', 'retirement', 'investment', 'motor', 'claims', 'locations'];
+    orderedKeys = ['radhe', 'health', 'life', 'term', 'family', 'retirement', 'locations', 'investment', 'claims', 'motor'];
   }
 
   return (

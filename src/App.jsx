@@ -37,6 +37,16 @@ import FamilyHealthCalculator from './pages/calculators/FamilyHealthCalculator';
 import SeniorCitizenCalculator from './pages/calculators/SeniorCitizenCalculator';
 import RetirementCalculator from './pages/calculators/RetirementCalculator';
 
+// Health & Maternity Calculators
+import BMICalculator from './pages/calculators/BMICalculator';
+import BMRCalculator from './pages/calculators/BMRCalculator';
+import GFRCalculator from './pages/calculators/GFRCalculator';
+import OvulationCalculator from './pages/calculators/OvulationCalculator';
+import PregnancyCalculator from './pages/calculators/PregnancyCalculator';
+import PregnancyCalendar from './pages/calculators/PregnancyCalendar';
+import ConceptionDateCalculator from './pages/calculators/ConceptionDateCalculator';
+import LMPCalculator from './pages/calculators/LMPCalculator';
+
 import CustomerDashboard from './pages/CustomerDashboard';
 
 export default function App() {
@@ -126,6 +136,17 @@ export default function App() {
                 <Route path="/calculators/family-health-insurance-calculator" element={<FamilyHealthCalculator />} />
                 <Route path="/calculators/senior-citizen-health-insurance-calculator" element={<SeniorCitizenCalculator />} />
                 <Route path="/calculators/retirement-calculator" element={<RetirementCalculator />} />
+                
+                {/* Health & Maternity Calculators */}
+                <Route path="/calculators/bmi-calculator" element={<BMICalculator />} />
+                <Route path="/calculators/bmr-calculator" element={<BMRCalculator />} />
+                <Route path="/calculators/gfr-calculator" element={<GFRCalculator />} />
+                <Route path="/calculators/ovulation-calculator" element={<OvulationCalculator />} />
+                <Route path="/calculators/pregnancy-calculator" element={<PregnancyCalculator />} />
+                <Route path="/calculators/pregnancy-calendar" element={<PregnancyCalendar />} />
+                <Route path="/calculators/conception-date-calculator" element={<ConceptionDateCalculator />} />
+                <Route path="/calculators/lmp-calculator" element={<LMPCalculator />} />
+                
                 <Route 
                   path="/dashboard" 
                   element={

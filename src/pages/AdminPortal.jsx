@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Users, Phone, BarChart, Settings, ShieldCheck, Building2, BriefcaseMedical, Shield, AlertCircle, Calendar } from 'lucide-react';
+import { Search, Users, Phone, BarChart, Settings, ShieldCheck, Building2, BriefcaseMedical, Shield, AlertCircle, Calendar, Trash2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -100,6 +101,19 @@ export default function AdminPortal() {
       setLeads(leads.map(l => l.id === leadId ? { ...l, agent_id: agentId || null } : l));
     } catch (e) {
       toast.error('Failed to assign lead.');
+    }
+  };
+
+  const deleteLead = async (leadId) => {
+    if (!window.confirm('Are you sure you want to delete this lead?')) return;
+    try {
+      const { error } = await supabase.from('leads').delete().eq('id', leadId);
+      if (error) throw error;
+      setLeads(leads.filter(l => l.id !== leadId));
+      toast.success('Lead deleted successfully.');
+    } catch (e) {
+      console.error(e);
+      toast.error('Failed to delete lead.');
     }
   };
 
@@ -228,7 +242,8 @@ export default function AdminPortal() {
                         <th className="px-4 py-3">Interest</th>
                         <th className="px-4 py-3">Phone</th>
                         <th className="px-4 py-3">Status</th>
-                        <th className="px-4 py-3 rounded-r-lg">Assigned To</th>
+                        <th className="px-4 py-3">Assigned To</th>
+                        <th className="px-4 py-3 rounded-r-lg">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/50">
@@ -256,6 +271,15 @@ export default function AdminPortal() {
                                 <option key={agent.id} value={agent.id}>{agent.name}</option>
                               ))}
                             </select>
+                          </td>
+                          <td className="px-4 py-4">
+                            <button 
+                              onClick={() => deleteLead(lead.id)}
+                              className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                              title="Delete Lead"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </td>
                         </tr>
                       ))}

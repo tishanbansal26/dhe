@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Shield, FileText, AlertCircle, Clock, ShieldX, FileX } from 'lucide-react';
+import { Shield, FileText, AlertCircle, Clock, ShieldX, FileX, User, Save, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import DocumentUploader from '../components/DocumentUploader';
 
 export default function CustomerDashboard() {
@@ -13,6 +14,16 @@ export default function CustomerDashboard() {
   const [claims, setClaims] = useState([]);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savingProfile, setSavingProfile] = useState(false);
+  
+  // Profile form state
+  const [profileForm, setProfileForm] = useState({
+    name: '',
+    phone: '',
+    dob: '',
+    address: '',
+    city: ''
+  });
 
   useEffect(() => {
     if (!user) {
@@ -21,6 +32,13 @@ export default function CustomerDashboard() {
     }
     if (customerProfile) {
       document.title = `Dashboard - ${customerProfile.name} | Radhe Investments`;
+      setProfileForm({
+        name: customerProfile.name || '',
+        phone: customerProfile.phone || '',
+        dob: customerProfile.dob || '',
+        address: customerProfile.address || '',
+        city: customerProfile.city || ''
+      });
       fetchData();
     }
   }, [user, customerProfile, navigate]);
@@ -57,6 +75,31 @@ export default function CustomerDashboard() {
     }
   };
 
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase
+        .from('customers')
+        .update({
+          name: profileForm.name,
+          phone: profileForm.phone,
+          dob: profileForm.dob || null,
+          address: profileForm.address,
+          city: profileForm.city
+        })
+        .eq('id', customerProfile.id);
+        
+      if (error) throw error;
+      toast.success('Profile updated successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update profile.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   if (!customerProfile) {
     return (
       <div className="pt-32 min-h-screen max-w-7xl mx-auto px-4">
@@ -87,6 +130,9 @@ export default function CustomerDashboard() {
             </button>
             <button onClick={() => setActiveTab('documents')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'documents' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}>
               <FileText className="w-4 h-4" /> Documents
+            </button>
+            <button onClick={() => setActiveTab('profile')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'profile' ? 'bg-rose-500 text-white' : 'text-gray-400 hover:text-white'}`}>
+              <User className="w-4 h-4" /> Profile
             </button>
           </div>
         </div>
@@ -238,6 +284,93 @@ export default function CustomerDashboard() {
                     />
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Profile Tab */}
+            {activeTab === 'profile' && (
+              <div className="space-y-6 max-w-3xl">
+                <h3 className="text-xl font-bold text-white">Personal Profile</h3>
+                
+                <form onSubmit={handleUpdateProfile} className="glass-panel p-6 md:p-8 rounded-3xl border border-slate-700/50 space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        value={profileForm.name}
+                        onChange={e => setProfileForm({...profileForm, name: e.target.value})}
+                        className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Email Address (Read-only)</label>
+                      <input 
+                        type="email" 
+                        disabled
+                        value={customerProfile.email || ''}
+                        className="w-full bg-slate-800/80 border border-slate-700 text-gray-500 rounded-xl px-4 py-3 cursor-not-allowed"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Contact support to change your login email.</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
+                      <input 
+                        type="tel" 
+                        value={profileForm.phone}
+                        onChange={e => setProfileForm({...profileForm, phone: e.target.value})}
+                        placeholder="+91"
+                        className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Date of Birth</label>
+                      <input 
+                        type="date" 
+                        value={profileForm.dob}
+                        onChange={e => setProfileForm({...profileForm, dob: e.target.value})}
+                        className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:invert"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Street Address</label>
+                      <textarea 
+                        rows="2"
+                        value={profileForm.address}
+                        onChange={e => setProfileForm({...profileForm, address: e.target.value})}
+                        className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors resize-none"
+                      ></textarea>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">City</label>
+                      <input 
+                        type="text" 
+                        value={profileForm.city}
+                        onChange={e => setProfileForm({...profileForm, city: e.target.value})}
+                        className="w-full bg-slate-800/50 border border-slate-600 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rose-500 transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-700/50 flex justify-end">
+                    <button 
+                      type="submit" 
+                      disabled={savingProfile}
+                      className="bg-rose-500 hover:bg-rose-400 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2 min-w-[150px]"
+                    >
+                      {savingProfile ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                        <><Save className="w-5 h-5" /> Save Changes</>
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
 
