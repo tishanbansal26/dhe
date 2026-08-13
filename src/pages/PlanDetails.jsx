@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, CheckCircle, ChevronDown, ChevronUp, FileText, Info, Shield, Check } from 'lucide-react';
+import { ArrowLeft, Download, CheckCircle, ChevronDown, ChevronUp, FileText, Info, Shield, Check, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import LeadCaptureModal from '../components/LeadCaptureModal';
 import SEO from '../components/SEO';
