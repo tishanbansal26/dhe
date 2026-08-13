@@ -27,6 +27,16 @@ import SearchResults from './pages/SearchResults';
 import ProductBuilder from './pages/ProductBuilder';
 import { Toaster } from 'react-hot-toast';
 
+// Calculators
+import CalculatorHub from './pages/calculators/CalculatorHub';
+import LifeCoverCalculator from './pages/calculators/LifeCoverCalculator';
+import TermCalculator from './pages/calculators/TermCalculator';
+import HealthCoverCalculator from './pages/calculators/HealthCoverCalculator';
+import InsuranceGapCalculator from './pages/calculators/InsuranceGapCalculator';
+import FamilyHealthCalculator from './pages/calculators/FamilyHealthCalculator';
+import SeniorCitizenCalculator from './pages/calculators/SeniorCitizenCalculator';
+import RetirementCalculator from './pages/calculators/RetirementCalculator';
+
 import CustomerDashboard from './pages/CustomerDashboard';
 
 export default function App() {
@@ -106,6 +116,16 @@ export default function App() {
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/cookies" element={<CookiePolicy />} />
                 <Route path="/search" element={<SearchResults />} />
+                
+                {/* SEO Calculators */}
+                <Route path="/calculators" element={<CalculatorHub />} />
+                <Route path="/calculators/life-insurance-cover-calculator" element={<LifeCoverCalculator />} />
+                <Route path="/calculators/term-insurance-calculator" element={<TermCalculator />} />
+                <Route path="/calculators/health-insurance-cover-calculator" element={<HealthCoverCalculator />} />
+                <Route path="/calculators/insurance-gap-calculator" element={<InsuranceGapCalculator />} />
+                <Route path="/calculators/family-health-insurance-calculator" element={<FamilyHealthCalculator />} />
+                <Route path="/calculators/senior-citizen-health-insurance-calculator" element={<SeniorCitizenCalculator />} />
+                <Route path="/calculators/retirement-calculator" element={<RetirementCalculator />} />
                 <Route 
                   path="/dashboard" 
                   element={

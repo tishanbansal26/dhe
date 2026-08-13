@@ -4,14 +4,18 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ProductGrid from '../components/ProductGrid';
 import WhyChooseUs from '../components/WhyChooseUs';
+import BannerAd from '../components/BannerAd';
+import CallbackForm from '../components/CallbackForm';
 import SEO from '../components/SEO';
 import { generateOrganizationSchema, generateLocalBusinessSchema } from '../lib/schema';
 import QuoteRequestModal from '../components/QuoteRequestModal';
+import PopularSearches from '../components/seo/PopularSearches';
+import { useSiteSettings } from '../lib/useSiteSettings';
 
 export default function Home() {
   
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-
+  const { settings } = useSiteSettings();
 
   const [monthlyInvest, setMonthlyInvest] = useState(10000);
   const [returnRate, setReturnRate] = useState(12);
@@ -75,16 +79,16 @@ export default function Home() {
         {/* Background Accents */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-navy-800/50 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
 
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-800/80 border border-teal-500/30 text-teal-400 text-sm font-semibold tracking-wide uppercase mb-8 shadow-[0_0_15px_rgba(212,175,55,0.15)]">
-          <BadgeCheck className="w-4 h-4" /> Trusted Financial Partners
-        </div>
+
 
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-white">
-          Insurance & Financial Protection, <br className="hidden md:block" />
-          <span className="text-teal-accent bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-teal-600">Built Around You</span>
+          {settings.hero_headline.split(',')[0]}, <br className="hidden md:block" />
+          <span className="text-teal-accent bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-teal-600">
+            {settings.hero_headline.split(',')[1] || ''}
+          </span>
         </h1>
         <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-300 mb-10 font-inter">
-          Protect your health, family and financial future with trusted, personalized guidance from Radhe Investments.
+          {settings.hero_subheadline}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <button onClick={() => setIsQuoteModalOpen(true)} className="bg-teal-500 text-navy-900 hover:bg-teal-400 px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2 transition-colors">
@@ -108,6 +112,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Promotional Banner */}
+      <BannerAd />
+
+      {/* Lead Capture Form */}
+      <CallbackForm />
 
       {/* Categories / Products Section */}
       <ProductGrid />
@@ -248,6 +258,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Popular Searches */}
+      <div className="text-center text-sm text-gray-500 mt-12 mb-6">
+        Page last updated: 13 August 2026
+      </div>
+      <PopularSearches />
     </>
   );
 }

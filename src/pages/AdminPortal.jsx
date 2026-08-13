@@ -11,6 +11,7 @@ import AdminPolicies from '../components/admin/AdminPolicies';
 import AdminClaims from '../components/admin/AdminClaims';
 import AdminRenewals from '../components/admin/AdminRenewals';
 import AdminAudit from '../components/admin/AdminAudit';
+import AdminSettings from '../components/admin/AdminSettings';
 import EmptyState from '../components/EmptyState';
 export default function AdminPortal() {
   const { user, agentProfile } = useAuth();
@@ -170,6 +171,9 @@ export default function AdminPortal() {
             <button onClick={() => setActiveTab('audit')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === 'audit' ? 'bg-slate-500 text-white' : 'text-gray-400 hover:text-white'}`}>
               <Settings className="w-4 h-4" /> Audit
             </button>
+            <button onClick={() => setActiveTab('content')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === 'content' ? 'bg-teal-500 text-slate-900' : 'text-gray-400 hover:text-white'}`}>
+              <Settings className="w-4 h-4" /> Site Content
+            </button>
           </div>
         </div>
 
@@ -291,6 +295,9 @@ export default function AdminPortal() {
 
             {/* Audit Tab */}
             {activeTab === 'audit' && <AdminAudit />}
+
+            {/* Content Tab */}
+            {activeTab === 'content' && <AdminSettings />}
           </>
         )}
       </div>

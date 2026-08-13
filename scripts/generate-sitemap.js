@@ -32,7 +32,18 @@ const categories = [
   '/category/travel'
 ];
 
-const allRoutes = [...routes, ...categories];
+const calculators = [
+  '/calculators',
+  '/calculators/life-insurance-cover-calculator',
+  '/calculators/term-insurance-calculator',
+  '/calculators/health-insurance-cover-calculator',
+  '/calculators/insurance-gap-calculator',
+  '/calculators/family-health-insurance-calculator',
+  '/calculators/senior-citizen-health-insurance-calculator',
+  '/calculators/retirement-calculator'
+];
+
+const allRoutes = [...routes, ...categories, ...calculators];
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Mail, Phone, MapPin, Globe, MessageCircle, Share2, Hash } from 'lucide-react';
+import { useSiteSettings } from '../lib/useSiteSettings';
 
 export default function Footer() {
+  const { settings } = useSiteSettings();
   return (
     <footer className="bg-slate-950 border-t border-slate-800 pt-16 pb-8 relative overflow-hidden">
       {/* Decorative gradient blur */}
@@ -34,8 +36,34 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-6">Quick Links</h3>
             <ul className="space-y-4">
-              <li><Link to="/#products" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Insurance Plans</Link></li>
-              <li><Link to="/#calculator" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>SIP Calculator</Link></li>
+              <li>
+                <a 
+                  href="/#products" 
+                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"
+                  onClick={(e) => {
+                    if (window.location.pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Insurance Plans
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="/#calculator" 
+                  className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"
+                  onClick={(e) => {
+                    if (window.location.pathname === '/') {
+                      e.preventDefault();
+                      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>SIP Calculator
+                </a>
+              </li>
               <li><Link to="/compare" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Compare Plans</Link></li>
               <li><Link to="/login" className="text-gray-400 hover:text-teal-400 transition-colors text-sm flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-teal-500/50"></span>Agent Portal</Link></li>
             </ul>
@@ -62,15 +90,15 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <Phone className="w-5 h-5 text-teal-400 shrink-0" />
-                <a href="tel:9603610000" className="hover:text-teal-400 transition-colors">+91 96036 10000</a>
+                <a href={`tel:${settings.contact_phone.replace(/\s+/g, '')}`} className="hover:text-teal-400 transition-colors">{settings.contact_phone}</a>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <MessageCircle className="w-5 h-5 text-teal-400 shrink-0" />
-                <a href="https://wa.me/919603610000" target="_blank" rel="noopener noreferrer" className="hover:text-teal-400 transition-colors">WhatsApp Support</a>
+                <a href={`https://wa.me/${settings.contact_phone.replace(/[^0-9]/g, '')}`} target="_blank" rel="noopener noreferrer" className="hover:text-teal-400 transition-colors">WhatsApp Support</a>
               </li>
               <li className="flex items-center gap-3 text-gray-400 text-sm">
                 <Mail className="w-5 h-5 text-teal-400 shrink-0" />
-                <a href="mailto:ertishanbansal@gmail.com" className="hover:text-teal-400 transition-colors">ertishanbansal@gmail.com</a>
+                <a href={`mailto:${settings.contact_email}`} className="hover:text-teal-400 transition-colors">{settings.contact_email}</a>
               </li>
             </ul>
           </div>

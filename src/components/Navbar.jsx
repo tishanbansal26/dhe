@@ -51,9 +51,42 @@ export default function Navbar() {
           {!isAdminSubdomain && (
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
-              <Link to={isHome ? '#home' : '/'} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</Link>
-              <Link to="/#products" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Insurance Plans</Link>
-              <Link to="/#calculator" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">SIP Calculator</Link>
+              <a 
+                href={isHome ? '#home' : '/'} 
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                onClick={(e) => {
+                  if (isHome) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
+              >
+                Home
+              </a>
+              <a 
+                href={isHome ? '#products' : '/#products'} 
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                onClick={(e) => {
+                  if (isHome) {
+                    e.preventDefault();
+                    document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                Insurance Plans
+              </a>
+              <a 
+                href={isHome ? '#calculator' : '/#calculator'} 
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                onClick={(e) => {
+                  if (isHome) {
+                    e.preventDefault();
+                    document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                SIP Calculator
+              </a>
               
               <div className="relative flex items-center">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3" />
@@ -128,9 +161,45 @@ export default function Navbar() {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {!isAdminSubdomain && (
               <>
-                <Link to={isHome ? '#home' : '/'} onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Home</Link>
-                <Link to="/#products" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Insurance Plans</Link>
-                <Link to="/#calculator" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">SIP Calculator</Link>
+                <a 
+                  href={isHome ? '#home' : '/'} 
+                  onClick={(e) => {
+                    closeMenu();
+                    if (isHome) {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }} 
+                  className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Home
+                </a>
+                <a 
+                  href={isHome ? '#products' : '/#products'} 
+                  onClick={(e) => {
+                    closeMenu();
+                    if (isHome) {
+                      e.preventDefault();
+                      document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }} 
+                  className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Insurance Plans
+                </a>
+                <a 
+                  href={isHome ? '#calculator' : '/#calculator'} 
+                  onClick={(e) => {
+                    closeMenu();
+                    if (isHome) {
+                      e.preventDefault();
+                      document.getElementById('calculator')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }} 
+                  className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  SIP Calculator
+                </a>
                 
                 <div className="px-3 py-2">
                   <div className="relative flex items-center w-full">

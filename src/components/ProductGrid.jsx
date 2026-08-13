@@ -10,28 +10,32 @@ const categoryMeta = {
     icon: <HeartPulse className="w-8 h-8 text-rose-400" />,
     color: 'from-rose-500/20 to-orange-500/10',
     borderColor: 'border-rose-500/30',
-    incentiveBadge: 'Upto 25% Discount'
+    incentiveBadge: 'Upto 25% Discount',
+    description: 'Compare plans from Niva Bupa, Star Health, Care and more.'
   },
   life: {
     name: 'Term Life',
     icon: <Shield className="w-8 h-8 text-blue-400" />,
     color: 'from-blue-500/20 to-cyan-500/10',
     borderColor: 'border-blue-500/30',
-    incentiveBadge: 'Lowest Price Guarantee'
+    incentiveBadge: 'Lowest Price Guarantee',
+    description: 'Secure your family with term plans from Tata AIA, HDFC Life, and Max Life.'
   },
   investment: {
     name: 'Investment & Retirement',
     icon: <TrendingUp className="w-8 h-8 text-emerald-400" />,
     color: 'from-emerald-500/20 to-teal-500/10',
     borderColor: 'border-emerald-500/30',
-    incentiveBadge: 'Tax Saver 80C'
+    incentiveBadge: 'Tax Saver 80C',
+    description: 'Grow your wealth and plan retirement with guaranteed return products.'
   },
   motor: {
     name: 'Motor Insurance',
     icon: <Car className="w-8 h-8 text-purple-400" />,
     color: 'from-purple-500/20 to-indigo-500/10',
     borderColor: 'border-purple-500/30',
-    incentiveBadge: 'Instant Policy'
+    incentiveBadge: 'Instant Policy',
+    description: 'Comprehensive car and bike insurance from ICICI Lombard, Bajaj Allianz, and more.'
   }
 };
 
@@ -52,7 +56,8 @@ export default function ProductGrid() {
             icon: <Shield className="w-8 h-8 text-gray-400" />,
             color: 'from-gray-500/20 to-gray-500/10',
             borderColor: 'border-gray-500/30',
-            incentiveBadge: 'New'
+            incentiveBadge: 'New',
+            description: 'Explore verified insurance plans and policies.'
           })
         }));
         setCategories(uniqueCategories);
@@ -110,7 +115,7 @@ export default function ProductGrid() {
                 </div>
                 
                 <h3 className="text-2xl font-bold text-white mb-2">{cat.name}</h3>
-                <p className="text-gray-400 text-sm mb-8">Compare plans from Niva Bupa, Star Health, ICICI and more.</p>
+                <p className="text-gray-400 text-sm mb-8">{cat.description}</p>
                 
                 <div className="mt-auto flex items-center justify-between">
                   <span className="text-teal-400 font-semibold group-hover:text-teal-300">View Plans</span>

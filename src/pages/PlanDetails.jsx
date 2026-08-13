@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, CheckCircle, ChevronDown, ChevronUp, FileText, Info, Shield, Check, AlertCircle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Shield, ArrowRight, Check, Activity, Users, Stethoscope, BriefcaseMedical, Download, FileText, Share2, HelpCircle, ChevronDown, ChevronUp, AlertCircle, Info } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import LeadCaptureModal from '../components/LeadCaptureModal';
 import SEO from '../components/SEO';
-import { generateBreadcrumbSchema } from '../lib/schema';
+import PopularSearches from '../components/seo/PopularSearches';
+import RelatedCalculators from '../components/seo/RelatedCalculators';
+import { generateBreadcrumbSchema, generateFAQSchema } from '../lib/schema';
 
 export default function PlanDetails() {
   const { id } = useParams();
@@ -241,6 +243,17 @@ export default function PlanDetails() {
           </div>
         </div>
       </div>
+      
+      {/* SEO Discovery Additions */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+        <RelatedCalculators category={plan.category} />
+      </div>
+      
+      <div className="text-center text-sm text-gray-500 mt-12 mb-6">
+        Page last updated: 13 August 2026
+      </div>
+      
+      <PopularSearches activeCategory={plan.category} />
 
       <LeadCaptureModal 
         isOpen={isModalOpen} 

@@ -73,7 +73,9 @@ export default function CustomerDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-700/50 pb-6 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-white">Welcome back, {customerProfile.name || 'Customer'}!</h2>
+            <h2 className="text-3xl font-bold text-white">
+              Welcome back, {customerProfile.name?.includes('@') ? customerProfile.name.split('@')[0] : (customerProfile.name || 'Customer')}!
+            </h2>
             <p className="text-gray-400 mt-1">Manage your policies, track claims, and access documents.</p>
           </div>
           <div className="flex flex-wrap gap-2 bg-slate-800/50 p-1 rounded-xl">
