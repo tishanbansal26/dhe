@@ -18,8 +18,8 @@ export default function ClaimInfo() {
     <div className="pt-32 pb-20 min-h-screen">
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-16">
-          <div className="w-16 h-16 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center mx-auto mb-4">
-            <HelpCircle className="w-8 h-8 text-blue-400" />
+          <div className="w-16 h-16 rounded-full bg-gold-500/10 border border-gold-500/30 flex items-center justify-center mx-auto mb-4">
+            <HelpCircle className="w-8 h-8 text-gold-400" />
           </div>
           <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">Know More About Filing a Claim</h2>
           <p className="text-xl text-gray-400 max-w-2xl mx-auto">We make the claims process transparent and hassle-free. Here is what you need to know.</p>
@@ -31,7 +31,7 @@ export default function ClaimInfo() {
             <div className="space-y-6">
               {steps.map((step, idx) => (
                 <div key={idx} className="flex gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400 font-bold">
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gold-500/20 flex items-center justify-center text-gold-400 font-bold">
                     {idx + 1}
                   </div>
                   <div>
@@ -48,7 +48,7 @@ export default function ClaimInfo() {
             <ul className="space-y-4">
               {['Duly filled and signed claim form', 'Original Policy Document', 'Identity Proof (Aadhaar, PAN)', 'Original hospital bills and discharge summary', 'FIR copy (in case of accidents)', 'Cancelled cheque for NEFT'].map((doc, idx) => (
                 <li key={idx} className="flex items-start gap-3">
-                  <CheckCircle className="w-5 h-5 text-teal-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-gold-400 flex-shrink-0 mt-0.5" />
                   <span className="text-gray-300">{doc}</span>
                 </li>
               ))}

@@ -34,7 +34,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="min-h-screen bg-[#020617] text-slate-50 font-sans relative overflow-x-hidden">
+        <div className="min-h-screen bg-navy-900 text-slate-50 font-sans relative overflow-x-hidden">
           <Toaster position="bottom-right" toastOptions={{
             style: { background: '#1e293b', color: '#fff', border: '1px solid #334155' },
             success: { iconTheme: { primary: '#10b981', secondary: '#fff' } },

@@ -31,6 +31,9 @@ export const AuthProvider = ({ children }) => {
         let { data, error } = await supabase.from('agents').select('*').eq('user_id', userId).single();
         if (!data || error) {
            data = { id: 'AGT-' + userId.substring(0,6), user_id: userId, name: metaName, role: userData.role, email: authUser?.email, status: 'active', type: 'sub' };
+        } else {
+           // Ensure role is set from userData if missing in agents table
+           data.role = data.role || userData.role;
         }
         setAgentProfile(data);
       } else {
@@ -83,7 +86,7 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
   
-  const signup = async (email, password, name, role = 'customer') => {
+  const signup = async (email, password, name, role = 'customer', extraData = {}) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -92,6 +95,7 @@ export const AuthProvider = ({ children }) => {
         data: {
           name,
           role,
+          ...extraData
         }
       }
     });

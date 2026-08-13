@@ -30,9 +30,9 @@ export default function AdminPortal() {
   // Check if admin
   useEffect(() => {
     if (agentProfile && agentProfile.role !== 'admin') {
-      navigate('/agents'); // Redirect non-admins to normal portal
+      window.location.href = window.location.protocol + '//' + window.location.hostname.replace('portal.', 'www.') + '/employee';
     }
-  }, [agentProfile, navigate]);
+  }, [agentProfile]);
 
   useEffect(() => {
     if (agentProfile?.role === 'admin') {

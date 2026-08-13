@@ -14,7 +14,8 @@ export default function Navbar() {
   const { user, agentProfile, userProfile } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   
-  const isAdminSubdomain = window.location.hostname.startsWith('admin.');
+  const hostname = window.location.hostname;
+  const isAdminSubdomain = hostname.startsWith('admin.') || hostname.startsWith('portal.');
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -40,10 +41,10 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={closeMenu}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shadow-[0_0_15px_rgba(45,212,191,0.4)]">
-              <TrendingUp className="text-white w-6 h-6" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+              <TrendingUp className="text-navy-900 w-6 h-6" />
             </div>
-            <span className="font-bold text-2xl tracking-tight">Radhe<span className="text-teal-400">Invest</span> {isAdminSubdomain && <span className="text-sm font-normal text-rose-400 ml-2 border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 rounded-full">Admin</span>}</span>
+            <span className="font-bold text-2xl tracking-tight">Radhe<span className="text-gold-400">Investments</span> {isAdminSubdomain && <span className="text-sm font-normal text-rose-400 ml-2 border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 rounded-full">Admin</span>}</span>
           </Link>
           
           {/* Desktop Menu */}
@@ -51,7 +52,7 @@ export default function Navbar() {
             <div className="hidden md:block">
               <div className="ml-10 flex items-baseline space-x-8">
               <Link to={isHome ? '#home' : '/'} className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</Link>
-              <Link to="/#plans" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Insurance Plans</Link>
+              <Link to="/#products" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Insurance Plans</Link>
               <Link to="/#calculator" className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">SIP Calculator</Link>
               
               <div className="relative flex items-center">
@@ -62,7 +63,7 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
                   placeholder="Search..." 
-                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-teal-500 w-48 transition-all focus:w-64"
+                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-gold-500 w-48 transition-all focus:w-64"
                 />
               </div>
               
@@ -83,11 +84,11 @@ export default function Navbar() {
               </div>
 
               {userProfile?.role === 'customer' ? (
-                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">My Dashboard</Link>
+                <Link to="/dashboard" className="text-gold-300 hover:text-gold-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-gold-500/30 bg-gold-500/10">My Dashboard</Link>
               ) : agentProfile?.role === 'admin' ? (
                 <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10">Admin Portal</Link>
               ) : agentProfile ? (
-                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10">Employee Portal</Link>
+                <Link to="/employee" className="text-gold-300 hover:text-gold-100 px-3 py-2 rounded-md text-sm font-medium transition-colors border border-gold-500/30 bg-gold-500/10">Employee Portal</Link>
               ) : null}
             </div>
           </div>
@@ -103,7 +104,7 @@ export default function Navbar() {
                 Logout <LogOut className="w-4 h-4" />
               </button>
             ) : (
-              <Link to="/login" className="glow-button bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-2.5 rounded-full font-semibold text-sm shadow-lg flex items-center gap-2 inline-flex">
+              <Link to="/login" className="glow-button bg-gradient-to-r from-gold-400 to-gold-600 text-navy-900 px-6 py-2.5 rounded-full font-semibold text-sm shadow-lg flex items-center gap-2 inline-flex">
                 {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
               </Link>
             )}
@@ -128,7 +129,7 @@ export default function Navbar() {
             {!isAdminSubdomain && (
               <>
                 <Link to={isHome ? '#home' : '/'} onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Home</Link>
-                <Link to="/#plans" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Insurance Plans</Link>
+                <Link to="/#products" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">Insurance Plans</Link>
                 <Link to="/#calculator" onClick={closeMenu} className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium">SIP Calculator</Link>
                 
                 <div className="px-3 py-2">
@@ -140,7 +141,7 @@ export default function Navbar() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearch}
                       placeholder="Search..." 
-                      className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-teal-500 w-full transition-all"
+                      className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-gold-500 w-full transition-all"
                     />
                   </div>
                 </div>
@@ -165,11 +166,11 @@ export default function Navbar() {
                 </div>
 
                 {userProfile?.role === 'customer' ? (
-                  <Link to="/dashboard" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">My Dashboard</Link>
+                  <Link to="/dashboard" onClick={closeMenu} className="block text-gold-300 hover:text-gold-100 hover:bg-gold-900/30 px-3 py-2 rounded-md text-base font-medium">My Dashboard</Link>
                 ) : agentProfile?.role === 'admin' ? (
                   <Link to="/admin" onClick={closeMenu} className="block text-rose-300 hover:text-rose-100 hover:bg-rose-900/30 px-3 py-2 rounded-md text-base font-medium">Admin Portal</Link>
                 ) : agentProfile ? (
-                  <Link to="/employee" onClick={closeMenu} className="block text-teal-300 hover:text-teal-100 hover:bg-teal-900/30 px-3 py-2 rounded-md text-base font-medium">Employee Portal</Link>
+                  <Link to="/employee" onClick={closeMenu} className="block text-gold-300 hover:text-gold-100 hover:bg-gold-900/30 px-3 py-2 rounded-md text-base font-medium">Employee Portal</Link>
                 ) : null}
               </>
             )}
@@ -180,7 +181,7 @@ export default function Navbar() {
                   Logout <LogOut className="w-4 h-4" />
                 </button>
               ) : (
-                <Link to="/login" onClick={closeMenu} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-500 to-blue-600 text-white px-4 py-3 rounded-xl font-medium">
+                <Link to="/login" onClick={closeMenu} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-gold-400 to-gold-600 text-navy-900 px-4 py-3 rounded-xl font-medium">
                   {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
                 </Link>
               )}

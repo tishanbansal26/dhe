@@ -5,12 +5,15 @@ import { supabase } from '../lib/supabase';
 import ProductGrid from '../components/ProductGrid';
 import WhyChooseUs from '../components/WhyChooseUs';
 
+import QuoteRequestModal from '../components/QuoteRequestModal';
+
 export default function Home() {
   
   useEffect(() => {
-    document.title = "Radhe Investments - Top Health & Life Insurance Platform";
+    document.title = "Radhe Investments - Insurance & Financial Protection";
   }, []);
 
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [monthlyInvest, setMonthlyInvest] = useState(10000);
   const [returnRate, setReturnRate] = useState(12);
   const [timePeriod, setTimePeriod] = useState(10);
@@ -54,23 +57,44 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section id="home" className="pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <QuoteRequestModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} />
 
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
-          Find the Best Policy With <br />
-          <span className="gradient-text">Radhe Investments</span>
+      {/* Hero Section */}
+      <section id="home" className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-navy-800/50 rounded-[100%] blur-[120px] -z-10 pointer-events-none"></div>
+
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-navy-800/80 border border-gold-500/30 text-gold-400 text-sm font-semibold tracking-wide uppercase mb-8 shadow-[0_0_15px_rgba(212,175,55,0.15)]">
+          <BadgeCheck className="w-4 h-4" /> Trusted Financial Partners
+        </div>
+
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-white">
+          Insurance & Financial Protection, <br className="hidden md:block" />
+          <span className="text-gold-accent bg-clip-text text-transparent bg-gradient-to-r from-gold-400 to-gold-600">Built Around You</span>
         </h1>
-        <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-400 mb-10 font-inter">
-          Compare 51+ insurers, unlock exclusive discounts, and let our experts guide you to the perfect coverage.
+        <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-300 mb-10 font-inter">
+          Protect your health, family and financial future with trusted, personalized guidance from Radhe Investments.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <a href="#products" className="glow-button bg-white text-slate-900 px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
-            Compare Plans
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          <button onClick={() => setIsQuoteModalOpen(true)} className="bg-gold-500 text-navy-900 hover:bg-gold-400 px-8 py-4 rounded-full font-bold text-lg shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center justify-center gap-2 transition-colors">
+            Get a Free Consultation <ArrowRight className="w-5 h-5" />
+          </button>
+          <a href="#products" className="glass-panel px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 hover:bg-navy-800 transition-colors border border-navy-700 hover:border-gold-500/50 text-white">
+            Explore Insurance Plans
           </a>
-          <Link to="/login" className="glass-panel px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors border border-gray-700 hover:border-gray-500">
-            Agent Login <UserCircle className="w-5 h-5" />
-          </Link>
+        </div>
+
+        {/* Floating Quick Contacts for Desktop (optional) */}
+        <div className="mt-16 flex flex-wrap justify-center gap-8 text-gray-400 text-sm font-medium">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-gold-500" /> 50+ Insurance Partners
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-gold-500" /> Dedicated Claim Support
+          </div>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-gold-500" /> Expert Local Advisors
+          </div>
         </div>
       </section>
 

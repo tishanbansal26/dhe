@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Upload } from 'lucide-react';
+import { uploadDocument } from '../../lib/SupabaseStorageService';
 
 export default function AdminPolicies() {
   const [policies, setPolicies] = useState([]);
@@ -18,9 +19,12 @@ export default function AdminPolicies() {
     agent_id: '',
     sum_insured: '',
     start_date: '',
+    start_date: '',
     end_date: '',
-    status: 'active'
+    status: 'active',
+    document_url: ''
   });
+  const [selectedFile, setSelectedFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -73,8 +77,17 @@ export default function AdminPolicies() {
         sum_insured: newPolicy.sum_insured ? parseFloat(newPolicy.sum_insured) : null,
         start_date: newPolicy.start_date,
         end_date: newPolicy.end_date,
-        status: newPolicy.status
+        status: newPolicy.status,
+        document_url: newPolicy.document_url
       };
+
+      if (selectedFile) {
+        toast.loading('Uploading document...', { id: 'upload' });
+        const { data: uploadData, error: uploadError } = await uploadDocument('documents', 'policies', selectedFile);
+        if (uploadError) throw uploadError;
+        payload.document_url = uploadData.url;
+        toast.dismiss('upload');
+      }
 
       const { error } = await supabase.from('policies').insert([payload]);
       
@@ -82,6 +95,7 @@ export default function AdminPolicies() {
       
       toast.success('Policy added successfully!');
       setIsAddModalOpen(false);
+      setSelectedFile(null);
       setNewPolicy({
         policy_number: '',
         customer_id: '',
@@ -90,7 +104,8 @@ export default function AdminPolicies() {
         sum_insured: '',
         start_date: '',
         end_date: '',
-        status: 'active'
+        status: 'active',
+        document_url: ''
       });
       fetchPolicies();
     } catch (err) {
@@ -123,6 +138,7 @@ export default function AdminPolicies() {
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Agent</th>
                 <th className="px-4 py-3">Dates</th>
+                <th className="px-4 py-3">Doc</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 rounded-r-lg">Action</th>
               </tr>
@@ -135,6 +151,7 @@ export default function AdminPolicies() {
                   <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-32"></div></td>
                   <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
                   <td className="px-4 py-4 space-y-2"><div className="h-3 bg-slate-700/50 rounded w-24"></div><div className="h-3 bg-slate-700/50 rounded w-24"></div></td>
+                  <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-8"></div></td>
                   <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-16"></div></td>
                   <td className="px-4 py-4"><div className="h-8 bg-slate-700/50 rounded w-24"></div></td>
                 </tr>
@@ -152,6 +169,7 @@ export default function AdminPolicies() {
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Agent</th>
                 <th className="px-4 py-3">Dates</th>
+                <th className="px-4 py-3">Doc</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 rounded-r-lg">Action</th>
               </tr>
@@ -166,6 +184,13 @@ export default function AdminPolicies() {
                   <td className="px-4 py-4 text-gray-400 text-xs">
                     Start: {new Date(p.start_date).toLocaleDateString()}<br/>
                     End: {new Date(p.end_date).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-4">
+                    {p.document_url ? (
+                      <a href={p.document_url} target="_blank" rel="noreferrer" className="text-teal-400 hover:text-teal-300">View</a>
+                    ) : (
+                      <span className="text-gray-600">-</span>
+                    )}
                   </td>
                   <td className="px-4 py-4">
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -320,6 +345,18 @@ export default function AdminPolicies() {
                       onChange={e => setNewPolicy({...newPolicy, end_date: e.target.value})}
                       className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
                     />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Policy Document (PDF)</label>
+                    <div className="relative">
+                      <input 
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={e => setSelectedFile(e.target.files[0])}
+                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-500/10 file:text-teal-400 hover:file:bg-teal-500/20"
+                      />
+                    </div>
                   </div>
                 </div>
 

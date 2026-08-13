@@ -7,7 +7,8 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const role = 'customer';
+  const [role, setRole] = useState('customer');
+  const [selectedCompanies, setSelectedCompanies] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
@@ -24,7 +25,8 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const data = await signup(email, password, name, role);
+      const extraData = role === 'agent' ? { company_name: selectedCompanies, type: 'sub' } : {};
+      const data = await signup(email, password, name, role, extraData);
       if (!data?.session) {
         // Supabase requires email verification
         setVerificationSent(true);
@@ -76,6 +78,23 @@ export default function Signup() {
         ) : (
           <>
             <form onSubmit={handleSignup} className="space-y-6">
+              <div className="flex gap-4 p-1 bg-slate-800/50 border border-slate-700 rounded-xl mb-6">
+                <button
+                  type="button"
+                  onClick={() => setRole('customer')}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === 'customer' ? 'bg-teal-500 text-slate-900 shadow-md' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Customer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setRole('agent')}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${role === 'agent' ? 'bg-teal-500 text-slate-900 shadow-md' : 'text-gray-400 hover:text-white'}`}
+                >
+                  Employee
+                </button>
+              </div>
+
               <div>
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
                 <div className="relative">
@@ -134,10 +153,42 @@ export default function Signup() {
                 </div>
               </div>
 
+              {role === 'agent' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Companies Associated With</label>
+                  <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 bg-slate-800/50 border border-slate-600 rounded-xl">
+                    {[
+                      "Tata AIA", "HDFC Life", "LIC", "Max Life", "SBI Life", "ICICI Prudential",
+                      "Bajaj Allianz", "Kotak Life", "PNB MetLife", "Reliance Nippon", "Star Health",
+                      "Niva Bupa", "Care Health", "Aditya Birla", "Other"
+                    ].map(company => {
+                      const isSelected = selectedCompanies.includes(company);
+                      return (
+                        <button
+                          type="button"
+                          key={company}
+                          onClick={() => {
+                            if (isSelected) {
+                              setSelectedCompanies(selectedCompanies.filter(c => c !== company));
+                            } else {
+                              setSelectedCompanies([...selectedCompanies, company]);
+                            }
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${isSelected ? 'bg-teal-500/20 text-teal-300 border-teal-500/50' : 'bg-slate-700/50 text-gray-400 border-slate-600 hover:bg-slate-700'}`}
+                        >
+                          {company}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {selectedCompanies.length === 0 && <p className="text-xs text-red-400 mt-2">Please select at least one company.</p>}
+                </div>
+              )}
+
               <button 
                 type="submit" 
-                disabled={loading}
-                className="w-full glow-button bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex justify-center items-center"
+                disabled={loading || (role === 'agent' && selectedCompanies.length === 0)}
+                className="w-full glow-button bg-gradient-to-r from-teal-500 to-blue-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg flex justify-center items-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Creating Account...' : 'Sign Up'}
               </button>
