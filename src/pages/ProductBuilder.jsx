@@ -6,7 +6,11 @@ import toast from 'react-hot-toast';
 import OverviewTab from '../components/admin/product-builder/OverviewTab';
 import CoverageTab from '../components/admin/product-builder/CoverageTab';
 import EligibilityTab from '../components/admin/product-builder/EligibilityTab';
+import WaitingPeriodsTab from '../components/admin/product-builder/WaitingPeriodsTab';
+import ExclusionsTab from '../components/admin/product-builder/ExclusionsTab';
 import AiImportWorkspace from '../components/admin/product-builder/AiImportWorkspace';
+import MediaDocsTab from '../components/admin/product-builder/MediaDocsTab';
+import ReviewPublishTab from '../components/admin/product-builder/ReviewPublishTab';
 
 export default function ProductBuilder() {
   const { id } = useParams();
@@ -105,6 +109,10 @@ export default function ProductBuilder() {
     { id: 'overview', label: 'Overview' },
     { id: 'coverage', label: 'Coverage Limits' },
     { id: 'eligibility', label: 'Eligibility' },
+    { id: 'waiting_periods', label: 'Waiting Periods' },
+    { id: 'exclusions', label: 'Exclusions' },
+    { id: 'docs', label: 'Media & Documents' },
+    { id: 'review', label: 'Review & Publish' },
     { id: 'ai', label: 'AI Import', icon: <UploadCloud className="w-4 h-4 ml-2" /> }
   ];
 
@@ -187,8 +195,20 @@ export default function ProductBuilder() {
             {activeTab === 'eligibility' && (
               <EligibilityTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
             )}
+            {activeTab === 'waiting_periods' && (
+              <WaitingPeriodsTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
+            )}
+            {activeTab === 'exclusions' && (
+              <ExclusionsTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
+            )}
+            {activeTab === 'docs' && (
+              <MediaDocsTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
+            )}
+            {activeTab === 'review' && (
+              <ReviewPublishTab data={productData} />
+            )}
             {activeTab === 'ai' && (
-              <AiImportWorkspace onExtractionComplete={handleAiExtraction} />
+              <AiImportWorkspace productId={id} onExtractionComplete={handleAiExtraction} />
             )}
           </div>
         </div>

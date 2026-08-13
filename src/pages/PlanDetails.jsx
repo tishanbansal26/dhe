@@ -246,6 +246,7 @@ export default function PlanDetails() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         planInterest={plan.name}
+        productId={plan.id}
       />
     </>
   );

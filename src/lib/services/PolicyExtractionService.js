@@ -1,97 +1,70 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { supabase } from '../supabase';
 
 export class PolicyExtractionService {
-  static async extractFromDocument(file) {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("VITE_GEMINI_API_KEY is missing in your .env file.");
+  static async uploadDocument(file, productId) {
+    if (!productId) {
+      throw new Error("Product must be saved before uploading documents.");
     }
     
-    const genAI = new GoogleGenerativeAI(apiKey);
-    
-    // We use gemini-1.5-pro for its massive context window and accuracy
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro",
-      generationConfig: {
-        responseMimeType: "application/json"
-      }
-    });
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${productId}/${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
 
-    // Convert file to base64
-    const base64Data = await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.readAsDataURL(file);
-    });
+    const { error: uploadError } = await supabase.storage
+      .from('policy-documents')
+      .upload(filePath, file);
 
-    const filePart = {
-      inlineData: {
-        data: base64Data,
-        mimeType: file.type || 'application/pdf'
-      }
-    };
+    if (uploadError) {
+      throw new Error(`Upload failed: ${uploadError.message}`);
+    }
 
-    const prompt = `You are an expert insurance data extractor.
-Read the provided insurance policy document/brochure.
-Extract the following information perfectly and return it ONLY as a JSON object matching this schema.
-Include a "confidence" score (0-100) for every nested extracted field based on how clearly it was stated in the document.
-If a field is not found, leave its value null or empty, but still include the field.
-
-{
-  "name": "String (Name of the insurance product)",
-  "category": "String (Health, Life, Term, Motor, Investment)",
-  "description": "String (A 2-3 sentence summary)",
-  "coverage": {
-    "roomRent": { "value": "String", "confidence": Number },
-    "icuLimit": { "value": "String", "confidence": Number },
-    "preHospitalization": { "value": "String", "confidence": Number },
-    "postHospitalization": { "value": "String", "confidence": Number },
-    "ambulance": { "value": "String", "confidence": Number },
-    "noClaimBonus": { "value": "String", "confidence": Number }
-  },
-  "eligibility": {
-    "minAgeAdult": { "value": "String", "confidence": Number },
-    "maxAge": { "value": "String", "confidence": Number },
-    "minAgeChild": { "value": "String", "confidence": Number }
-  },
-  "premium_data": {
-    "startingPremium": { "value": "Number", "confidence": Number }
-  },
-  "benefits": [
-    { "name": "String", "description": "String", "confidence": Number }
-  ],
-  "waiting_periods": [
-    { "name": "String", "duration": "String", "confidence": Number }
-  ],
-  "exclusions": [
-    { "name": "String" }
-  ]
-}`;
-
-    const result = await model.generateContent([prompt, filePart]);
-    const response = await result.response;
-    const text = response.text();
-    
-    return JSON.parse(text);
+    return filePath;
   }
 
-  static async processJob(file, onProgressCallback) {
-    if (onProgressCallback) onProgressCallback(10);
+  static async processJob(files, productId, onProgressCallback) {
+    if (!productId) throw new Error("Please save the product as a draft before importing AI documents.");
     
-    let progress = 10;
-    const progressInterval = setInterval(() => {
-      progress += (90 - progress) * 0.2; 
-      if (onProgressCallback) onProgressCallback(Math.floor(progress));
-    }, 1000);
-
-    try {
-      const result = await this.extractFromDocument(file);
-      clearInterval(progressInterval);
-      if (onProgressCallback) onProgressCallback(100);
-      return result;
-    } catch (error) {
-      clearInterval(progressInterval);
-      throw error;
+    if (onProgressCallback) onProgressCallback(5, "Uploading documents...");
+    
+    // 1. Upload files
+    const documentPaths = [];
+    for (const file of files) {
+      const path = await this.uploadDocument(file, productId);
+      documentPaths.push(path);
     }
+    
+    if (onProgressCallback) onProgressCallback(20, "Creating import job...");
+
+    // 2. Create Import Job
+    const { data: importJob, error: importError } = await supabase
+      .from('product_ai_imports')
+      .insert([{
+        product_id: productId,
+        documents: documentPaths,
+        status: 'QUEUED'
+      }])
+      .select()
+      .single();
+
+    if (importError) throw importError;
+
+    if (onProgressCallback) onProgressCallback(30, "Triggering AI processing...");
+
+    // 3. Trigger Edge Function
+    const { data: edgeResponse, error: edgeError } = await supabase.functions.invoke('process-policy-document', {
+      body: {
+        import_id: importJob.id,
+        product_id: productId,
+        documents: documentPaths
+      }
+    });
+
+    if (edgeError || (edgeResponse && edgeResponse.error)) {
+      throw new Error(edgeError?.message || edgeResponse?.error || 'Unknown edge function error');
+    }
+
+    if (onProgressCallback) onProgressCallback(100, "Processing complete. Please review data.");
+    
+    return importJob;
   }
 }

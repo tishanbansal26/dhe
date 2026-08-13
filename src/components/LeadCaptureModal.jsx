@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, ShieldCheck, Loader2, ArrowRight, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'General' }) {
+export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'General', productId }) {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -69,6 +69,7 @@ export default function LeadCaptureModal({ isOpen, onClose, planInterest = 'Gene
           phone,
           pincode,
           plan_interest: planInterest,
+          product_id: productId || null,
           status: 'new'
         }
       ]);
