@@ -99,9 +99,6 @@ export default function AdminPlans() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700/50">
-              {plans.map(p => (
-                <tr key={p.id} className="hover:bg-slate-800/30">
-                  <td className="px-4 py-4 text-white font-medium">{p.name}</td>
               {plans.map(plan => (
                 <tr key={plan.id} className="hover:bg-slate-800/30">
                   <td className="px-4 py-4 text-white font-medium">{plan.name}</td>

@@ -306,7 +306,8 @@ export default function CategoryList() {
               </div>
             </div>
             );
-          }))}
+          })
+          )}
         </div>
       </div>
       )}
@@ -342,5 +343,6 @@ export default function CategoryList() {
         </div>
       )}
     </div>
+    </>
   );
 }
