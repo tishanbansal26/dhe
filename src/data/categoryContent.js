@@ -1,6 +1,6 @@
 export const categoryContent = {
-  'health-insurance': {
-    slug: 'health-insurance',
+  'health': {
+    slug: 'health',
     name: 'Health Insurance',
     seo: { 
       title: 'Health Insurance Plans - Comprehensive Medical Coverage | Radhe Investments', 
@@ -111,8 +111,8 @@ export const categoryContent = {
     ]
   },
   
-  'life-insurance': {
-    slug: 'life-insurance',
+  'life': {
+    slug: 'life',
     name: 'Life Insurance',
     seo: { 
       title: 'Life Insurance Plans - Wealth Creation & Protection | Radhe Investments', 
@@ -222,8 +222,8 @@ export const categoryContent = {
     ]
   },
   
-  'term-insurance': {
-    slug: 'term-insurance',
+  'term': {
+    slug: 'term',
     name: 'Term Insurance',
     seo: { 
       title: 'Term Insurance - Pure Life Protection Plans | Radhe Investments', 
@@ -328,6 +328,194 @@ export const categoryContent = {
         items: [ 
           { q: 'Can NRIs buy term insurance in India?', a: 'Yes, NRIs and PIOs can easily purchase term insurance in India. They may require a medical check-up in their country of residence or via tele-medical underwriting.' },
           { q: 'What is MWP Act in Term Insurance?', a: 'Buying a term plan under the Married Women\'s Property (MWP) Act ensures the death benefit can only be claimed by your wife and children, protecting the money from your creditors or business liabilities.' }
+        ] 
+      }
+    ]
+  },
+  
+  'investment': {
+    slug: 'investment',
+    name: 'Investment & Retirement',
+    seo: { 
+      title: 'Investment & Pension Plans - Grow Your Wealth | Radhe Investments', 
+      description: 'Explore guaranteed return plans, ULIPs, and retirement solutions for a secure financial future.' 
+    },
+    hero: { 
+      title: 'Grow Your Wealth Securely', 
+      subtitle: 'Investment Solutions for Every Goal', 
+      description: 'Whether you are planning for your child\'s education, a dream home, or a peaceful retirement, our investment solutions offer guaranteed returns and market-linked growth options.' 
+    },
+    finder: [
+      { title: 'Guaranteed Returns', icon: 'Shield', description: 'Zero market risk plans ensuring your capital is safe and grows steadily.' },
+      { title: 'Market Linked (ULIP)', icon: 'TrendingUp', description: 'Harness the power of equity markets for higher long-term growth with tax benefits.' },
+      { title: 'Retirement/Pension', icon: 'Clock', description: 'Build a corpus to ensure a fixed, lifelong monthly income post-retirement.' }
+    ],
+    types: [
+      { title: 'Guaranteed Income Plans', description: 'Provide a fixed payout for a certain period after premium payment term ends.', whoItSuits: 'Risk-averse individuals looking for stable secondary income.', considerations: 'Returns are fixed but might be lower than equity.' },
+      { title: 'ULIPs', description: 'Unit Linked Insurance Plans investing in market funds.', whoItSuits: 'Long-term investors wanting wealth creation with life cover.', considerations: '5-year lock-in period; subject to market risks.' }
+    ],
+    benefits: [
+      { title: 'Tax Savings', icon: 'Percent', description: 'Save tax under 80C on premiums and 10(10D) on maturity.' },
+      { title: 'Wealth Creation', icon: 'TrendingUp', description: 'Benefit from compounding over long terms.' },
+      { title: 'Goal Protection', icon: 'Shield', description: 'Premium waiver benefits ensure your goal is met even in your absence.' },
+      { title: 'Flexibility', icon: 'RefreshCcw', description: 'Switch between equity and debt funds in ULIPs based on market conditions.' }
+    ],
+    howItWorks: [
+      { step: 1, title: 'Set Your Goal', description: 'Define what you are saving for and when you need the money.' },
+      { step: 2, title: 'Choose the Strategy', description: 'Pick between guaranteed plans or market-linked ULIPs.' },
+      { step: 3, title: 'Invest Regularly', description: 'Pay premiums monthly or annually to build your corpus.' },
+      { step: 4, title: 'Reap Benefits', description: 'Receive lump sum maturity or regular income payouts as planned.' }
+    ],
+    factors: [
+      { title: 'Investment Horizon', description: 'Longer horizons allow for higher equity exposure.' },
+      { title: 'Risk Appetite', description: 'Determines if you should choose guaranteed plans or ULIPs.' },
+      { title: 'Inflation', description: 'Ensure your returns beat inflation over the long term.' },
+      { title: 'Liquidity Needs', description: 'Insurance investments have lock-in periods; do not invest emergency funds.' }
+    ],
+    coverage: { 
+      included: ['Maturity Benefit', 'Death Benefit to nominee', 'Loyalty additions and bonuses (if applicable)'], 
+      subjectToTerms: ['Market risks (for ULIPs)'], 
+      notSpecified: ['Short-term liquidity (before 5 years)'] 
+    },
+    eligibility: [
+      'Age: Typically 18 to 60 years.',
+      'KYC: Standard PAN and Aadhaar requirements.'
+    ],
+    waitingPeriods: [
+      { title: 'Lock-in Period', description: 'ULIPs have a strict 5-year lock-in period during which no withdrawals are permitted.' }
+    ],
+    documents: [
+      'Identity Proof (Aadhaar, PAN)',
+      'Address Proof',
+      'Income Proof'
+    ],
+    howToChoose: [
+      '1. Match the policy term with your financial goal timeline.',
+      '2. Understand the charges (Premium Allocation, Fund Management) in ULIPs.',
+      '3. Verify the guaranteed IRR (Internal Rate of Return) before buying.'
+    ],
+    claims: [
+      { step: 1, title: 'Maturity Intimation', description: 'Insurers usually send a discharge voucher 1 month before maturity.' },
+      { step: 2, title: 'Document Submission', description: 'Submit the signed voucher, original policy, and bank details.' },
+      { step: 3, title: 'Payout', description: 'Funds are credited directly to your bank account.' }
+    ],
+    renewals: { 
+      description: 'Timely premium payment is crucial for the magic of compounding to work.', 
+      points: [
+        'Grace Period: 30 days for annual premiums.', 
+        'Lapsation: May result in heavy surrender penalties.'
+      ] 
+    },
+    whyRadhe: [
+      { title: 'Unbiased Portfolio Advice', description: 'We help balance your portfolio between safe and aggressive instruments.' }
+    ],
+    education: [
+      { h3: 'The Power of Compounding', content: 'Starting your investment early allows your money to grow exponentially. A 10-year head start can double your final retirement corpus due to compounding interest.' }
+    ],
+    glossary: [
+      { term: 'NAV', definition: 'Net Asset Value, the price of one unit of a ULIP fund.' },
+      { term: 'IRR', definition: 'Internal Rate of Return, the true annualized return of a guaranteed policy.' }
+    ],
+    articles: [],
+    faq: [
+      { 
+        category: 'General', 
+        items: [ 
+          { q: 'Can I withdraw money before maturity?', a: 'In ULIPs, partial withdrawals are allowed only after 5 years. Guaranteed plans have high surrender penalties if broken early.' }
+        ] 
+      }
+    ]
+  },
+  
+  'motor': {
+    slug: 'motor',
+    name: 'Motor Insurance',
+    seo: { 
+      title: 'Motor Insurance - Car & Bike Plans | Radhe Investments', 
+      description: 'Comprehensive motor insurance plans for your vehicles. Compare and buy instantly.' 
+    },
+    hero: { 
+      title: 'Drive with Confidence', 
+      subtitle: 'Comprehensive Motor Insurance', 
+      description: 'Protect your vehicle against accidents, theft, and natural disasters. Get instant policy issuance and hassle-free cashless claims across thousands of network garages.' 
+    },
+    finder: [
+      { title: 'Comprehensive Cover', icon: 'Shield', description: 'Covers damages to your own vehicle as well as third-party liabilities.' },
+      { title: 'Third Party Only', icon: 'User', description: 'Mandatory by law, covers only damages or injuries caused to others.' },
+      { title: 'Zero Depreciation', icon: 'TrendingUp', description: 'Add-on that ensures you get the full claim amount without deduction for depreciation.' }
+    ],
+    types: [
+      { title: 'Comprehensive Car Insurance', description: 'Provides end-to-end protection for your car.', whoItSuits: 'All private car owners.', considerations: 'Premium depends on the IDV (Insured Declared Value) of the car.' },
+      { title: 'Two-Wheeler Insurance', description: 'Specific plans for bikes and scooters.', whoItSuits: 'All two-wheeler owners.', considerations: 'Multi-year policies (up to 3-5 years) are highly recommended.' }
+    ],
+    benefits: [
+      { title: 'Cashless Repairs', icon: 'CheckCircle', description: 'Get your vehicle repaired at network garages without paying cash.' },
+      { title: 'Legal Compliance', icon: 'Shield', description: 'Fulfills the mandatory requirement of the Motor Vehicles Act.' },
+      { title: 'No Claim Bonus (NCB)', icon: 'Percent', description: 'Get up to 50% discount on renewal premium for claim-free years.' },
+      { title: 'Roadside Assistance', icon: 'Heart', description: '24x7 help for towing, flat tires, or battery jump-starts (if opted).' }
+    ],
+    howItWorks: [
+      { step: 1, title: 'Enter Details', description: 'Provide your vehicle registration number and make/model.' },
+      { step: 2, title: 'Customize IDV', description: 'Set your Insured Declared Value and select required add-ons like Zero Dep.' },
+      { step: 3, title: 'Compare Quotes', description: 'Check premiums across top insurers.' },
+      { step: 4, title: 'Instant Policy', description: 'Pay online and receive your policy instantly via email.' }
+    ],
+    factors: [
+      { title: 'IDV (Insured Declared Value)', description: 'The current market value of your car; affects both premium and claim payout.' },
+      { title: 'Add-ons', description: 'Choosing Zero Dep, Engine Protect, or Consumables cover increases the premium.' },
+      { title: 'Cubic Capacity (CC)', description: 'Third-party premium is fixed by IRDAI based on the engine capacity.' },
+      { title: 'NCB', description: 'Your accumulated No Claim Bonus drastically reduces your own-damage premium.' }
+    ],
+    coverage: { 
+      included: ['Accidents and collisions', 'Theft', 'Fire and explosions', 'Natural disasters (Floods, Earthquakes)'], 
+      subjectToTerms: ['Depreciation on parts (unless Zero Dep add-on is chosen)'], 
+      notSpecified: ['Driving without a valid license', 'Driving under the influence of alcohol', 'Normal wear and tear'] 
+    },
+    eligibility: [
+      'Vehicle must be registered in India.',
+      'Owner must possess a valid driving license.'
+    ],
+    waitingPeriods: [
+      { title: 'No Waiting Period', description: 'Coverage begins the moment the policy is issued.' }
+    ],
+    documents: [
+      'Registration Certificate (RC)',
+      'Previous Policy Copy (for renewal)',
+      'Driving License'
+    ],
+    howToChoose: [
+      '1. Never under-insure your car to save a small amount on premium; set the correct IDV.',
+      '2. Always opt for a Zero Depreciation add-on for cars less than 5 years old.',
+      '3. Check the network garages near your residence or regular commute.'
+    ],
+    claims: [
+      { step: 1, title: 'Intimation', description: 'Inform the insurer immediately after the accident.' },
+      { step: 2, title: 'Survey', description: 'Take the vehicle to a network garage where a surveyor will assess the damage.' },
+      { step: 3, title: 'Repair & Settlement', description: 'Once approved, the garage repairs the car and the insurer settles the bill directly.' }
+    ],
+    renewals: { 
+      description: 'Motor insurance must be renewed before expiry to avoid inspection and loss of NCB.', 
+      points: [
+        'Break-in Policy: If expired for more than 90 days, you lose your entire No Claim Bonus.', 
+        'Inspection: Expired policies require physical or video inspection of the vehicle before renewal.'
+      ] 
+    },
+    whyRadhe: [
+      { title: 'Instant Renewals', description: 'We ensure your policy is renewed in 2 minutes without hassle.' }
+    ],
+    education: [
+      { h3: 'The Importance of Zero Depreciation', content: 'In a standard policy, if your car\'s bumper (plastic) is damaged, the insurer only pays 50% of the replacement cost due to depreciation. With a Zero Dep cover, the insurer pays 100% of the part replacement cost, saving you thousands of rupees during a claim.' }
+    ],
+    glossary: [
+      { term: 'IDV', definition: 'Insured Declared Value - the maximum amount the insurer will pay in case of total loss or theft.' },
+      { term: 'NCB', definition: 'No Claim Bonus - a discount given on renewal for not making any claims in the previous year.' }
+    ],
+    articles: [],
+    faq: [
+      { 
+        category: 'General', 
+        items: [ 
+          { q: 'What happens to my NCB if I sell my car?', a: 'The NCB belongs to the owner, not the car. You can transfer the NCB to your new car by getting an NCB retention certificate from the insurer.' }
         ] 
       }
     ]
