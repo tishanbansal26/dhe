@@ -14,31 +14,8 @@ export default function AiImportWorkspace({ productId, onExtractionComplete }) {
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    let channel;
-    if (importJob?.id && step === 'processing') {
-      // Listen to Realtime updates for the job status
-      channel = supabase
-        .channel(`import-${importJob.id}`)
-        .on(
-          'postgres_changes',
-          { event: 'UPDATE', schema: 'public', table: 'product_ai_imports', filter: `id=eq.${importJob.id}` },
-          (payload) => {
-            const newStatus = payload.new.status;
-            setProgressMsg(`Status: ${newStatus}...`);
-            if (newStatus === 'REVIEW_REQUIRED' || newStatus === 'COMPLETED') {
-              fetchExtractions(importJob.id);
-            } else if (newStatus === 'FAILED') {
-              toast.error('AI Extraction failed on server.');
-              setStep('upload');
-              setIsProcessing(false);
-            }
-          }
-        )
-        .subscribe();
-    }
-    return () => {
-      if (channel) supabase.removeChannel(channel);
-    };
+    // Edge function is synchronous, so we don't need Realtime listeners
+    // to detect completion. The data is ready as soon as the API call returns.
   }, [importJob, step]);
 
   const fetchExtractions = async (importId) => {
@@ -80,6 +57,7 @@ export default function AiImportWorkspace({ productId, onExtractionComplete }) {
         setProgressMsg(msg);
       });
       setImportJob(job);
+      fetchExtractions(job.id);
     } catch (error) {
       toast.error('AI Extraction failed: ' + error.message);
       setStep('upload');
