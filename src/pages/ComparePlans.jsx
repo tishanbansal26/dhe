@@ -78,7 +78,7 @@ export default function ComparePlans() {
     return (
       <div className="pt-32 pb-20 min-h-screen text-center">
         <h2 className="text-2xl font-bold text-white mb-4">No plans selected to compare.</h2>
-        <button onClick={() => navigate('/#plans')} className="text-teal-400 underline">Go back to plans</button>
+        <button onClick={() => navigate('/#products')} className="text-teal-400 underline font-medium hover:text-teal-300">Browse Available Plans</button>
       </div>
     );
   }

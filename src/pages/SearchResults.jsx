@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search, Package, ArrowRight } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { supabase } from '../lib/supabase';
 
 export default function SearchResults() {
@@ -24,8 +25,10 @@ export default function SearchResults() {
       try {
         const { data, error } = await supabase
           .from('insurance_plans')
-          .select('*, insurance_companies(name)')
-          .or(`name.ilike.%${query}%,category.ilike.%${query}%`);
+          .select('*, insurance_companies(name, logo_url)')
+          .or(`name.ilike.%${query}%,category.ilike.%${query}%`)
+          .eq('status', 'published')
+          .eq('active', true);
           
         if (error) throw error;
         setResults(data || []);
@@ -41,6 +44,10 @@ export default function SearchResults() {
 
   return (
     <div className="pt-24 pb-20 min-h-screen">
+      <Helmet>
+        <title>{query ? `Search: "${query}"` : 'Search Insurance Plans'} | Radhe Investments</title>
+        <meta name="description" content={`Find the best health, term life, pension and motor insurance plans matching ${query} at Radhe Investments.`} />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <h1 className="text-3xl md:text-4xl font-bold mb-4">
@@ -106,7 +113,7 @@ export default function SearchResults() {
             <p className="text-gray-400 max-w-md mx-auto mb-8">
               We couldn't find any insurance plans matching "{query}". Try searching for categories like "Health", "Life", or "Motor".
             </p>
-            <Link to="/#plans" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-slate-900 px-6 py-3 rounded-xl font-bold transition-colors">
+            <Link to="/#products" className="inline-flex items-center gap-2 bg-teal-500 hover:bg-teal-600 text-slate-900 px-6 py-3 rounded-xl font-bold transition-colors">
               Browse All Plans
             </Link>
           </div>

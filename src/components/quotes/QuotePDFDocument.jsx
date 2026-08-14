@@ -28,9 +28,7 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
             visibility: visible;
           }
           #pdf-print-container {
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: static !important;
             width: 100%;
             margin: 0;
             padding: 0;

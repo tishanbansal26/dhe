@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Save, Eye, CheckCircle, UploadCloud, Shield, Check, AlertTriangle, ArrowLeft, Layers } from 'lucide-react';
+import { Save, Eye, CheckCircle, UploadCloud, Shield, Check, AlertTriangle, ArrowLeft, Layers, Calculator } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 import OverviewTab from '../components/admin/product-builder/OverviewTab';
 import CoverageTab from '../components/admin/product-builder/CoverageTab';
 import EligibilityTab from '../components/admin/product-builder/EligibilityTab';
@@ -130,6 +131,10 @@ export default function ProductBuilder() {
 
   return (
     <div className="min-h-screen bg-navy-950 pt-20 pb-20">
+      <Helmet>
+        <title>{productData.name ? `${productData.name} - Product Builder` : 'Policy Product Builder'} | Radhe Investments Admin</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       {/* Header */}
       <div className="sticky top-20 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700 shadow-lg px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">

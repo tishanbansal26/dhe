@@ -201,11 +201,11 @@ export default function QuoteGenerator() {
       await supabase
         .from('leads')
         .insert([{
-          customer_name: customerInputs.name,
-          mobile: customerInputs.mobile,
+          name: customerInputs.name,
+          phone: customerInputs.mobile,
           age: Number(customerInputs.age),
           gender: customerInputs.gender,
-          plan_id: selectedPlan?.id,
+          plan_interest: selectedPlan?.name || 'Unknown Plan',
           source: 'Quote Generator - Step 2',
           status: 'new'
         }]);
@@ -359,6 +359,7 @@ export default function QuoteGenerator() {
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5">Full Name</label>
                   <input
                     type="text"
+                    autoComplete="name"
                     placeholder="e.g. Ramesh Chandra Sharma"
                     value={customerInputs.name}
                     onChange={(e) => setCustomerInputs({ ...customerInputs, name: e.target.value })}
@@ -395,9 +396,15 @@ export default function QuoteGenerator() {
                   <label className="block text-xs font-semibold text-slate-400 mb-1.5">Mobile Number (for WhatsApp Quote)</label>
                   <input
                     type="tel"
+                    autoComplete="tel"
+                    maxLength="10"
+                    pattern="[0-9]*"
                     placeholder="9876543210"
                     value={customerInputs.mobile}
-                    onChange={(e) => setCustomerInputs({ ...customerInputs, mobile: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setCustomerInputs({ ...customerInputs, mobile: val });
+                    }}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500 font-mono"
                   />
                 </div>
