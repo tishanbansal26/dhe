@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { TrendingUp, ArrowRight, LogOut, Menu, X, ChevronDown, Search } from 'lucide-react';
+import { TrendingUp, ArrowRight, LogOut, Menu, X, ChevronDown, Search, Calculator } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
 import NotificationBell from './NotificationBell';
@@ -80,6 +80,12 @@ export default function Navbar() {
                 className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
                 Calculators
+              </Link>
+              <Link 
+                to="/quote-generator"
+                className="text-teal-400 hover:text-teal-300 px-3 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1"
+              >
+                <Calculator className="w-4 h-4" /> Instant Quote
               </Link>
               
               <div className="relative flex items-center">
@@ -187,6 +193,13 @@ export default function Navbar() {
                   className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
                 >
                   Calculators
+                </Link>
+                <Link 
+                  to="/quote-generator"
+                  onClick={closeMenu}
+                  className="block text-teal-400 font-bold hover:bg-slate-700/50 px-3 py-2 rounded-md text-base"
+                >
+                  Instant Quote
                 </Link>
                 
                 <div className="px-3 py-2">

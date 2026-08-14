@@ -11,6 +11,7 @@ import ExclusionsTab from '../components/admin/product-builder/ExclusionsTab';
 import AiImportWorkspace from '../components/admin/product-builder/AiImportWorkspace';
 import MediaDocsTab from '../components/admin/product-builder/MediaDocsTab';
 import ReviewPublishTab from '../components/admin/product-builder/ReviewPublishTab';
+import AdminCalculationConfig from '../components/admin/AdminCalculationConfig';
 
 import { getIrdaiCategoryStandards, IRDAI_STANDARDS } from '../lib/irdaiStandards';
 
@@ -119,6 +120,7 @@ export default function ProductBuilder() {
     { id: 'coverage', label: 'Coverage & Eligibility', icon: <Shield className="w-4 h-4 mr-2" /> },
     { id: 'waiting_periods', label: 'Waiting Periods & Terms', icon: <Check className="w-4 h-4 mr-2" /> },
     { id: 'exclusions', label: 'Exclusions & Perils', icon: <AlertTriangle className="w-4 h-4 mr-2" /> },
+    { id: 'calculation_config', label: 'Actuarial Config & Slabs', icon: <Calculator className="w-4 h-4 mr-2 text-teal-400" /> },
     { id: 'docs', label: 'Brochures & Media', icon: <Eye className="w-4 h-4 mr-2" /> },
     { id: 'review', label: 'Review & Publish', icon: <CheckCircle className="w-4 h-4 mr-2" /> },
     { id: 'ai', label: 'AI PDF Extraction', icon: <UploadCloud className="w-4 h-4 mr-2 text-teal-400" /> }
@@ -192,8 +194,8 @@ export default function ProductBuilder() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`text-left px-4 py-3 rounded-xl text-sm font-medium flex items-center transition-colors ${activeTab === tab.id ? 'bg-teal-500/10 text-teal-400' : 'text-gray-400 hover:bg-slate-800 hover:text-gray-200'}`}
                 >
-                  {tab.label}
                   {tab.icon}
+                  {tab.label}
                 </button>
               ))}
             </div>
@@ -218,11 +220,22 @@ export default function ProductBuilder() {
             {activeTab === 'exclusions' && (
               <ExclusionsTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
             )}
+            {activeTab === 'calculation_config' && (
+              <AdminCalculationConfig 
+                planId={id} 
+                planData={productData} 
+                onConfigUpdated={(cfg, ver) => setProductData({
+                  ...productData, 
+                  version: ver, 
+                  metadata: { ...(productData.metadata || {}), calculation_config: cfg }
+                })} 
+              />
+            )}
             {activeTab === 'docs' && (
               <MediaDocsTab data={productData} updateData={(d) => setProductData({...productData, ...d})} />
             )}
             {activeTab === 'review' && (
-              <ReviewPublishTab data={productData} />
+              <ReviewPublishTab data={productData} updateData={(d) => setProductData({...productData, ...d})} onPublish={() => saveProduct('published')} />
             )}
             {activeTab === 'ai' && (
               <AiImportWorkspace productId={id} onExtractionComplete={handleAiExtraction} />

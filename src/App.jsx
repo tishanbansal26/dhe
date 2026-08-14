@@ -23,10 +23,14 @@ import Footer from './components/Footer';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
+import Leads from './pages/admin/Leads';
 import SearchResults from './pages/SearchResults';
 import ProductBuilder from './pages/ProductBuilder';
 import ProductBuilderAI from './pages/ProductBuilderAI';
 import ReviewDashboardPage from './pages/ReviewDashboardPage';
+import QuoteGenerator from './pages/QuoteGenerator';
+import QuoteDetails from './pages/QuoteDetails';
+import QuotesHistory from './pages/QuotesHistory';
 import { Toaster } from 'react-hot-toast';
 
 // Calculators
@@ -196,6 +200,27 @@ export default function App() {
                 />
                 <Route path="/category/:type" element={<CategoryList />} />
                 <Route path="/plan/:id" element={<PlanDetails />} />
+                <Route path="/plan/:planId/quote" element={<QuoteGenerator />} />
+                <Route path="/quote-generator" element={<QuoteGenerator />} />
+                <Route path="/quotes" element={<QuotesHistory />} />
+                <Route path="/quotes/:id" element={<QuoteDetails />} />
+                <Route path="/q/:id" element={<QuoteDetails />} />
+                <Route 
+                  path="/admin/quotes" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <QuotesHistory />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/leads" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <Leads />
+                    </ProtectedRoute>
+                  } 
+                />
                 <Route path="/compare" element={<ComparePlans />} />
                 <Route path="/claims/new" element={<FileClaim />} />
                 <Route path="/claims/existing" element={<ExistingClaim />} />
