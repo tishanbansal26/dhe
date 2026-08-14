@@ -106,14 +106,13 @@ export default function ProductBuilder() {
   };
 
   const tabs = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'coverage', label: 'Coverage Limits' },
-    { id: 'eligibility', label: 'Eligibility' },
-    { id: 'waiting_periods', label: 'Waiting Periods' },
-    { id: 'exclusions', label: 'Exclusions' },
-    { id: 'docs', label: 'Media & Documents' },
-    { id: 'review', label: 'Review & Publish' },
-    { id: 'ai', label: 'AI Import', icon: <UploadCloud className="w-4 h-4 ml-2" /> }
+    { id: 'overview', label: 'Overview & Domain', icon: <Layers className="w-4 h-4 mr-2" /> },
+    { id: 'coverage', label: 'Coverage & Eligibility', icon: <Shield className="w-4 h-4 mr-2" /> },
+    { id: 'waiting_periods', label: 'Waiting Periods & Terms', icon: <Check className="w-4 h-4 mr-2" /> },
+    { id: 'exclusions', label: 'Exclusions & Perils', icon: <AlertTriangle className="w-4 h-4 mr-2" /> },
+    { id: 'docs', label: 'Brochures & Media', icon: <Eye className="w-4 h-4 mr-2" /> },
+    { id: 'review', label: 'Review & Publish', icon: <CheckCircle className="w-4 h-4 mr-2" /> },
+    { id: 'ai', label: 'AI PDF Extraction', icon: <UploadCloud className="w-4 h-4 mr-2 text-teal-400" /> }
   ];
 
   if (loading) return <div className="p-8 text-center text-teal-400">Loading Product...</div>;
