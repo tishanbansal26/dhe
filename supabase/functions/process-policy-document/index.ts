@@ -86,7 +86,7 @@ serve(async (req) => {
     // 4. Call Gemini
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-flash-latest",
+      model: "gemini-2.5-flash",
       generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -127,7 +127,21 @@ If a field is not found, leave its value null or empty, but still include the fi
   ]
 }`;
 
-    const result = await model.generateContent([prompt, ...fileParts]);
+    // Retry logic for transient 503 errors
+    let result;
+    const maxRetries = 3;
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        result = await model.generateContent([prompt, ...fileParts]);
+        break; // Success, exit loop
+      } catch (genError) {
+        console.error(`Gemini attempt ${attempt}/${maxRetries} failed:`, genError.message);
+        if (attempt === maxRetries) throw genError;
+        // Wait before retrying: 3s, 6s
+        await new Promise(r => setTimeout(r, attempt * 3000));
+      }
+    }
+
     const response = await result.response;
     const text = response.text();
     
