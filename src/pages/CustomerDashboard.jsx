@@ -148,48 +148,176 @@ export default function CustomerDashboard() {
         ) : (
           <>
             {/* Policies Tab */}
-            {activeTab === 'policies' && (
-              <div className="space-y-6">
-                <h3 className="text-xl font-bold text-white">Your Insurance Policies</h3>
-                {policies.length === 0 ? (
-                  <div className="glass-panel p-8 text-center text-gray-400 rounded-3xl border border-slate-700/50 flex flex-col items-center justify-center">
-                    <ShieldX className="w-12 h-12 text-slate-500 mb-4" />
-                    You don't have any active policies yet. <br />
-                    <button onClick={() => navigate('/#plans')} className="mt-4 text-teal-400 underline">Explore Plans</button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {policies.map(p => (
-                      <div key={p.id} className="glass-panel p-6 rounded-2xl border border-slate-700/50 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4">
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${p.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
-                            {p.status.toUpperCase()}
-                          </span>
+            {activeTab === 'policies' && (() => {
+              // Expiry calculation helper
+              const getExpiryDetails = (endDateStr) => {
+                if (!endDateStr) return { daysLeft: 999, text: 'Active', isUrgent: false, isSoon: false, isExpired: false };
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const expiry = new Date(endDateStr);
+                expiry.setHours(0, 0, 0, 0);
+                const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+                return {
+                  daysLeft: diffDays,
+                  text: diffDays < 0 ? `Expired (${Math.abs(diffDays)}d ago)` : diffDays === 0 ? 'Expires Today' : `${diffDays} days left`,
+                  isUrgent: diffDays >= 0 && diffDays <= 7,
+                  isSoon: diffDays > 7 && diffDays <= 30,
+                  isExpired: diffDays < 0
+                };
+              };
+
+              const expiringPolicies = policies.filter(p => {
+                const exp = getExpiryDetails(p.end_date);
+                return exp.isUrgent || exp.isSoon || exp.isExpired;
+              });
+
+              return (
+                <div className="space-y-6">
+                  
+                  {/* Renewal Alert Banner if any policy is expiring */}
+                  {expiringPolicies.length > 0 && (
+                    <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-transparent border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 animate-fade-in shadow-lg">
+                      <div className="flex items-center gap-3.5">
+                        <div className="p-3 rounded-xl bg-amber-500 text-slate-950 font-bold shrink-0">
+                          <AlertCircle className="w-6 h-6" />
                         </div>
-                        <Shield className="w-10 h-10 text-teal-400 mb-4" />
-                        <h4 className="text-xl font-bold text-white mb-1">{p.insurance_plans?.name}</h4>
-                        <p className="text-sm text-gray-400 mb-4">Policy #{p.policy_number}</p>
-                        
-                        <div className="space-y-2 text-sm border-t border-slate-700/50 pt-4 mt-4">
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Premium</span>
-                            <span className="text-white">₹{p.premium_amount}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Cover Amount</span>
-                            <span className="text-white">₹{p.cover_amount}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-400">Expiry Date</span>
-                            <span className="text-white">{new Date(p.end_date).toLocaleDateString()}</span>
-                          </div>
+                        <div>
+                          <h4 className="font-bold text-white text-base flex items-center gap-2">
+                            Policy Renewal Notice
+                            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                              {expiringPolicies.length} Policy Due
+                            </span>
+                          </h4>
+                          <p className="text-xs text-gray-300 mt-0.5">
+                            Renew before expiration to protect your No Claim Bonus (NCB) and continuous disease waiting period benefits.
+                          </p>
                         </div>
                       </div>
-                    ))}
+
+                      <a
+                        href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(
+                          `Namaste Radhe Investments, I would like to renew my policy (${expiringPolicies[0]?.policy_number} - ${expiringPolicies[0]?.insurance_plans?.name}). Please assist with the renewal link.`
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] shrink-0"
+                      >
+                        <Shield className="w-4 h-4 fill-slate-950" />
+                        Renew via WhatsApp Advisor
+                      </a>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-bold text-white">Your Insurance Policies</h3>
+                    <span className="text-xs text-gray-400">{policies.length} Total Policies</span>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {policies.length === 0 ? (
+                    <div className="glass-panel p-8 text-center text-gray-400 rounded-3xl border border-slate-700/50 flex flex-col items-center justify-center">
+                      <ShieldX className="w-12 h-12 text-slate-500 mb-4" />
+                      You don't have any active policies yet. <br />
+                      <button onClick={() => navigate('/#plans')} className="mt-4 text-teal-400 underline font-medium">Explore Available Plans</button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {policies.map(p => {
+                        const exp = getExpiryDetails(p.end_date);
+                        const cat = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
+                        const sumInsured = p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : 'Full Cover';
+
+                        return (
+                          <div key={p.id} className="glass-panel p-6 rounded-2xl border border-slate-700/60 relative overflow-hidden group hover:border-slate-600 transition-all">
+                            
+                            {/* Top Status Badges */}
+                            <div className="flex justify-between items-start mb-4">
+                              <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700">
+                                {cat.includes('motor') ? (
+                                  <Shield className="w-6 h-6 text-blue-400" />
+                                ) : cat.includes('life') ? (
+                                  <Shield className="w-6 h-6 text-purple-400" />
+                                ) : (
+                                  <Shield className="w-6 h-6 text-emerald-400" />
+                                )}
+                              </div>
+                              
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                                  p.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 'bg-red-500/20 text-red-400 border-red-500/30'
+                                }`}>
+                                  {p.status ? p.status.toUpperCase() : 'ACTIVE'}
+                                </span>
+
+                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                                  exp.isExpired ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' :
+                                  exp.isUrgent ? 'bg-orange-500/20 text-orange-400 border-orange-500/30 animate-pulse' :
+                                  exp.isSoon ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                                  'bg-slate-800 text-gray-400 border-slate-700'
+                                }`}>
+                                  {exp.text}
+                                </span>
+                              </div>
+                            </div>
+
+                            <h4 className="text-lg font-bold text-white mb-1 truncate">{p.insurance_plans?.name || 'Insurance Plan'}</h4>
+                            <p className="text-xs text-gray-400 font-mono mb-4">Policy #{p.policy_number}</p>
+                            
+                            {/* Metadata Details */}
+                            {p.metadata?.vehicle_reg_number && (
+                              <div className="mb-3 px-3 py-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs text-blue-300 font-mono flex items-center justify-between">
+                                <span>Vehicle Reg:</span>
+                                <span className="font-bold">{p.metadata.vehicle_reg_number}</span>
+                              </div>
+                            )}
+
+                            <div className="space-y-2 text-xs border-t border-slate-700/50 pt-4 mt-2">
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Sum Insured / Assured</span>
+                                <span className="text-emerald-400 font-bold">{sumInsured}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Start Date</span>
+                                <span className="text-gray-300">{p.start_date ? new Date(p.start_date).toLocaleDateString('en-IN') : '-'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-400">Expiry Date</span>
+                                <span className="text-white font-medium">{p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN') : '-'}</span>
+                              </div>
+                            </div>
+
+                            {/* Card Footer Actions */}
+                            <div className="mt-5 pt-4 border-t border-slate-700/50 flex gap-2">
+                              {p.document_url ? (
+                                <a 
+                                  href={p.document_url} 
+                                  target="_blank" 
+                                  rel="noreferrer"
+                                  className="flex-1 py-2 px-3 bg-slate-800 hover:bg-slate-700 text-teal-300 rounded-xl text-xs font-semibold text-center border border-slate-700 transition-colors"
+                                >
+                                  View PDF
+                                </a>
+                              ) : null}
+
+                              <a
+                                href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(
+                                  `Namaste, I need assistance with my policy #${p.policy_number} (${p.insurance_plans?.name}). Please connect me with an advisor.`
+                                )}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="flex-1 py-2 px-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold text-center transition-all shadow-[0_0_10px_rgba(16,185,129,0.2)]"
+                              >
+                                💬 WhatsApp Support
+                              </a>
+                            </div>
+
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {/* Claims Tab */}
             {activeTab === 'claims' && (

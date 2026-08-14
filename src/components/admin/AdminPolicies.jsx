@@ -4,7 +4,9 @@ import toast from 'react-hot-toast';
 import { 
   Plus, Edit2, Trash2, X, Upload, Hash, User, Shield, Briefcase, 
   DollarSign, Activity, Calendar, UploadCloud, ShieldCheck, Heart, 
-  Car, Award, Users, CheckSquare, Sparkles, FileText, CheckCircle2, ChevronRight
+  Car, Award, Users, CheckSquare, Sparkles, FileText, CheckCircle2, 
+  ChevronRight, MessageCircle, AlertTriangle, Clock, Copy, Send, 
+  ExternalLink, Filter, Search, Phone
 } from 'lucide-react';
 import { uploadDocument } from '../../lib/SupabaseStorageService';
 import EmptyState from '../EmptyState';
@@ -16,8 +18,17 @@ export default function AdminPolicies() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
   
+  // Modals & Filters
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [policyType, setPolicyType] = useState('health'); // 'health' | 'life' | 'motor'
+  const [filterExpiry, setFilterExpiry] = useState('all'); // 'all' | 'urgent' | 'soon' | 'expired' | 'healthy'
+  const [searchTerm, setSearchTerm] = useState('');
+  
+  // WhatsApp Reminder Modal state
+  const [isWhatsappModalOpen, setIsWhatsappModalOpen] = useState(false);
+  const [selectedPolicyForReminder, setSelectedPolicyForReminder] = useState(null);
+  const [reminderPhone, setReminderPhone] = useState('');
+  const [reminderMessage, setReminderMessage] = useState('');
 
   const initialPolicyState = {
     policy_number: '',
@@ -75,7 +86,7 @@ export default function AdminPolicies() {
     setLoading(true);
     const { data, error } = await supabase
       .from('policies')
-      .select('*, customers(name, email), agents(name), insurance_plans(name, category)')
+      .select('*, customers(name, email, phone), agents(name), insurance_plans(name, category)')
       .order('created_at', { ascending: false });
     
     if (!error) setPolicies(data || []);
@@ -84,7 +95,7 @@ export default function AdminPolicies() {
 
   const fetchDropdownData = async () => {
     const [cRes, pRes, aRes] = await Promise.all([
-      supabase.from('customers').select('id, name, email').order('name'),
+      supabase.from('customers').select('id, name, email, phone').order('name'),
       supabase.from('insurance_plans').select('id, name, category').order('name'),
       supabase.from('agents').select('id, name').order('name')
     ]);
@@ -119,6 +130,84 @@ export default function AdminPolicies() {
       ? currentList.filter(x => x !== item)
       : [...currentList, item];
     handleMetadataChange(arrayField, updated);
+  };
+
+  // Expiry calculation helper
+  const getExpiryInfo = (endDateStr) => {
+    if (!endDateStr) return { daysLeft: 999, statusText: 'No Date', badgeColor: 'gray' };
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expiry = new Date(endDateStr);
+    expiry.setHours(0, 0, 0, 0);
+    const diffTime = expiry - today;
+    const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (daysLeft < 0) {
+      return { daysLeft, statusText: `Expired (${Math.abs(daysLeft)}d ago)`, badgeColor: 'red', type: 'expired' };
+    } else if (daysLeft === 0) {
+      return { daysLeft, statusText: 'Expires Today', badgeColor: 'rose', type: 'urgent' };
+    } else if (daysLeft <= 7) {
+      return { daysLeft, statusText: `Urgent (${daysLeft}d left)`, badgeColor: 'orange', type: 'urgent' };
+    } else if (daysLeft <= 30) {
+      return { daysLeft, statusText: `${daysLeft}d left`, badgeColor: 'amber', type: 'soon' };
+    } else {
+      return { daysLeft, statusText: `${daysLeft}d remaining`, badgeColor: 'emerald', type: 'healthy' };
+    }
+  };
+
+  // Generate WhatsApp Message Template
+  const generateWhatsAppMessage = (p) => {
+    const customerName = p.customers?.name || 'Valued Customer';
+    const planName = p.insurance_plans?.name || 'Insurance Policy';
+    const policyNum = p.policy_number || 'N/A';
+    const expDate = p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Soon';
+    const expiryInfo = getExpiryInfo(p.end_date);
+    const cat = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
+
+    let text = '';
+    if (cat.includes('motor') || cat.includes('car')) {
+      const regNo = p.metadata?.vehicle_reg_number ? ` (${p.metadata.vehicle_reg_number})` : '';
+      const makeModel = p.metadata?.vehicle_make_model || 'Vehicle';
+      text = `Namaste *${customerName}* Ji 🙏,\n\nThis is an important reminder from *Radhe Investments* regarding your *Motor Insurance Policy*.\n\n🚗 *Vehicle & Policy Details:*\n• Vehicle: *${makeModel}${regNo}*\n• Policy Number: *${policyNum}*\n• Plan: *${planName}*\n• Expiry Date: *${expDate}* (${expiryInfo.statusText})\n\n⚠️ *Protect Your No Claim Bonus (NCB):*\nRenewing before *${expDate}* protects your NCB discount and avoids costly traffic fines or vehicle break-in inspection.\n\n👉 Reply directly to this message to renew in 2 minutes with Zero-Depreciation & 24x7 Roadside Assistance.\n\nWarm Regards,\n*Radhe Investments & Advisory*\n📞 Helpline: +91 98765 43210\n🌐 https://radheinv.site`;
+    } else if (cat.includes('life') || cat.includes('term')) {
+      const sumAssured = p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : 'Full Cover';
+      const nominee = p.metadata?.nominee_name ? `\n• Nominee: *${p.metadata.nominee_name}*` : '';
+      text = `Namaste *${customerName}* Ji 🙏,\n\nGreetings from *Radhe Investments*.\n\n🛡️ This is a gentle reminder that your *Life / Term Insurance Premium* for policy *#${policyNum}* (*${planName}*) is due.\n\n• Sum Assured: *${sumAssured}*${nominee}\n• Due Date: *${expDate}* (${expiryInfo.statusText})\n\nKeeping your term policy active ensures uninterrupted financial security for your family.\n\n👉 Reply to this message for instant payment link or support.\n\nWarm Regards,\n*Radhe Investments & Advisory*\n📞 Helpline: +91 98765 43210\n🌐 https://radheinv.site`;
+    } else {
+      const sumInsured = p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : 'Full Cover';
+      text = `Namaste *${customerName}* Ji 🙏,\n\nThis is a friendly reminder from *Radhe Investments* regarding your *Health Insurance Policy*.\n\n🏥 *Policy Details:*\n• Policy Number: *${policyNum}*\n• Plan: *${planName}*\n• Sum Insured: *${sumInsured}*\n• Expiration Date: *${expDate}* (${expiryInfo.statusText})\n\n⚠️ *Why renew on time?*\nRenewing before expiry ensures continuous coverage for pre-existing diseases and saves your accumulated 100% No Claim Bonus.\n\n👉 Reply here or call our advisor desk at +91 98765 43210 to renew with cashless hospital benefits.\n\nWarm Regards,\n*Radhe Investments & Advisory*\n🌐 https://radheinv.site`;
+    }
+
+    return text;
+  };
+
+  const handleOpenWhatsAppModal = (p) => {
+    setSelectedPolicyForReminder(p);
+    let phone = p.customers?.phone || '';
+    // Clean phone number
+    phone = phone.replace(/[^0-9]/g, '');
+    if (phone.length === 10) phone = '91' + phone;
+    setReminderPhone(phone);
+    setReminderMessage(generateWhatsAppMessage(p));
+    setIsWhatsappModalOpen(true);
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!reminderPhone) {
+      toast.error('Please enter a valid mobile number with country code (e.g. 919876543210)');
+      return;
+    }
+    const cleanNumber = reminderPhone.replace(/[^0-9]/g, '');
+    const encoded = encodeURIComponent(reminderMessage);
+    const url = `https://api.whatsapp.com/send?phone=${cleanNumber}&text=${encoded}`;
+    window.open(url, '_blank');
+    toast.success('WhatsApp Web / App opened with pre-filled message!');
+    setIsWhatsappModalOpen(false);
+  };
+
+  const handleCopyMessage = () => {
+    navigator.clipboard.writeText(reminderMessage);
+    toast.success('Message copied to clipboard!');
   };
 
   const handleAddPolicy = async (e) => {
@@ -171,176 +260,523 @@ export default function AdminPolicies() {
     }
   };
 
-  // Filter plans matching current category if available
-  const filteredPlans = plans.filter(p => {
-    if (!p.category) return true;
-    const cat = p.category.toLowerCase();
-    if (policyType === 'health') return cat.includes('health') || cat.includes('medical');
-    if (policyType === 'life') return cat.includes('life') || cat.includes('term') || cat.includes('pension');
-    if (policyType === 'motor') return cat.includes('motor') || cat.includes('car') || cat.includes('vehicle');
+  // Metrics summary
+  const totalPolicies = policies.length;
+  const urgentRenewals = policies.filter(p => {
+    const info = getExpiryInfo(p.end_date);
+    return info.type === 'urgent';
+  }).length;
+  const soonRenewals = policies.filter(p => {
+    const info = getExpiryInfo(p.end_date);
+    return info.type === 'soon';
+  }).length;
+  const expiredPolicies = policies.filter(p => {
+    const info = getExpiryInfo(p.end_date);
+    return info.type === 'expired';
+  }).length;
+
+  // Filter policies based on Expiry tab & Search query
+  const filteredPolicies = policies.filter(p => {
+    const expiryInfo = getExpiryInfo(p.end_date);
+    
+    // Filter by Tab
+    if (filterExpiry === 'urgent' && expiryInfo.type !== 'urgent') return false;
+    if (filterExpiry === 'soon' && expiryInfo.type !== 'soon') return false;
+    if (filterExpiry === 'expired' && expiryInfo.type !== 'expired') return false;
+    if (filterExpiry === 'healthy' && expiryInfo.type !== 'healthy') return false;
+
+    // Filter by Search Query
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      const numMatch = p.policy_number?.toLowerCase().includes(q);
+      const nameMatch = p.customers?.name?.toLowerCase().includes(q);
+      const emailMatch = p.customers?.email?.toLowerCase().includes(q);
+      const planMatch = p.insurance_plans?.name?.toLowerCase().includes(q);
+      const regMatch = p.metadata?.vehicle_reg_number?.toLowerCase().includes(q);
+      return numMatch || nameMatch || emailMatch || planMatch || regMatch;
+    }
+
     return true;
   });
 
   return (
-    <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-700/50 relative">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div>
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <FileText className="w-5 h-5 text-teal-400" />
-            Policy Management
-          </h3>
-          <p className="text-xs text-gray-400 mt-1">Manage active policies across Health, Life, and Motor portfolios.</p>
+    <div className="space-y-6">
+      
+      {/* 1. Renewal Metrics Overview Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <div className="glass-panel p-5 rounded-2xl border border-slate-700/60 bg-slate-900/60 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Active Policies</p>
+            <h4 className="text-2xl font-bold text-white mt-1">{totalPolicies}</h4>
+            <p className="text-[11px] text-teal-400 mt-0.5">Across Health, Life & Motor</p>
+          </div>
+          <div className="p-3 bg-teal-500/10 text-teal-400 rounded-xl border border-teal-500/20">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
         </div>
-        <button 
-          onClick={() => {
-            setNewPolicy(initialPolicyState);
-            setIsAddModalOpen(true);
-          }}
-          className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)]"
+
+        <div 
+          onClick={() => setFilterExpiry('urgent')}
+          className={`glass-panel p-5 rounded-2xl border transition-all cursor-pointer ${
+            filterExpiry === 'urgent' 
+              ? 'border-orange-500 bg-orange-950/30 ring-1 ring-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.2)]' 
+              : 'border-slate-700/60 bg-slate-900/60 hover:border-orange-500/50'
+          }`}
         >
-          <Plus className="w-5 h-5" />
-          Add Policy
-        </button>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-orange-300 uppercase tracking-wider flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5" /> Urgent Renewals
+              </p>
+              <h4 className="text-2xl font-bold text-orange-400 mt-1">{urgentRenewals}</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Expiring in ≤ 7 Days</p>
+            </div>
+            <div className="p-3 bg-orange-500/10 text-orange-400 rounded-xl border border-orange-500/20">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => setFilterExpiry('soon')}
+          className={`glass-panel p-5 rounded-2xl border transition-all cursor-pointer ${
+            filterExpiry === 'soon' 
+              ? 'border-amber-500 bg-amber-950/30 ring-1 ring-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.2)]' 
+              : 'border-slate-700/60 bg-slate-900/60 hover:border-amber-500/50'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-amber-300 uppercase tracking-wider flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5" /> Expiring Soon
+              </p>
+              <h4 className="text-2xl font-bold text-amber-400 mt-1">{soonRenewals}</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Due in 8 to 30 Days</p>
+            </div>
+            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
+              <Clock className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        <div 
+          onClick={() => setFilterExpiry('expired')}
+          className={`glass-panel p-5 rounded-2xl border transition-all cursor-pointer ${
+            filterExpiry === 'expired' 
+              ? 'border-rose-500 bg-rose-950/30 ring-1 ring-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.2)]' 
+              : 'border-slate-700/60 bg-slate-900/60 hover:border-rose-500/50'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-medium text-rose-300 uppercase tracking-wider">Lapsed / Expired</p>
+              <h4 className="text-2xl font-bold text-rose-400 mt-1">{expiredPolicies}</h4>
+              <p className="text-[11px] text-gray-400 mt-0.5">Needs Immediate Revival</p>
+            </div>
+            <div className="p-3 bg-rose-500/10 text-rose-400 rounded-xl border border-rose-500/20">
+              <Activity className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      {loading ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-800/50 text-gray-300">
-              <tr>
-                <th className="px-4 py-3 rounded-l-lg">Type</th>
-                <th className="px-4 py-3">Policy Number</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Plan</th>
-                <th className="px-4 py-3">Sum Insured</th>
-                <th className="px-4 py-3">Validity</th>
-                <th className="px-4 py-3">Doc</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 rounded-r-lg">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50">
-              {[1, 2, 3, 4, 5].map(i => (
-                <tr key={i} className="animate-pulse">
-                  <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded-full w-16"></div></td>
-                  <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
-                  <td className="px-4 py-4 space-y-2"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
-                  <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-32"></div></td>
-                  <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-20"></div></td>
-                  <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
-                  <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-8"></div></td>
-                  <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-16"></div></td>
-                  <td className="px-4 py-4"><div className="h-8 bg-slate-700/50 rounded w-24"></div></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* 2. Main Policy Table Container */}
+      <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-700/50 relative space-y-6">
+        
+        {/* Header & Actions */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+          <div>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-5 h-5 text-teal-400" />
+              Policy & Renewal Management
+            </h3>
+            <p className="text-xs text-gray-400 mt-1">
+              Dispatch 1-click WhatsApp alerts, monitor policy lifecycles, and issue new coverage.
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input 
+                type="text"
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                placeholder="Search policy #, customer, reg..."
+                className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-teal-500"
+              />
+            </div>
+
+            <button 
+              onClick={() => {
+                setNewPolicy(initialPolicyState);
+                setIsAddModalOpen(true);
+              }}
+              className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(20,184,166,0.3)] shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              Add Policy
+            </button>
+          </div>
         </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-800/50 text-gray-300">
-              <tr>
-                <th className="px-4 py-3 rounded-l-lg">Type</th>
-                <th className="px-4 py-3">Policy Number</th>
-                <th className="px-4 py-3">Customer</th>
-                <th className="px-4 py-3">Plan</th>
-                <th className="px-4 py-3">Sum Insured</th>
-                <th className="px-4 py-3">Validity</th>
-                <th className="px-4 py-3">Doc</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 rounded-r-lg">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50">
-              {policies.map(p => {
-                const type = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
-                return (
-                  <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-4 py-4">
-                      {type.includes('motor') || type.includes('car') || type.includes('vehicle') ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          <Car className="w-3.5 h-3.5" /> Motor
+
+        {/* Expiry Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2 border-y border-slate-800 py-3">
+          <span className="text-xs font-semibold text-gray-400 flex items-center gap-1 mr-1">
+            <Filter className="w-3.5 h-3.5 text-teal-400" /> Filter:
+          </span>
+
+          <button
+            onClick={() => setFilterExpiry('all')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              filterExpiry === 'all' ? 'bg-teal-500 text-slate-950 font-bold' : 'bg-slate-800/60 text-gray-300 hover:bg-slate-800'
+            }`}
+          >
+            All Policies ({totalPolicies})
+          </button>
+
+          <button
+            onClick={() => setFilterExpiry('urgent')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+              filterExpiry === 'urgent' ? 'bg-orange-500 text-white font-bold' : 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'
+            }`}
+          >
+            <AlertTriangle className="w-3 h-3" />
+            Urgent ≤ 7 Days ({urgentRenewals})
+          </button>
+
+          <button
+            onClick={() => setFilterExpiry('soon')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+              filterExpiry === 'soon' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
+            }`}
+          >
+            <Clock className="w-3 h-3" />
+            Expiring in 30 Days ({soonRenewals})
+          </button>
+
+          <button
+            onClick={() => setFilterExpiry('expired')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+              filterExpiry === 'expired' ? 'bg-rose-500 text-white font-bold' : 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
+            }`}
+          >
+            Lapsed / Expired ({expiredPolicies})
+          </button>
+
+          <button
+            onClick={() => setFilterExpiry('healthy')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              filterExpiry === 'healthy' ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+            }`}
+          >
+            Healthy Cover (&gt; 30d)
+          </button>
+        </div>
+
+        {/* Table Content */}
+        {loading ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-800/50 text-gray-300">
+                <tr>
+                  <th className="px-4 py-3 rounded-l-lg">Type</th>
+                  <th className="px-4 py-3">Policy Number</th>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Plan</th>
+                  <th className="px-4 py-3">Sum Insured</th>
+                  <th className="px-4 py-3">Expiry / Countdown</th>
+                  <th className="px-4 py-3">WhatsApp Alert</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 rounded-r-lg">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded-full w-16"></div></td>
+                    <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
+                    <td className="px-4 py-4 space-y-2"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
+                    <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-32"></div></td>
+                    <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-20"></div></td>
+                    <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
+                    <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-16"></div></td>
+                    <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-16"></div></td>
+                    <td className="px-4 py-4"><div className="h-8 bg-slate-700/50 rounded w-24"></div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-800/50 text-gray-300">
+                <tr>
+                  <th className="px-4 py-3 rounded-l-lg">Domain</th>
+                  <th className="px-4 py-3">Policy Number</th>
+                  <th className="px-4 py-3">Customer & Contact</th>
+                  <th className="px-4 py-3">Plan Details</th>
+                  <th className="px-4 py-3">Sum Insured</th>
+                  <th className="px-4 py-3">Expiry Countdown</th>
+                  <th className="px-4 py-3 text-center">1-Click Renewal</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3 rounded-r-lg">Manage</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {filteredPolicies.map(p => {
+                  const type = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
+                  const expiryInfo = getExpiryInfo(p.end_date);
+
+                  return (
+                    <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
+                      <td className="px-4 py-4">
+                        {type.includes('motor') || type.includes('car') || type.includes('vehicle') ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                            <Car className="w-3.5 h-3.5" /> Motor
+                          </span>
+                        ) : type.includes('life') || type.includes('term') ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                            <Shield className="w-3.5 h-3.5" /> Life
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <Heart className="w-3.5 h-3.5" /> Health
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4 font-semibold text-white">
+                        {p.policy_number}
+                        {p.metadata?.vehicle_reg_number && (
+                          <div className="text-[11px] text-blue-300 font-mono mt-0.5 flex items-center gap-1">
+                            <Car className="w-3 h-3" /> {p.metadata.vehicle_reg_number}
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className="text-teal-400 font-medium">{p.customers?.name || 'Unknown'}</span>
+                        <div className="text-xs text-gray-400">{p.customers?.email}</div>
+                        {p.customers?.phone && (
+                          <div className="text-[11px] text-gray-400 font-mono mt-0.5 flex items-center gap-1">
+                            <Phone className="w-3 h-3 text-teal-500" /> {p.customers.phone}
+                          </div>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4 text-gray-200">
+                        <div className="font-medium">{p.insurance_plans?.name || 'Custom Plan'}</div>
+                        {p.document_url && (
+                          <a href={p.document_url} target="_blank" rel="noreferrer" className="text-[11px] text-teal-400 hover:underline inline-flex items-center gap-0.5 mt-0.5">
+                            <FileText className="w-3 h-3" /> View PDF
+                          </a>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-4 text-emerald-400 font-semibold">
+                        {p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : '-'}
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <div className="text-xs text-gray-300">
+                          {p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                        </div>
+                        <div className="mt-1">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
+                            expiryInfo.type === 'expired' ? 'bg-rose-500/15 text-rose-400 border-rose-500/30' :
+                            expiryInfo.type === 'urgent' ? 'bg-orange-500/15 text-orange-400 border-orange-500/30 animate-pulse' :
+                            expiryInfo.type === 'soon' ? 'bg-amber-500/15 text-amber-400 border-amber-500/30' :
+                            'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                          }`}>
+                            {expiryInfo.statusText}
+                          </span>
+                        </div>
+                      </td>
+
+                      {/* 1-Click WhatsApp Button */}
+                      <td className="px-4 py-4 text-center">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenWhatsAppModal(p)}
+                          className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-[0_0_12px_rgba(16,185,129,0.25)] inline-flex items-center gap-1.5 group"
+                          title="Open WhatsApp Renewal Dispatcher"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5 fill-slate-950 group-hover:scale-110 transition-transform" />
+                          <span>WhatsApp</span>
+                        </button>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
+                          p.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
+                          p.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                          'bg-red-500/20 text-red-400 border-red-500/30'
+                        }`}>
+                          {p.status ? p.status.toUpperCase() : 'ACTIVE'}
                         </span>
-                      ) : type.includes('life') || type.includes('term') ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                          <Shield className="w-3.5 h-3.5" /> Life
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                          <Heart className="w-3.5 h-3.5" /> Health
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 font-semibold text-white">
-                      {p.policy_number}
-                      {p.metadata?.vehicle_reg_number && (
-                        <div className="text-[11px] text-gray-400 font-mono mt-0.5">{p.metadata.vehicle_reg_number}</div>
-                      )}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className="text-teal-400 font-medium">{p.customers?.name || 'Unknown'}</span>
-                      <div className="text-xs text-gray-400">{p.customers?.email}</div>
-                    </td>
-                    <td className="px-4 py-4 text-gray-200">
-                      {p.insurance_plans?.name || 'Custom Plan'}
-                    </td>
-                    <td className="px-4 py-4 text-emerald-400 font-semibold">
-                      {p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : '-'}
-                    </td>
-                    <td className="px-4 py-4 text-gray-400 text-xs">
-                      <div><span className="text-gray-500">From:</span> {p.start_date ? new Date(p.start_date).toLocaleDateString() : '-'}</div>
-                      <div><span className="text-gray-500">To:</span> {p.end_date ? new Date(p.end_date).toLocaleDateString() : '-'}</div>
-                    </td>
-                    <td className="px-4 py-4">
-                      {p.document_url ? (
-                        <a href={p.document_url} target="_blank" rel="noreferrer" className="text-teal-400 hover:text-teal-300 underline text-xs font-semibold">
-                          View PDF
-                        </a>
-                      ) : (
-                        <span className="text-gray-600">-</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
-                        p.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
-                        p.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
-                        'bg-red-500/20 text-red-400 border-red-500/30'
-                      }`}>
-                        {p.status ? p.status.toUpperCase() : 'ACTIVE'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">
-                      <select 
-                        value={p.status || 'active'}
-                        onChange={(e) => updateStatus(p.id, e.target.value)}
-                        className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-gray-200 focus:outline-none focus:border-teal-500"
-                      >
-                        <option value="active">Active</option>
-                        <option value="pending">Pending</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="expired">Expired</option>
-                      </select>
+                      </td>
+
+                      <td className="px-4 py-4">
+                        <select 
+                          value={p.status || 'active'}
+                          onChange={(e) => updateStatus(p.id, e.target.value)}
+                          className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-gray-200 focus:outline-none focus:border-teal-500"
+                        >
+                          <option value="active">Active</option>
+                          <option value="pending">Pending</option>
+                          <option value="cancelled">Cancelled</option>
+                          <option value="expired">Expired</option>
+                        </select>
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filteredPolicies.length === 0 && (
+                  <tr>
+                    <td colSpan="9" className="px-4 py-12">
+                      <EmptyState 
+                        title="No Policies Match Criteria" 
+                        description="Try adjusting your expiry filter or search keywords."
+                      />
                     </td>
                   </tr>
-                );
-              })}
-              {policies.length === 0 && (
-                <tr>
-                  <td colSpan="9" className="px-4 py-12">
-                    <EmptyState 
-                      title="No Policies Found" 
-                      description="There are currently no active policies issued in the system."
-                    />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+      </div>
+
+      {/* ============================================================ */}
+      {/* 3. 1-CLICK WHATSAPP RENEWAL REMINDER DISPATCHER MODAL */}
+      {/* ============================================================ */}
+      {isWhatsappModalOpen && selectedPolicyForReminder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl my-8 relative flex flex-col shadow-2xl animate-fade-in">
+            
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900 rounded-t-3xl">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-xl">
+                  <MessageCircle className="w-6 h-6 fill-emerald-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    WhatsApp Renewal Dispatcher
+                  </h3>
+                  <p className="text-xs text-gray-400">
+                    Review and dispatch instant renewal notice to {selectedPolicyForReminder.customers?.name || 'Customer'}.
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => setIsWhatsappModalOpen(false)}
+                className="text-gray-400 hover:text-white p-2 hover:bg-slate-800 rounded-xl transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-5">
+              
+              {/* Recipient Phone */}
+              <div>
+                <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider mb-2">
+                  Customer Mobile Number (With Country Code e.g. 91...)
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-400" />
+                  <input 
+                    type="text"
+                    value={reminderPhone}
+                    onChange={e => setReminderPhone(e.target.value)}
+                    placeholder="e.g. 919876543210"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-sm font-mono focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Message Content Preview */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-xs font-bold text-gray-300 uppercase tracking-wider">
+                    Message Preview & Customization
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleCopyMessage}
+                    className="text-xs text-teal-400 hover:text-teal-300 flex items-center gap-1 font-medium"
+                  >
+                    <Copy className="w-3.5 h-3.5" /> Copy Text
+                  </button>
+                </div>
+                <textarea
+                  rows={10}
+                  value={reminderMessage}
+                  onChange={e => setReminderMessage(e.target.value)}
+                  className="w-full p-4 bg-slate-950 border border-slate-700 rounded-xl text-emerald-300 text-xs font-mono leading-relaxed focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+
+              {/* Policy Quick Summary Pill */}
+              <div className="bg-slate-800/60 p-4 rounded-xl border border-slate-700/60 flex items-center justify-between text-xs text-gray-300">
+                <div>
+                  <span className="text-gray-400">Policy: </span>
+                  <span className="font-semibold text-white">{selectedPolicyForReminder.policy_number}</span>
+                  <span className="text-gray-500 mx-2">|</span>
+                  <span className="text-gray-400">Plan: </span>
+                  <span className="font-semibold text-white">{selectedPolicyForReminder.insurance_plans?.name}</span>
+                </div>
+                <span className="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                  {getExpiryInfo(selectedPolicyForReminder.end_date).statusText}
+                </span>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-slate-800 bg-slate-900 rounded-b-3xl flex justify-between items-center">
+              <button
+                type="button"
+                onClick={() => setIsWhatsappModalOpen(false)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={handleCopyMessage}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 border border-slate-700"
+                >
+                  <Copy className="w-4 h-4" /> Copy Message
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSendWhatsApp}
+                  className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 rounded-xl text-xs font-bold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] flex items-center gap-2"
+                >
+                  <Send className="w-4 h-4" /> Open in WhatsApp Web / App
+                </button>
+              </div>
+            </div>
+
+          </div>
         </div>
       )}
 
-      {/* Dynamic Category-Specific Add Policy Modal */}
+      {/* ============================================================ */}
+      {/* 4. DYNAMIC CATEGORY-SPECIFIC ADD POLICY MODAL */}
+      {/* ============================================================ */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
           <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-3xl my-8 relative flex flex-col max-h-[92vh] shadow-2xl">
@@ -476,7 +912,7 @@ export default function AdminPolicies() {
                         className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-teal-500"
                       >
                         <option value="">Select Plan...</option>
-                        {(filteredPlans.length > 0 ? filteredPlans : plans).map(p => (
+                        {plans.map(p => (
                           <option key={p.id} value={p.id}>{p.name} {p.category ? `(${p.category})` : ''}</option>
                         ))}
                       </select>
@@ -957,6 +1393,7 @@ export default function AdminPolicies() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
