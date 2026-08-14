@@ -1,29 +1,87 @@
 import React from 'react';
-import { Plus, Trash2, ShieldAlert, Sparkles } from 'lucide-react';
+import { Plus, Trash2, ShieldAlert, Sparkles, Scale, ShieldCheck } from 'lucide-react';
 
 export default function ExclusionsTab({ data, updateData }) {
   const category = (data.category || 'Health').toLowerCase();
   const exclusions = data.exclusions || [];
 
+  // Official IRDAI Standardized Exclusions (IRDAI/HLT/REG/CIR/194/09/2019)
   const categoryExclusionsPresets = {
     health: [
-      { name: 'Cosmetic & Aesthetic Treatments', type: 'Permanent', description: 'Surgeries or procedures undertaken solely for aesthetic improvements unless necessitated by accidental trauma.' },
-      { name: 'Substance Abuse & Self-Inflicted Injury', type: 'Permanent', description: 'Treatment for alcoholism, drug addiction, intentional self-harm or suicide attempts.' },
-      { name: 'Unproven / Experimental Treatments', type: 'Standard', description: 'Treatments, procedures, or medicines not recognized by the Indian Medical Council or modern medical science.' },
-      { name: 'War, Nuclear Perils & Civil Commotion', type: 'Permanent', description: 'Injuries or conditions resulting directly from acts of declared/undeclared war or radioactive contamination.' }
+      { 
+        name: 'Mandatory Modern Treatments Inclusion', 
+        type: 'Standard', 
+        description: 'IRDAI Mandate: Modern treatments including Robotic Surgeries, Oral Chemotherapy, Balloon Sinuplasty, Deep Brain Stimulation, and Stem Cell Therapy MUST NOT be excluded and are covered up to policy limits.' 
+      },
+      { 
+        name: 'Cosmetic & Aesthetic Procedures', 
+        type: 'Permanent', 
+        description: 'IRDAI Standard Exclusion (Code- Excl08): Expenses for cosmetic or plastic surgery unless necessitated by accidental trauma, burns, or cancer reconstruction.' 
+      },
+      { 
+        name: 'Substance Abuse & Self-Inflicted Injury', 
+        type: 'Permanent', 
+        description: 'IRDAI Standard Exclusion (Code- Excl12): Treatment for alcoholism, drug abuse, or intentional self-injury.' 
+      },
+      { 
+        name: 'Unproven / Experimental Treatments', 
+        type: 'Standard', 
+        description: 'IRDAI Standard Exclusion (Code- Excl11): Expenses for treatments, procedures, or medicines not supported by published clinical evidence or regulatory medical boards.' 
+      },
+      { 
+        name: 'War, Radioactive Perils & Nuclear Contamination', 
+        type: 'Permanent', 
+        description: 'IRDAI Standard Exclusion: Injury or illness caused directly by declared/undeclared war, invasion, nuclear radiation or radioactive chemical contamination.' 
+      }
     ],
     life: [
-      { name: 'Suicide in First 12 Months', type: 'Temporary', description: 'Death by suicide within 12 months of inception or revival results in 80% premium refund instead of full sum assured.' },
-      { name: 'Hazardous Adventure Sports', type: 'Standard', description: 'Participation in deep-sea diving, skydiving, motor racing without prior specific underwriting endorsement.' },
-      { name: 'Aviation Hazard (Non-Commercial)', type: 'Permanent', description: 'Flying in non-commercial private aircraft as crew or hobbyist unless explicitly covered.' },
-      { name: 'Criminal Acts & Illegal Activities', type: 'Permanent', description: 'Death resulting directly from participation in felony, riots, or unlawful activities.' }
+      { 
+        name: 'Suicide in First 12 Months', 
+        type: 'Temporary', 
+        description: 'IRDAI Life Regulations: Death due to suicide within 12 months of inception or revival results in 80% premium refund. Post 12 months, full death benefit is payable.' 
+      },
+      { 
+        name: 'Hazardous Adventure Sports', 
+        type: 'Standard', 
+        description: 'IRDAI Exclusion: Participation in dangerous motorized racing, skydiving, or deep-sea diving unless declared and underwritten under a specific adventure rider.' 
+      },
+      { 
+        name: 'Aviation Hazard (Non-Commercial)', 
+        type: 'Permanent', 
+        description: 'IRDAI Standard: Flying in non-commercial private aircraft as crew or hobbyist unless explicitly underwritten.' 
+      },
+      { 
+        name: 'Criminal Acts & Felony Participation', 
+        type: 'Permanent', 
+        description: 'IRDAI Standard: Death resulting directly from active participation in illegal riots or criminal offenses with unlawful intent.' 
+      }
     ],
     motor: [
-      { name: 'Driving Without Valid License', type: 'Permanent', description: 'Accidents occurring while the driver does not possess an active, valid driving license.' },
-      { name: 'Driving Under Influence (DUI)', type: 'Permanent', description: 'Accidents caused when the driver is under the influence of alcohol, narcotics, or intoxicating drugs.' },
-      { name: 'Normal Wear & Tear and Aging', type: 'Standard', description: 'Gradual mechanical depreciation, rust, corrosion, or electrical breakdown without external accident.' },
-      { name: 'Consequential & Indirect Damages', type: 'Standard', description: 'Driving vehicle after oil leak causing engine seizure without engine-protector add-on.' },
-      { name: 'Illegal Speed Contests & Racing', type: 'Permanent', description: 'Vehicle used for organized rally, speed trials, or unapproved racing activities.' }
+      { 
+        name: 'Driving Without Valid License', 
+        type: 'Permanent', 
+        description: 'General Insurance / Motor Tariff: Accidents occurring while the driver does not possess an active, valid driving license.' 
+      },
+      { 
+        name: 'Driving Under Influence (DUI / Intoxication)', 
+        type: 'Permanent', 
+        description: 'Motor Tariff Clause: Accidents or damages caused when the driver is intoxicated with alcohol, narcotics, or prohibited drugs.' 
+      },
+      { 
+        name: 'Normal Wear & Tear and Gradual Aging', 
+        type: 'Standard', 
+        description: 'Indian Motor Tariff: Gradual mechanical depreciation, rust, corrosion, or electrical breakdown without external accident.' 
+      },
+      { 
+        name: 'Consequential & Indirect Damages', 
+        type: 'Standard', 
+        description: 'Tariff Regulation: Driving vehicle after oil leak causing engine seizure without engine-protector add-on.' 
+      },
+      { 
+        name: 'Illegal Speed Contests & Racing', 
+        type: 'Permanent', 
+        description: 'Motor Tariff Exclusion: Vehicle used for unapproved rallies, speed trials, or organized racing contests.' 
+      }
     ]
   };
 
@@ -51,14 +109,36 @@ export default function ExclusionsTab({ data, updateData }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      
+      {/* IRDAI Regulatory Guidance Banner */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-rose-500/15 via-orange-500/10 to-transparent border border-rose-500/30 flex items-start gap-3.5">
+        <div className="p-2.5 rounded-xl bg-rose-500 text-white font-bold shrink-0 mt-0.5">
+          <Scale className="w-5 h-5" />
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-white text-sm">
+              IRDAI Standardized Exclusions Framework
+            </h4>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-wider">
+              Circular 194/09/2019
+            </span>
+          </div>
+          <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+            Exclusions must adhere to the standardized nomenclature prescribed by IRDAI. Modern treatments (robotic surgery, stem cell therapy, balloon sinuplasty) are legally protected and cannot be excluded completely.
+          </p>
+        </div>
+      </div>
+
+      {/* Action Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-2.5">
-            <ShieldAlert className="w-6 h-6 text-rose-400" />
-            Exclusions & Non-Covered Scenarios
+          <h2 className="text-xl font-bold text-white flex items-center gap-2.5">
+            <ShieldAlert className="w-5 h-5 text-rose-400" />
+            IRDAI Standardized Exclusions & Non-Covered Perils
           </h2>
-          <p className="text-sm text-gray-400 mt-1">
-            Specify legal exclusions, permanent uninsurable perils, and conditional exceptions.
+          <p className="text-xs text-gray-400 mt-0.5">
+            Define standardized non-covered perils and regulatory exclusion classifications.
           </p>
         </div>
         
@@ -69,7 +149,7 @@ export default function ExclusionsTab({ data, updateData }) {
             className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 rounded-xl text-xs font-semibold transition-colors shadow-sm"
           >
             <Sparkles className="w-4 h-4 text-rose-400" />
-            Load {category.toUpperCase()} Standard Exclusions
+            Load IRDAI {category.toUpperCase()} Standards
           </button>
           
           <button
@@ -83,27 +163,29 @@ export default function ExclusionsTab({ data, updateData }) {
         </div>
       </div>
 
+      {/* Exclusions List */}
       {exclusions.length === 0 ? (
         <div className="text-center py-16 bg-slate-900/60 rounded-3xl border border-dashed border-slate-800">
           <ShieldAlert className="w-12 h-12 text-slate-600 mx-auto mb-3" />
           <h4 className="text-base font-bold text-white mb-1">No Exclusions Defined</h4>
           <p className="text-xs text-gray-400 max-w-md mx-auto mb-6">
-            Add permanent or standard policy exclusions to safeguard claim transparency.
+            Click below to load the IRDAI standardized permanent and regulatory exclusions.
           </p>
           <div className="flex justify-center gap-3">
             <button 
               type="button" 
               onClick={handleLoadPreset} 
-              className="px-5 py-2.5 bg-rose-500 hover:bg-rose-400 text-white rounded-xl text-xs font-bold transition-colors"
+              className="px-5 py-2.5 bg-rose-500 hover:bg-rose-400 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
             >
-              Load Standard {category.toUpperCase()} Exclusions
+              <ShieldCheck className="w-4 h-4" />
+              Load Standard IRDAI {category.toUpperCase()} Exclusions
             </button>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
           {exclusions.map((ex, index) => (
-            <div key={index} className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-700 transition-all">
+            <div key={index} className="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 relative group hover:border-slate-700 transition-all shadow-sm">
               <button
                 type="button"
                 onClick={() => handleDelete(index)}
@@ -125,7 +207,7 @@ export default function ExclusionsTab({ data, updateData }) {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">Classification Type</label>
+                  <label className="block text-xs font-medium text-gray-300 mb-1.5">IRDAI Classification</label>
                   <select
                     className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-teal-500 transition-colors"
                     value={ex.type || 'Permanent'}
@@ -137,10 +219,10 @@ export default function ExclusionsTab({ data, updateData }) {
                   </select>
                 </div>
                 <div className="md:col-span-3">
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">Legal Clause Definition & Details</label>
+                  <label className="block text-xs font-medium text-gray-300 mb-1.5">Statutory Scope & Legal Definition</label>
                   <textarea
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-teal-500 transition-colors"
-                    placeholder="Detailed explanation of what conditions are not covered..."
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white text-xs font-sans leading-relaxed focus:outline-none focus:border-teal-500 transition-colors"
+                    placeholder="Provide full legal clause text per IRDAI standardization..."
                     rows={2}
                     value={ex.description || ''}
                     onChange={(e) => handleUpdate(index, 'description', e.target.value)}

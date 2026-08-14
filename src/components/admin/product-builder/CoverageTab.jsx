@@ -27,8 +27,26 @@ export default function CoverageTab({ data, updateData }) {
           </span>
         </h2>
         <p className="text-sm text-gray-400 mt-1">
-          Define the precise financial limits, benefit allowances, and underwriting eligibility rules for this product.
+          Define the precise financial limits, benefit allowances, and underwriting eligibility rules for this product per IRDAI standards.
         </p>
+      </div>
+
+      {/* IRDAI Regulatory Standards Notice */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-500/15 via-blue-500/10 to-transparent border border-teal-500/30 flex items-start gap-3.5">
+        <div className="p-2.5 rounded-xl bg-teal-500 text-slate-950 font-bold shrink-0 mt-0.5">
+          <Shield className="w-5 h-5" />
+        </div>
+        <div>
+          <h4 className="font-bold text-white text-sm flex items-center gap-2">
+            IRDAI Regulatory Architecture Benchmark
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/20 text-teal-300 border border-teal-500/30">
+              IRDAI/HLT/REG/2024
+            </span>
+          </h4>
+          <p className="text-xs text-gray-300 mt-1 leading-relaxed">
+            Per IRDAI regulations: <strong>(1)</strong> No age ceiling for purchasing health insurance, <strong>(2)</strong> 100% parity for AYUSH hospitalizations, <strong>(3)</strong> Mandatory 1-hour cashless pre-auth / 3-hour discharge approvals, and <strong>(4)</strong> Guaranteed lifelong renewal.
+          </p>
+        </div>
       </div>
 
       {/* 🏥 HEALTH INSURANCE COVERAGE PROFORMA */}
