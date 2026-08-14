@@ -24,11 +24,25 @@ export default function Footer() {
             <p className="text-gray-400 text-sm leading-relaxed">
               Securing futures and building wealth. Radhe Investments offers top-tier insurance policies and investment plans tailored for your peace of mind.
             </p>
-            <div className="flex gap-4">
-              <a href="https://facebook.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Globe className="w-4 h-4" /></a>
-              <a href="https://twitter.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><MessageCircle className="w-4 h-4" /></a>
-              <a href="https://instagram.com/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Share2 className="w-4 h-4" /></a>
-              <a href="https://linkedin.com/company/radheinvest" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Hash className="w-4 h-4" /></a>
+            <div className="flex gap-3">
+              {settings.social_facebook ? (
+                <a href={settings.social_facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Globe className="w-4 h-4" /></a>
+              ) : null}
+              {settings.social_instagram ? (
+                <a href={settings.social_instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Share2 className="w-4 h-4" /></a>
+              ) : null}
+              {settings.social_linkedin ? (
+                <a href={settings.social_linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-gray-400 hover:text-teal-400 hover:border-teal-400/50 transition-all"><Hash className="w-4 h-4" /></a>
+              ) : null}
+              <a 
+                href={`https://wa.me/${(settings.contact_phone || '+91 96036 10000').replace(/[^0-9]/g, '')}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="WhatsApp Support" 
+                className="w-10 h-10 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-emerald-400 hover:text-emerald-300 hover:border-emerald-400/50 transition-all"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </a>
             </div>
           </div>
 

@@ -126,34 +126,64 @@ export default function Home() {
       <WhyChooseUs />
 
       {/* SIP Calculator Section */}
-      <section id="calculator" className="py-20 relative">
+      <section id="calculator" className="py-20 relative scroll-mt-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Financial Growth <span className="text-teal-400">Calculator</span></h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">Financial Growth <span className="text-teal-400">Calculator</span></h2>
             <p className="text-gray-400 max-w-2xl mx-auto">Plan your Systematic Investment Plan (SIP) and visualize your future wealth with our interactive tool.</p>
           </div>
-          <div className="glass-panel rounded-3xl p-8 md:p-12 border border-slate-700/50 flex flex-col lg:flex-row gap-12">
+          <div className="glass-panel rounded-3xl p-8 md:p-12 border border-slate-700/50 flex flex-col lg:flex-row gap-12 bg-slate-900/60">
             <div className="w-full lg:w-1/2 space-y-8">
               <div>
                 <div className="flex justify-between mb-4">
-                  <label className="font-medium text-gray-300">Monthly Investment</label>
-                  <span className="font-bold text-teal-400 text-xl">₹{formatCurrency(monthlyInvest)}</span>
+                  <label htmlFor="monthly-invest" className="font-medium text-gray-300">Monthly Investment</label>
+                  <span className="font-bold text-teal-400 text-xl font-mono">₹{formatCurrency(monthlyInvest)}</span>
                 </div>
-                <input type="range" min="500" max="100000" step="500" value={monthlyInvest} onChange={e => setMonthlyInvest(Number(e.target.value))} />
+                <input 
+                  id="monthly-invest"
+                  type="range" 
+                  min="500" 
+                  max="100000" 
+                  step="500" 
+                  value={monthlyInvest} 
+                  aria-label="Monthly Investment Amount"
+                  onChange={e => setMonthlyInvest(Number(e.target.value))} 
+                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-400"
+                />
               </div>
               <div>
                 <div className="flex justify-between mb-4">
-                  <label className="font-medium text-gray-300">Expected Return Rate (p.a)</label>
-                  <span className="font-bold text-teal-400 text-xl">{returnRate}%</span>
+                  <label htmlFor="return-rate" className="font-medium text-gray-300">Expected Return Rate (p.a)</label>
+                  <span className="font-bold text-teal-400 text-xl font-mono">{returnRate}%</span>
                 </div>
-                <input type="range" min="1" max="30" step="0.5" value={returnRate} onChange={e => setReturnRate(Number(e.target.value))} />
+                <input 
+                  id="return-rate"
+                  type="range" 
+                  min="1" 
+                  max="30" 
+                  step="0.5" 
+                  value={returnRate} 
+                  aria-label="Expected Return Rate"
+                  onChange={e => setReturnRate(Number(e.target.value))} 
+                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-400"
+                />
               </div>
               <div>
                 <div className="flex justify-between mb-4">
-                  <label className="font-medium text-gray-300">Time Period</label>
-                  <span className="font-bold text-teal-400 text-xl">{timePeriod} Years</span>
+                  <label htmlFor="time-period" className="font-medium text-gray-300">Time Period</label>
+                  <span className="font-bold text-teal-400 text-xl font-mono">{timePeriod} Years</span>
                 </div>
-                <input type="range" min="1" max="40" step="1" value={timePeriod} onChange={e => setTimePeriod(Number(e.target.value))} />
+                <input 
+                  id="time-period"
+                  type="range" 
+                  min="1" 
+                  max="40" 
+                  step="1" 
+                  value={timePeriod} 
+                  aria-label="Investment Time Period in Years"
+                  onChange={e => setTimePeriod(Number(e.target.value))} 
+                  className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-400"
+                />
               </div>
             </div>
             <div className="w-full lg:w-1/2 flex flex-col justify-center gap-6">
@@ -176,7 +206,7 @@ export default function Home() {
       </section>
 
       {/* Claims Portal Section */}
-      <section id="claim-portal" className="py-20 relative">
+      <section id="claim-portal" className="py-20 relative scroll-mt-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Customer <span className="text-emerald-400">Claims Portal</span></h2>
@@ -259,8 +289,8 @@ export default function Home() {
       </section>
 
       {/* Popular Searches */}
-      <div className="text-center text-sm text-gray-500 mt-12 mb-6">
-        Page last updated: 13 August 2026
+      <div className="text-center text-xs text-slate-500 mt-12 mb-6">
+        Directory & Policy Terms verified: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
       </div>
       <PopularSearches />
     </>

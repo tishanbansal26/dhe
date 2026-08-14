@@ -1,7 +1,9 @@
 import React from 'react';
 import { Shield, CheckCircle, Phone, Mail, Globe, MapPin } from 'lucide-react';
+import { useSiteSettings } from '../../lib/useSiteSettings';
 
 export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
+  const { settings } = useSiteSettings();
   if (!quoteData) return null;
 
   const {
@@ -16,6 +18,9 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
     statutorySafeguards,
     created_at
   } = quoteData;
+
+  const contactPhone = settings.contact_phone || '+91 96036 10000';
+  const contactEmail = settings.contact_email || 'support@radheinv.site';
 
   return (
     <>
@@ -84,8 +89,8 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
               </div>
               <p className="text-xs text-slate-500 font-medium">IRDAI Registered Insurance & Financial Advisory Services</p>
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600 mt-2">
-                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-teal-600" /> +91 98883 05678</span>
-                <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-teal-600" /> support@radheinv.site</span>
+                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-teal-600" /> {contactPhone}</span>
+                <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-teal-600" /> {contactEmail}</span>
                 <span className="flex items-center gap-1"><Globe className="w-3.5 h-3.5 text-teal-600" /> www.radheinv.site</span>
               </div>
             </div>
@@ -102,14 +107,14 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
           {/* Insurer & Plan Header */}
           <div className="bg-slate-50 rounded-xl p-5 border border-slate-200 flex flex-wrap justify-between items-center gap-4">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-700">{insurer || 'Tata AIA Life Insurance'}</span>
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">{plan_name || 'Fortune Guarantee Pension'}</h2>
-              <p className="text-xs text-slate-600 font-mono mt-0.5">IRDAI UIN: {uin || '110N161V13'} | Plan Option: {configuration?.optionName || 'Standard'}</p>
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-700">{insurer || 'Insurance Provider'}</span>
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">{plan_name || 'Insurance Policy'}</h2>
+              <p className="text-xs text-slate-600 font-mono mt-0.5">UIN: {uin || 'IRDAI Standard'} | Plan Option: {configuration?.optionName || 'Standard'}</p>
             </div>
             <div className="text-right">
-              <span className="text-xs text-slate-500 block">Annual Annuity Income</span>
-              <span className="text-2xl font-black text-teal-600">₹{(benefits?.totalYearlyAnnuity || 0).toLocaleString('en-IN')}</span>
-              <span className="text-xs text-slate-500 block">Guaranteed for Life</span>
+              <span className="text-xs text-slate-500 block">Indicative / Annual Payout</span>
+              <span className="text-2xl font-black text-teal-600">₹{(benefits?.totalYearlyAnnuity || configuration?.premiumAmount || 0).toLocaleString('en-IN')}</span>
+              <span className="text-xs text-slate-500 block">Subject to Underwriting</span>
             </div>
           </div>
 
@@ -122,27 +127,23 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
                 Annuitant Details
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-slate-500">Primary Annuitant:</span> <span className="font-semibold text-slate-900">{customer?.name || 'Valued Client'}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Age / Gender:</span> <span className="font-semibold text-slate-900">{customer?.age} Yrs / {customer?.gender?.toUpperCase() || 'MALE'}</span></div>
-                {customer?.isJointLife && (
-                  <div className="flex justify-between"><span className="text-slate-500">Secondary Annuitant:</span> <span className="font-semibold text-slate-900">Spouse ({customer?.secondaryAge} Yrs)</span></div>
-                )}
-                {customer?.isNpsSubscriber && (
-                  <div className="flex justify-between"><span className="text-slate-500">Subscriber Status:</span> <span className="font-semibold text-teal-700">NPS Member (+1% Rate Boost)</span></div>
-                )}
+                <div className="flex justify-between"><span className="text-slate-500">First Annuitant:</span> <span className="font-semibold text-slate-900">{customer?.name || 'Proposer'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Age / Gender:</span> <span className="font-semibold text-slate-900">{customer?.age} / {customer?.gender?.toUpperCase() || 'MALE'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Second Annuitant:</span> <span className="font-semibold text-slate-900">{customer?.isJointLife ? 'Spouse' : 'NA'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Age / Gender:</span> <span className="font-semibold text-slate-900">{customer?.isJointLife ? `${customer?.secondaryAge} / FEMALE` : 'NA'}</span></div>
               </div>
             </div>
 
             {/* Plan Configuration */}
             <div className="border border-slate-200 rounded-xl p-4 bg-white">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 border-b border-slate-100 pb-1">
-                Policy Parameters
+                Policy Details
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-slate-500">Purchase Price / Premium:</span> <span className="font-semibold text-slate-900">₹{(configuration?.premiumAmount || 0).toLocaleString('en-IN')}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Payment Mode / PPT:</span> <span className="font-semibold text-slate-900">{configuration?.premiumMode?.toUpperCase()} ({configuration?.ppt} Yr)</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Total Instalment Premium:</span> <span className="font-semibold text-slate-900">₹{(configuration?.premiumAmount || 0).toLocaleString('en-IN')}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Premium Payment Term:</span> <span className="font-semibold text-slate-900">{configuration?.ppt} Years ({configuration?.premiumMode?.toUpperCase()})</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Deferment Period:</span> <span className="font-semibold text-slate-900">{configuration?.defermentPeriod || 0} Years</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Payout Frequency:</span> <span className="font-semibold text-slate-900">{configuration?.payoutFrequencyName || 'ANNUAL ARREARS'}</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">GST Rate for Annuity:</span> <span className="font-semibold text-slate-900">0.00%</span></div>
               </div>
             </div>
 
@@ -151,24 +152,24 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
           {/* Key Benefit Highlights */}
           <div className="border border-slate-200 rounded-xl p-5 bg-teal-50/50 print:break-inside-avoid">
             <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-teal-600" /> Guaranteed Benefits Summary
+              <Shield className="w-4 h-4 text-teal-600" /> Key Benefits & Coverage Summary
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
               <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm print:shadow-none">
-                <span className="text-xs text-slate-500 block">Base Yearly Annuity</span>
-                <span className="text-lg font-bold text-slate-900">₹{(benefits?.yearlyBaseAnnuity || 0).toLocaleString('en-IN')}</span>
+                <span className="text-xs text-slate-500 block">Base Payout / Cover</span>
+                <span className="text-lg font-bold text-slate-900">₹{(benefits?.yearlyBaseAnnuity || configuration?.premiumAmount || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm print:shadow-none">
-                <span className="text-xs text-slate-500 block">Annuity Booster</span>
+                <span className="text-xs text-slate-500 block">Persistency Booster</span>
                 <span className="text-lg font-bold text-teal-600">+₹{(benefits?.annuityBooster || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm print:shadow-none">
-                <span className="text-xs text-slate-500 block">Accrued GA (Deferment)</span>
+                <span className="text-xs text-slate-500 block">Accrued Additions</span>
                 <span className="text-lg font-bold text-indigo-600">₹{(benefits?.totalAccruedGA || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm print:shadow-none">
-                <span className="text-xs text-slate-500 block">Capital Refund (ROP)</span>
-                <span className="text-lg font-bold text-slate-900">₹{(benefits?.guaranteedReturnOfPurchasePrice || 0).toLocaleString('en-IN')}</span>
+                <span className="text-xs text-slate-500 block">Capital / Death Refund</span>
+                <span className="text-lg font-bold text-slate-900">₹{(benefits?.guaranteedReturnOfPurchasePrice || configuration?.premiumAmount || 0).toLocaleString('en-IN')}</span>
               </div>
             </div>
           </div>
@@ -179,27 +180,35 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
               <h3 className="text-sm font-bold text-slate-900 mb-2">Illustrated Cashflow & Death Benefit Schedule</h3>
               <div className="border border-slate-200 rounded-xl overflow-hidden text-xs">
                 <table className="w-full text-left">
-                  <thead className="bg-slate-100 text-slate-700 font-semibold">
+                  <thead className="bg-slate-100 text-slate-700 font-semibold text-[10px]">
                     <tr>
-                      <th className="p-2.5">Year (Age)</th>
-                      <th className="p-2.5">Premium</th>
-                      <th className="p-2.5">Annuity Payout</th>
-                      <th className="p-2.5">Accrued GA</th>
-                      <th className="p-2.5">Death Benefit</th>
-                      <th className="p-2.5">Surrender Value</th>
-                      <th className="p-2.5">Loan Limit (80%)</th>
+                      <th className="p-2">Policy Year</th>
+                      <th className="p-2">Premium</th>
+                      <th className="p-2">Base Annuity (A)</th>
+                      <th className="p-2">Booster (B)</th>
+                      <th className="p-2">Total Annuity (A+B)</th>
+                      <th className="p-2">Accrued GA</th>
+                      <th className="p-2">Death Benefit</th>
+                      <th className="p-2">Maturity Benefit</th>
+                      <th className="p-2">Min GSV</th>
+                      <th className="p-2">Special SV</th>
+                      <th className="p-2">Surrender Value</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100 text-slate-600">
+                  <tbody className="divide-y divide-slate-100 text-slate-600 text-[10px]">
                     {cashflowTimeline.map((row, idx) => (
                       <tr key={idx} className={`${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} print:break-inside-avoid`}>
-                        <td className="p-2.5 font-medium text-slate-900">Yr {row.policyYear} (Age {row.annuitantAge})</td>
-                        <td className="p-2.5">{row.premiumPaid > 0 ? `₹${row.premiumPaid.toLocaleString('en-IN')}` : '-'}</td>
-                        <td className="p-2.5 font-bold text-teal-700">{row.annuityPayout > 0 ? `₹${row.annuityPayout.toLocaleString('en-IN')}` : '-'}</td>
-                        <td className="p-2.5 text-indigo-600">{row.accruedGA > 0 ? `₹${row.accruedGA.toLocaleString('en-IN')}` : '-'}</td>
-                        <td className="p-2.5 font-semibold text-slate-900">₹{row.deathBenefit.toLocaleString('en-IN')}</td>
-                        <td className="p-2.5">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
-                        <td className="p-2.5">₹{row.maxLoanEligibility.toLocaleString('en-IN')}</td>
+                        <td className="p-2 font-medium text-slate-900">{row.policyYear}</td>
+                        <td className="p-2">{row.premiumPaid > 0 ? `₹${row.premiumPaid.toLocaleString('en-IN')}` : '0'}</td>
+                        <td className="p-2">{row.baseAnnuity > 0 ? `₹${row.baseAnnuity.toLocaleString('en-IN')}` : '0'}</td>
+                        <td className="p-2">{row.annuityBooster > 0 ? `₹${row.annuityBooster.toLocaleString('en-IN')}` : '0'}</td>
+                        <td className="p-2 font-bold text-teal-700">{row.annuityPayout > 0 ? `₹${row.annuityPayout.toLocaleString('en-IN')}` : '0'}</td>
+                        <td className="p-2 text-indigo-600">{row.accruedGA > 0 ? `₹${row.accruedGA.toLocaleString('en-IN')}` : '0'}</td>
+                        <td className="p-2 font-semibold text-slate-900">₹{row.deathBenefit.toLocaleString('en-IN')}</td>
+                        <td className="p-2">NA</td>
+                        <td className="p-2">₹{(row.minGsv || 0).toLocaleString('en-IN')}</td>
+                        <td className="p-2">₹{(row.specialSv || 0).toLocaleString('en-IN')}</td>
+                        <td className="p-2 font-semibold">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -213,21 +222,39 @@ export default function QuotePDFDocument({ quoteData, onPrint, onClose }) {
             <p className="font-semibold text-slate-700">IRDAI Statutory Disclaimers & Consumer Safeguards:</p>
             <ul className="list-disc pl-4 space-y-1">
               <li><strong>Section 45 Indisputability</strong>: Under Section 45 of Insurance Act 1938, no policy can be questioned after 3 continuous years on any ground whatsoever.</li>
-              <li><strong>Free-Look Period</strong>: 30-day unconditional trial return window with 100% premium refund from receipt of policy.</li>
-              <li><strong>Tax Exemption</strong>: Death Benefit is 100% tax-free under Section 10(10D). Premium deductions eligible under Section 80CCC/80CCD.</li>
-              <li><strong>Illustrative Nature</strong>: This quotation is generated dynamically from configured product data. Final terms are governed strictly by the official policy document and underwriter approval.</li>
+              <li><strong>Free-Look Period</strong>: 30-day unconditional trial return window with 100% premium refund from receipt of policy document.</li>
+              <li><strong>Tax Exemption</strong>: Benefits subject to provisions under Income Tax Act 1961 (Section 80C, 80D, 10(10D) as applicable).</li>
+              <li><strong>Indicative Nature</strong>: This quote illustration is prepared based on customer inputs and product rate tables. Final terms, rates, underwriting acceptance and policy issuance are subject to insurer rules.</li>
             </ul>
           </div>
 
           {/* Signature & Advisory Stamp */}
-          <div className="flex justify-between items-end border-t border-slate-200 pt-6 text-xs text-slate-600">
+          <div className="grid grid-cols-2 gap-8 border-t border-slate-200 pt-12 text-xs text-slate-600 mt-12 print:break-inside-avoid">
             <div>
-              <p className="font-semibold text-slate-900">Radhe Investments Advisory Desk</p>
-              <p>Certified Insurance & Wealth Partner</p>
+              <p className="mb-12 leading-relaxed">I, ........................................... (name), have explained the premiums, and benefits under the product fully to the prospect / policyholder.</p>
+              <div className="flex justify-between items-end">
+                <div>
+                  <p className="mb-2">Place: ........................</p>
+                  <p>Date: ........................</p>
+                </div>
+                <div className="text-center">
+                  <div className="h-0 border-b border-slate-400 w-48 mb-2"></div>
+                  <p className="font-semibold text-slate-900">Signature of Agent / Intermediary</p>
+                </div>
+              </div>
             </div>
-            <div className="text-right">
-              <div className="h-10 border-b border-slate-300 w-40 mb-1"></div>
-              <p className="text-slate-400">Authorized Signatory / Timestamp</p>
+            <div>
+              <p className="mb-12 leading-relaxed">I, Proposer, having received the information with respect to the above, have understood the above statement before entering into the contract.</p>
+              <div className="flex justify-between items-end">
+                <div>
+                  <p className="opacity-0 mb-2">Place:</p>
+                  <p>Date: ........................</p>
+                </div>
+                <div className="text-center">
+                  <div className="h-0 border-b border-slate-400 w-48 mb-2"></div>
+                  <p className="font-semibold text-slate-900">Signature of Prospect / Policyholder</p>
+                </div>
+              </div>
             </div>
           </div>
 

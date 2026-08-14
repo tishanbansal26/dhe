@@ -119,10 +119,12 @@ export default function QuoteGenerator() {
       if (error) throw error;
       setPlans(data || []);
 
-      // Default select Tata AIA or first plan if not in query
-      if (!queryPlanId && data && data.length > 0) {
-        const tataPlan = data.find(p => p.name.toLowerCase().includes('fortune guarantee') || p.name.toLowerCase().includes('pension'));
-        setSelectedPlan(tataPlan || data[0]);
+      if (queryPlanId && data && data.length > 0) {
+        const matched = data.find(p => p.id === queryPlanId);
+        if (matched) {
+          setSelectedPlan(matched);
+          setStep(2);
+        }
       }
     } catch (err) {
       console.error('Error loading plans:', err);

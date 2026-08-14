@@ -193,7 +193,7 @@ export function calculateQuote(planConfig, customerInputs) {
 
   // 8. Generate Year-by-Year Cashflow Timeline & Death Benefit Progression
   const cashflowTimeline = [];
-  const maxProjectionYears = Math.max(100 - age, 40);
+  const maxProjectionYears = 51; // Official Tata AIA PDF projects for 51 policy years
   let cumulativeAnnuityPaid = 0;
   let cumulativePremiumsContributed = 0;
 
@@ -204,6 +204,8 @@ export function calculateQuote(planConfig, customerInputs) {
     cumulativePremiumsContributed += premiumInflow;
 
     const isPostDeferment = year > defermentPeriod;
+    const baseAnnuityOutflow = isPostDeferment ? yearlyBaseAnnuity : 0;
+    const annuityBoosterOutflow = isPostDeferment ? annuityBooster : 0;
     const annuityOutflow = isPostDeferment ? totalYearlyAnnuity : 0;
     cumulativeAnnuityPaid += annuityOutflow;
 
@@ -225,16 +227,21 @@ export function calculateQuote(planConfig, customerInputs) {
     }
 
     // Surrender Value & Max Loan (80% SV)
+    let minGsv = 0;
+    let specialSv = 0;
     let surrenderValue = 0;
     if (selectedOption.has_rop) {
       if (isSinglePay) {
-        // Single pay SV starts ~50% and grows
-        surrenderValue = Math.round(premium * (0.50 + Math.min(year * 0.02, 0.50)) + accruedGAToDate * 0.5);
+        // Single pay
+        minGsv = year === 1 ? 0 : Math.round(premium * 0.75);
+        specialSv = Math.round(premium * (0.50 + Math.min(year * 0.02, 0.50)) + accruedGAToDate * 0.5);
       } else {
-        // Regular pay SSV scales with premiums paid and accrued GA
+        // Regular pay
+        minGsv = year === 1 ? 0 : Math.round(cumulativePremiumsContributed * 0.50);
         const rpuFactor = Math.min(year / ppt, 1.0);
-        surrenderValue = Math.round((cumulativePremiumsContributed * 0.30 + accruedGAToDate * 0.5) * rpuFactor);
+        specialSv = Math.round((cumulativePremiumsContributed * 0.30 + accruedGAToDate * 0.5) * rpuFactor);
       }
+      surrenderValue = Math.max(minGsv, specialSv);
     }
     const maxLoanEligibility = Math.round(surrenderValue * 0.80);
 
@@ -243,10 +250,14 @@ export function calculateQuote(planConfig, customerInputs) {
       annuitantAge: currentAge,
       premiumPaid: premiumInflow,
       cumulativePremiums: cumulativePremiumsContributed,
+      baseAnnuity: baseAnnuityOutflow,
+      annuityBooster: annuityBoosterOutflow,
       annuityPayout: annuityOutflow,
       cumulativeAnnuity: cumulativeAnnuityPaid,
       deathBenefit,
       accruedGA: accruedGAToDate,
+      minGsv,
+      specialSv,
       surrenderValue,
       maxLoanEligibility
     });

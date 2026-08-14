@@ -55,7 +55,20 @@ export default function QuoteDetails() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-950 flex items-center justify-center text-teal-400">Loading Quotation...</div>;
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 pt-28 pb-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto space-y-6 animate-pulse">
+          <div className="h-6 bg-slate-850 rounded w-32"></div>
+          <div className="h-40 bg-slate-900 border border-slate-800 rounded-3xl"></div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="h-48 bg-slate-900 border border-slate-800 rounded-3xl"></div>
+            <div className="h-48 bg-slate-900 border border-slate-800 rounded-3xl"></div>
+            <div className="h-48 bg-slate-900 border border-slate-800 rounded-3xl"></div>
+          </div>
+          <div className="h-64 bg-slate-900 border border-slate-800 rounded-3xl"></div>
+        </div>
+      </div>
+    );
   }
 
   if (!quote) {
@@ -221,11 +234,14 @@ export default function QuoteDetails() {
                     <th className="p-3">Policy Year</th>
                     <th className="p-3">Age</th>
                     <th className="p-3">Premium</th>
-                    <th className="p-3">Annuity Payout</th>
+                    <th className="p-3">Base (A)</th>
+                    <th className="p-3">Booster (B)</th>
+                    <th className="p-3">Total (A+B)</th>
                     <th className="p-3">Accrued GA</th>
-                    <th className="p-3">Death Benefit (Demise)</th>
+                    <th className="p-3">Death Benefit</th>
+                    <th className="p-3">Min GSV</th>
+                    <th className="p-3">Special SV</th>
                     <th className="p-3">Surrender Value</th>
-                    <th className="p-3">Loan Limit (80% SV)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300 font-mono">
@@ -234,11 +250,14 @@ export default function QuoteDetails() {
                       <td className="p-3 font-bold text-slate-400">Yr {row.policyYear}</td>
                       <td className="p-3 text-slate-400">{row.annuitantAge}</td>
                       <td className="p-3">{row.premiumPaid > 0 ? `₹${row.premiumPaid.toLocaleString('en-IN')}` : '-'}</td>
+                      <td className="p-3">{row.baseAnnuity > 0 ? `₹${row.baseAnnuity.toLocaleString('en-IN')}` : '-'}</td>
+                      <td className="p-3">{row.annuityBooster > 0 ? `₹${row.annuityBooster.toLocaleString('en-IN')}` : '-'}</td>
                       <td className="p-3 font-bold text-teal-400">{row.annuityPayout > 0 ? `₹${row.annuityPayout.toLocaleString('en-IN')}` : '-'}</td>
                       <td className="p-3 text-indigo-400">{row.accruedGA > 0 ? `₹${row.accruedGA.toLocaleString('en-IN')}` : '-'}</td>
                       <td className="p-3 font-semibold text-white">₹{row.deathBenefit.toLocaleString('en-IN')}</td>
-                      <td className="p-3 text-amber-500">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
-                      <td className="p-3 text-amber-400">₹{row.maxLoanEligibility.toLocaleString('en-IN')}</td>
+                      <td className="p-3">₹{(row.minGsv || 0).toLocaleString('en-IN')}</td>
+                      <td className="p-3">₹{(row.specialSv || 0).toLocaleString('en-IN')}</td>
+                      <td className="p-3 font-semibold">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>

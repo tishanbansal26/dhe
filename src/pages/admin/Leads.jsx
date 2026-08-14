@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Search, Phone, User, Calendar, ExternalLink, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 export default function Leads() {
   const [leads, setLeads] = useState([]);
@@ -33,9 +34,13 @@ export default function Leads() {
 
   return (
     <div className="p-6 sm:p-10 max-w-7xl mx-auto space-y-8">
+      <Helmet>
+        <title>Leads & Inquiries Pipeline | Radhe Investments Admin</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="flex justify-between items-center">
         <div>
-          <button onClick={() => navigate('/admin/dashboard')} className="flex items-center gap-2 text-slate-400 hover:text-teal-400 mb-4 transition-colors">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-400 hover:text-teal-400 mb-4 transition-colors">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </button>
           <h1 className="text-3xl font-black text-white">Lead & Inquiry Pipeline</h1>

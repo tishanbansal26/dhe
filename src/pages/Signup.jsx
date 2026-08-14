@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 import { UserPlus, User, Lock, Mail, ShieldAlert } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 export default function Signup() {
   const [name, setName] = useState('');
@@ -14,10 +15,6 @@ export default function Signup() {
   const [verificationSent, setVerificationSent] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
-
-  useEffect(() => {
-    document.title = 'Sign Up - Radhe Investments';
-  }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -43,12 +40,16 @@ export default function Signup() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
+      <Helmet>
+        <title>Create an Account | Radhe Investments</title>
+        <meta name="description" content="Sign up for Radhe Investments to manage insurance policies, file cashless claims and access expert financial advice." />
+      </Helmet>
       <div className="w-full max-w-md p-8 glass-panel rounded-3xl border border-slate-700/50">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
             <UserPlus className="w-8 h-8 text-teal-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Create an Account</h2>
+          <h1 className="text-2xl font-bold text-white mb-2">Create an Account</h1>
           <p className="text-sm text-gray-400">Join Radhe Investments today.</p>
         </div>
 

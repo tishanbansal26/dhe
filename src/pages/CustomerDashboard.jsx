@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase';
 import { Shield, FileText, AlertCircle, Clock, ShieldX, FileX, User, Save, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 import DocumentUploader from '../components/DocumentUploader';
+import { useSiteSettings } from '../lib/useSiteSettings';
 
 export default function CustomerDashboard() {
   const { user, customerProfile } = useAuth();
@@ -13,7 +15,9 @@ export default function CustomerDashboard() {
   const [policies, setPolicies] = useState([]);
   const [claims, setClaims] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { settings } = useSiteSettings();
+  const rawContactPhone = settings?.contact_phone || '+91 96036 10000';
+  const cleanContactPhone = rawContactPhone.replace(/[^0-9]/g, '');
   const [savingProfile, setSavingProfile] = useState(false);
   
   // Profile form state
@@ -111,27 +115,51 @@ export default function CustomerDashboard() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <Helmet>
+        <title>{`Dashboard - ${customerProfile.name || 'Customer'} | Radhe Investments`}</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-700/50 pb-6 gap-4">
           <div>
-            <h2 className="text-3xl font-bold text-white">
+            <h1 className="text-3xl font-bold text-white">
               Welcome back, {customerProfile.name?.includes('@') ? customerProfile.name.split('@')[0] : (customerProfile.name || 'Customer')}!
-            </h2>
+            </h1>
             <p className="text-gray-400 mt-1">Manage your policies, track claims, and access documents.</p>
           </div>
-          <div className="flex flex-wrap gap-2 bg-slate-800/50 p-1 rounded-xl">
-            <button onClick={() => setActiveTab('policies')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'policies' ? 'bg-teal-500 text-slate-900' : 'text-gray-400 hover:text-white'}`}>
+          <div role="tablist" aria-label="Customer dashboard tabs" className="flex flex-wrap gap-2 bg-slate-800/50 p-1 rounded-xl">
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'policies'}
+              onClick={() => setActiveTab('policies')} 
+              className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'policies' ? 'bg-teal-500 text-slate-900' : 'text-gray-400 hover:text-white'}`}
+            >
               <Shield className="w-4 h-4" /> Policies
             </button>
-            <button onClick={() => setActiveTab('claims')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'claims' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'claims'}
+              onClick={() => setActiveTab('claims')} 
+              className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'claims' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
               <AlertCircle className="w-4 h-4" /> Claims
             </button>
-            <button onClick={() => setActiveTab('documents')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'documents' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'documents'}
+              onClick={() => setActiveTab('documents')} 
+              className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'documents' ? 'bg-purple-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
               <FileText className="w-4 h-4" /> Documents
             </button>
-            <button onClick={() => setActiveTab('profile')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'profile' ? 'bg-rose-500 text-white' : 'text-gray-400 hover:text-white'}`}>
+            <button 
+              role="tab"
+              aria-selected={activeTab === 'profile'}
+              onClick={() => setActiveTab('profile')} 
+              className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 ${activeTab === 'profile' ? 'bg-rose-500 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
               <User className="w-4 h-4" /> Profile
             </button>
           </div>
@@ -195,7 +223,7 @@ export default function CustomerDashboard() {
                       </div>
 
                       <a
-                        href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(
+                        href={`https://api.whatsapp.com/send?phone=${cleanContactPhone}&text=${encodeURIComponent(
                           `Namaste Radhe Investments, I would like to renew my policy (${expiringPolicies[0]?.policy_number} - ${expiringPolicies[0]?.insurance_plans?.name}). Please assist with the renewal link.`
                         )}`}
                         target="_blank"
@@ -217,7 +245,7 @@ export default function CustomerDashboard() {
                     <div className="glass-panel p-8 text-center text-gray-400 rounded-3xl border border-slate-700/50 flex flex-col items-center justify-center">
                       <ShieldX className="w-12 h-12 text-slate-500 mb-4" />
                       You don't have any active policies yet. <br />
-                      <button onClick={() => navigate('/#plans')} className="mt-4 text-teal-400 underline font-medium">Explore Available Plans</button>
+                      <button onClick={() => navigate('/#products')} className="mt-4 text-teal-400 underline font-medium hover:text-teal-300">Explore Available Plans</button>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -299,7 +327,7 @@ export default function CustomerDashboard() {
                               ) : null}
 
                               <a
-                                href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent(
+                                href={`https://api.whatsapp.com/send?phone=${cleanContactPhone}&text=${encodeURIComponent(
                                   `Namaste, I need assistance with my policy #${p.policy_number} (${p.insurance_plans?.name}). Please connect me with an advisor.`
                                 )}`}
                                 target="_blank"

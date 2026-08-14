@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { TrendingUp, ArrowRight, LogOut, Menu, X, ChevronDown, Search, Calculator } from 'lucide-react';
+import { TrendingUp, ArrowRight, LogOut, Menu, X, ChevronDown, Search, Calculator, Layers, User } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 import { supabase } from '../lib/supabase';
 import NotificationBell from './NotificationBell';
@@ -41,16 +41,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <Link to="/" className="flex-shrink-0 flex items-center gap-2 cursor-pointer" onClick={closeMenu}>
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-[0_0_15px_rgba(20,184,166,0.4)]">
               <TrendingUp className="text-navy-900 w-6 h-6" />
             </div>
-            <span className="font-bold text-2xl tracking-tight">Radhe<span className="text-teal-400">Investments</span> {isAdminSubdomain && <span className="text-sm font-normal text-rose-400 ml-2 border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 rounded-full">Admin</span>}</span>
+            <span className="font-bold text-2xl tracking-tight text-white">Radhe<span className="text-teal-400">Investments</span> {isAdminSubdomain && <span className="text-sm font-normal text-rose-400 ml-2 border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 rounded-full">Admin</span>}</span>
           </Link>
           
           {/* Desktop Menu */}
           {!isAdminSubdomain && (
             <div className="hidden md:block">
-              <div className="ml-10 flex items-baseline space-x-8">
+              <div className="ml-10 flex items-baseline space-x-6 lg:space-x-8">
               <a 
                 href={isHome ? '#home' : '/'} 
                 className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -76,6 +76,12 @@ export default function Navbar() {
                 Insurance Plans
               </a>
               <Link 
+                to="/compare"
+                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+              >
+                <Layers className="w-4 h-4 text-teal-400" /> Compare
+              </Link>
+              <Link 
                 to="/calculators"
                 className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
               >
@@ -95,14 +101,14 @@ export default function Navbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
-                  placeholder="Search..." 
-                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-sm text-white focus:outline-none focus:border-teal-500 w-48 transition-all focus:w-64"
+                  placeholder="Search plans..." 
+                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-36 transition-all focus:w-56"
                 />
               </div>
               
               <div className="relative group">
                 <button className="flex items-center gap-1 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
-                  Claim
+                  Claims
                   <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                 </button>
                 <div className="absolute left-0 mt-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform translate-y-2 group-hover:translate-y-0 z-50">
@@ -117,11 +123,11 @@ export default function Navbar() {
               </div>
 
               {userProfile?.role === 'customer' ? (
-                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">My Dashboard</Link>
+                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">My Dashboard</Link>
               ) : agentProfile?.role === 'admin' ? (
-                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10 whitespace-nowrap">Admin Portal</Link>
+                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10 whitespace-nowrap">Admin Portal</Link>
               ) : agentProfile ? (
-                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-md text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">Employee Portal</Link>
+                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">Employee Portal</Link>
               ) : null}
             </div>
           </div>
@@ -137,14 +143,15 @@ export default function Navbar() {
                 Logout <LogOut className="w-4 h-4" />
               </button>
             ) : (
-              <Link to="/login" className="glow-button bg-gradient-to-r from-teal-400 to-teal-600 text-navy-900 px-6 py-2.5 rounded-full font-semibold text-sm shadow-lg flex items-center gap-2 inline-flex">
-                {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
+              <Link to="/login" className="glow-button bg-gradient-to-r from-teal-400 to-teal-600 text-navy-900 px-6 py-2.5 rounded-full font-bold text-sm shadow-lg flex items-center gap-2 inline-flex">
+                <User className="w-4 h-4" /> {isAdminSubdomain ? 'Admin Login' : 'Login / Sign In'} <ArrowRight className="w-4 h-4" />
               </Link>
             )}
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center gap-2">
+            {user && <NotificationBell />}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-300 hover:text-white focus:outline-none p-2"
@@ -158,7 +165,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div className={`md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'} bg-slate-800 border-b border-slate-700 max-h-[calc(100vh-5rem)] overflow-y-auto`}>
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="px-3 pt-3 pb-4 space-y-1">
             {!isAdminSubdomain && (
               <>
                 <a 
@@ -188,6 +195,13 @@ export default function Navbar() {
                   Insurance Plans
                 </a>
                 <Link 
+                  to="/compare"
+                  onClick={closeMenu}
+                  className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Compare Plans
+                </Link>
+                <Link 
                   to="/calculators"
                   onClick={closeMenu}
                   className="block text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
@@ -210,7 +224,7 @@ export default function Navbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearch}
-                      placeholder="Search..." 
+                      placeholder="Search plans..." 
                       className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-2 text-sm text-white focus:outline-none focus:border-teal-500 w-full transition-all"
                     />
                   </div>
@@ -221,7 +235,7 @@ export default function Navbar() {
                     onClick={() => setIsMobileClaimsOpen(!isMobileClaimsOpen)}
                     className="w-full flex items-center justify-between text-gray-300 hover:text-white hover:bg-slate-700/50 px-3 py-2 rounded-md text-base font-medium"
                   >
-                    Claim
+                    Claims
                     <ChevronDown className={`w-4 h-4 transition-transform ${isMobileClaimsOpen ? 'rotate-180' : ''}`} />
                   </button>
                   {isMobileClaimsOpen && (
@@ -251,8 +265,8 @@ export default function Navbar() {
                   Logout <LogOut className="w-4 h-4" />
                 </button>
               ) : (
-                <Link to="/login" onClick={closeMenu} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-400 to-teal-600 text-navy-900 px-4 py-3 rounded-xl font-medium">
-                  {isAdminSubdomain ? 'Admin Login' : 'Agent Login'} <ArrowRight className="w-4 h-4" />
+                <Link to="/login" onClick={closeMenu} className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-teal-400 to-teal-600 text-navy-900 px-4 py-3 rounded-xl font-bold">
+                  <User className="w-4 h-4" /> {isAdminSubdomain ? 'Admin Login' : 'Login / Sign In'} <ArrowRight className="w-4 h-4" />
                 </Link>
               )}
             </div>

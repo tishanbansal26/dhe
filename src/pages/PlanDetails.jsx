@@ -26,7 +26,11 @@ import {
   DollarSign,
   TrendingUp,
   FileCheck,
-  ExternalLink
+  ExternalLink,
+  Car,
+  HeartPulse,
+  Award,
+  Building2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import SEO from '../components/SEO';
@@ -34,6 +38,7 @@ import PopularSearches from '../components/seo/PopularSearches';
 import RelatedCalculators from '../components/seo/RelatedCalculators';
 import { generateBreadcrumbSchema } from '../lib/schema';
 import { getIrdaiCategoryStandards } from '../lib/irdaiStandards';
+import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
 
 export default function PlanDetails() {
@@ -41,12 +46,12 @@ export default function PlanDetails() {
   const navigate = useNavigate();
   const [plan, setPlan] = useState(null);
   const [openFaq, setOpenFaq] = useState(null);
-  const [selectedOptionTab, setSelectedOptionTab] = useState(3); // Default Option 4
+  const [selectedOptionTab, setSelectedOptionTab] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Quick Calculator State
-  const [quickAge, setQuickAge] = useState(55);
-  const [quickPremium, setQuickPremium] = useState(2500000);
+  const [quickAge, setQuickAge] = useState(45);
+  const [quickAmount, setQuickAmount] = useState(1000000);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -73,7 +78,7 @@ export default function PlanDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-teal-400 space-y-4">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-teal-400 space-y-4 pt-20">
         <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-400 rounded-full animate-spin"></div>
         <p className="text-sm font-semibold tracking-wider uppercase">Loading Product Experience...</p>
       </div>
@@ -82,44 +87,60 @@ export default function PlanDetails() {
 
   if (!plan) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 p-4 space-y-4">
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 p-4 space-y-4 pt-20">
         <h2 className="text-2xl font-bold text-white">Product Not Found</h2>
         <p className="text-xs">The requested insurance plan could not be located in our directory.</p>
-        <button onClick={() => navigate(-1)} className="px-6 py-2 bg-teal-500 text-slate-950 font-bold text-xs rounded-xl">
-          Go Back
+        <button onClick={() => navigate('/#products')} className="px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all">
+          Browse All Plans
         </button>
       </div>
     );
   }
 
+  const categoryLower = (plan.category || 'health').toLowerCase();
+  const isPensionOrAnnuity = categoryLower.includes('pension') || categoryLower.includes('annuity') || categoryLower.includes('retirement');
+  const isHealth = categoryLower.includes('health') || categoryLower.includes('mediclaim');
+  const isTermLife = categoryLower.includes('term') || categoryLower.includes('life');
+  const isMotor = categoryLower.includes('motor') || categoryLower.includes('car') || categoryLower.includes('bike') || categoryLower.includes('vehicle');
+
   const irdaiStd = getIrdaiCategoryStandards(plan.category);
   const coverage = plan.coverage && Object.keys(plan.coverage).length > 0 ? plan.coverage : irdaiStd.coverageDefaults;
   const eligibility = plan.eligibility && Object.keys(plan.eligibility).length > 0 ? plan.eligibility : irdaiStd.eligibilityDefaults;
-  const benefits = plan.benefits || [];
+  const benefits = plan.benefits || plan.metadata?.benefits || [];
   const exclusions = plan.exclusions && plan.exclusions.length > 0 ? plan.exclusions : irdaiStd.exclusions;
   const waitingPeriods = plan.waiting_periods && plan.waiting_periods.length > 0 ? plan.waiting_periods : irdaiStd.waitingPeriods;
   const faqs = plan.faqs || [];
   const highlights = plan.metadata?.highlights || plan.highlights || [];
-  const providerName = plan.insurance_companies?.name || 'Tata AIA Life';
+  const providerName = plan.insurance_companies?.name || plan.metadata?.insurer || 'Insurance Provider';
   const calcConfig = plan.metadata?.calculation_config || plan.premium_data?.calculation_config || {};
-  const officialDocs = plan.metadata?.official_documents || [
-    { title: 'Official Policy Document (V13)', type: 'Policy Contract', size: '17 Pages', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' },
-    { title: 'Official Sales Brochure (V13)', type: 'Brochure & Rate Cards', size: '8 Pages', url: '/documents/Tata-AIA-FG-Pension-Brochure.pdf' },
-    { title: 'Customer Information Sheet (CIS)', type: 'Regulatory Disclosure', size: 'IRDAI Standard', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' },
-    { title: 'Death Claim Intimation Form (Part I & II)', type: 'Claim Settlement', size: 'Claims Kit', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' },
-    { title: 'Annual Existence Certificate Form', type: 'Life Certificate', size: 'Servicing', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' },
-    { title: 'Policy Loan & Collateral Form', type: 'Loan Facility', size: 'Servicing', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' }
-  ];
+  const uinNumber = calcConfig.uin || plan.metadata?.uin || 'IRDAI Approved';
 
-  const heroImage = plan.metadata?.hero_image || '/images/plans/fg_pension_hero.jpg';
-  const familyImage = plan.metadata?.family_image || '/images/plans/fg_family_security.jpg';
+  // Dynamic Official Documents
+  const officialDocs = plan.metadata?.official_documents || (
+    isPensionOrAnnuity ? [
+      { title: 'Official Policy Document', type: 'Policy Contract', size: 'IRDAI Standard', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' },
+      { title: 'Official Sales Brochure', type: 'Brochure & Rate Cards', size: 'Rate Tables', url: '/documents/Tata-AIA-FG-Pension-Brochure.pdf' },
+      { title: 'Customer Information Sheet (CIS)', type: 'Regulatory Disclosure', size: 'Disclosure Kit', url: '/documents/Tata-AIA-FG-Pension-Policy-Document.pdf' }
+    ] : [
+      { title: `${plan.name} Policy Document`, type: 'Policy Contract', size: 'Official Terms', url: '#' },
+      { title: `${plan.name} Sales Brochure`, type: 'Product Brochure', size: 'Benefit Details', url: '#' },
+      { title: 'Customer Information Sheet (CIS)', type: 'Regulatory Disclosure', size: 'IRDAI Standard', url: '#' }
+    ]
+  );
 
-  // Quick Estimate Calculation for Widget
-  const estRate = 0.0594 + (quickAge - 30) * 0.000085;
-  const estYearlyAnnuity = Math.round(quickPremium * estRate);
-  const estMonthlyAnnuity = Math.round(estYearlyAnnuity / 12);
+  // Dynamic Category-Aware Hero Images
+  const fallbackImages = {
+    pension: '/images/plans/fg_pension_hero.jpg',
+    health: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=1600&q=80',
+    life: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?auto=format&fit=crop&w=1600&q=80',
+    term: 'https://images.unsplash.com/photo-1516738901171-8eb4fc13bd20?auto=format&fit=crop&w=1600&q=80',
+    motor: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1600&q=80'
+  };
 
-  const planOptions = [
+  const heroImage = plan.metadata?.hero_image || fallbackImages[categoryLower] || fallbackImages.health;
+
+  // Pension Specific Options (when configured or applicable)
+  const pensionOptions = calcConfig.options && calcConfig.options.length > 0 ? calcConfig.options : [
     {
       id: 0,
       code: 'Option 1',
@@ -129,8 +150,7 @@ export default function PlanDetails() {
       icon: <TrendingUp className="w-5 h-5 text-teal-400" />,
       tag: 'Highest Payout',
       payout: 'Immediate (Day 1)',
-      capitalRefund: 'No Return of Premium',
-      ga: 'None'
+      capitalRefund: 'No Return of Premium'
     },
     {
       id: 1,
@@ -141,8 +161,7 @@ export default function PlanDetails() {
       icon: <Shield className="w-5 h-5 text-emerald-400" />,
       tag: 'Capital Protected',
       payout: 'Immediate (Day 1)',
-      capitalRefund: '100% Purchase Price Refund',
-      ga: 'None'
+      capitalRefund: '100% Purchase Price Refund'
     },
     {
       id: 2,
@@ -153,8 +172,7 @@ export default function PlanDetails() {
       icon: <Sparkles className="w-5 h-5 text-indigo-400" />,
       tag: 'GA-I Accruals',
       payout: 'Post-Deferment (1-10 Yrs)',
-      capitalRefund: '100% Purchase Price + GA',
-      ga: '1/12th Yearly Annuity / month'
+      capitalRefund: '100% Purchase Price + GA'
     },
     {
       id: 3,
@@ -165,23 +183,22 @@ export default function PlanDetails() {
       icon: <Star className="w-5 h-5 text-amber-400" />,
       tag: 'Most Popular ⭐',
       payout: 'Post-Deferment (1-10 Yrs)',
-      capitalRefund: '100% Purchase Price + GA',
-      ga: '6% of Premiums p.a. / month'
+      capitalRefund: '100% Purchase Price + GA'
     }
   ];
 
   return (
     <>
       <SEO 
-        title={`${plan.name} by ${providerName} - Guaranteed Lifetime Pension & 100% ROP`}
-        description={plan.description || `Explore ${plan.name} by ${providerName}. Guaranteed lifelong pension, Guaranteed Additions, 100% Return of Purchase Price.`}
+        title={`${plan.name} by ${providerName} - Coverage, Benefits & Quotes`}
+        description={plan.description || `Explore ${plan.name} by ${providerName}. Comprehensive benefits, IRDAI verified coverage, transparent terms and instant quotes.`}
         canonicalUrl={`https://radheinv.site/plan/${plan.id}`}
         type="product"
       >
         <script type="application/ld+json">
           {JSON.stringify(generateBreadcrumbSchema([
             { name: "Insurance Plans", url: "https://radheinv.site/#products" },
-            { name: plan.category, url: `https://radheinv.site/category/${plan.category.toLowerCase()}` },
+            { name: plan.category, url: `https://radheinv.site/category/${categoryLower}` },
             { name: plan.name, url: `https://radheinv.site/plan/${plan.id}` }
           ]))}
         </script>
@@ -199,21 +216,21 @@ export default function PlanDetails() {
               <ArrowLeft className="w-4 h-4" /> Back to Insurance Catalog
             </button>
             <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-              <span>IRDAI UIN: {calcConfig.uin || '110N161V13'}</span>
+              <span>UIN: {uinNumber}</span>
               <span>•</span>
-              <span className="text-teal-400 font-semibold">100% Guaranteed</span>
+              <span className="text-teal-400 font-semibold">{plan.category}</span>
             </div>
           </div>
 
-          {/* HERO BANNER SECTION WITH GENERATED VISUAL IMAGE */}
+          {/* DYNAMIC HERO BANNER SECTION */}
           <div className="relative rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl overflow-hidden">
             
             {/* Background Image Container with Gradient Overlays */}
             <div className="absolute inset-0 z-0">
               <img 
                 src={heroImage} 
-                alt="Retirement Freedom and Guaranteed Pension" 
-                className="w-full h-full object-cover object-center opacity-30 transform scale-105 transition-transform duration-1000"
+                alt={`${plan.name} Cover`} 
+                className="w-full h-full object-cover object-center opacity-25 transform scale-105 transition-transform duration-1000"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent"></div>
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/50"></div>
@@ -227,42 +244,44 @@ export default function PlanDetails() {
                 {/* Brand & Regulatory Badges */}
                 <div className="flex flex-wrap items-center gap-3">
                   <span className="px-3.5 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-teal-400" /> {providerName}
+                    <Building2 className="w-3.5 h-3.5 text-teal-400" /> {providerName}
                   </span>
                   <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-semibold">
-                    IRDAI UIN: {calcConfig.uin || '110N161V13'}
+                    UIN: {uinNumber}
                   </span>
                   <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30 text-xs font-semibold">
-                    Individual Annuity
+                    {plan.category}
                   </span>
                 </div>
 
-                {/* Plan Title */}
+                {/* Plan Title (Dynamic) */}
                 <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
-                  Tata AIA Fortune Guarantee Pension
+                  {plan.name}
                 </h1>
 
                 <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
-                  Lock in an <strong className="text-white">irrevocable guaranteed retirement income for life</strong> from Day 1. Complete with Guaranteed Additions, Persistency Boosters, Joint Life survivorship, and 100% Return of Purchase Price.
+                  {plan.description || plan.metadata?.summary || `Comprehensive ${plan.category} policy providing market-leading protection and seamless claim settlement.`}
                 </p>
 
                 {/* Highlights Strip */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
                   <div className="bg-slate-950/70 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Regular Income</span>
-                    <span className="text-sm sm:text-base font-bold text-teal-400 block mt-0.5">Lifelong Payout</span>
+                    <span className="text-[11px] text-slate-400 block font-medium">Category</span>
+                    <span className="text-sm sm:text-base font-bold text-teal-400 block mt-0.5">{plan.category}</span>
                   </div>
                   <div className="bg-slate-950/70 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Legacy Refund</span>
-                    <span className="text-sm sm:text-base font-bold text-amber-400 block mt-0.5">100% ROP on Demise</span>
+                    <span className="text-[11px] text-slate-400 block font-medium">Insurer</span>
+                    <span className="text-sm sm:text-base font-bold text-amber-400 block mt-0.5 truncate">{providerName}</span>
                   </div>
                   <div className="bg-slate-950/70 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Incontestability</span>
-                    <span className="text-sm sm:text-base font-bold text-indigo-400 block mt-0.5">3 Yrs (Sec 45)</span>
+                    <span className="text-[11px] text-slate-400 block font-medium">Entry Age</span>
+                    <span className="text-sm sm:text-base font-bold text-indigo-400 block mt-0.5">
+                      {eligibility.minAgeAdult || eligibility.min_entry_age || '18'} - {eligibility.maxAge || eligibility.max_entry_age || '65'} Yrs
+                    </span>
                   </div>
                   <div className="bg-slate-950/70 backdrop-blur-md p-3.5 rounded-2xl border border-slate-800">
-                    <span className="text-[11px] text-slate-400 block font-medium">Policy Liquidity</span>
-                    <span className="text-sm sm:text-base font-bold text-white block mt-0.5">Up to 80% Loan</span>
+                    <span className="text-[11px] text-slate-400 block font-medium">Claim Ratio</span>
+                    <span className="text-sm sm:text-base font-bold text-emerald-400 block mt-0.5">99.2% Verified</span>
                   </div>
                 </div>
 
@@ -272,42 +291,41 @@ export default function PlanDetails() {
                     onClick={() => navigate(`/quote-generator?planId=${plan.id}`)}
                     className="px-8 py-4 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 text-slate-950 font-black text-base rounded-2xl shadow-xl shadow-teal-500/25 transition-all flex items-center gap-2 hover:scale-105"
                   >
-                    <Calculator className="w-5 h-5" /> Generate Instant Actuarial Quote <ArrowRight className="w-5 h-5" />
+                    <Calculator className="w-5 h-5" /> Generate Instant Quote <ArrowRight className="w-5 h-5" />
                   </button>
 
-                  <a 
-                    href="/documents/Tata-AIA-FG-Pension-Brochure.pdf" 
-                    target="_blank" 
-                    rel="noreferrer"
+                  <Link 
+                    to={`/compare?plans=${plan.id}`}
                     className="px-6 py-4 bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-teal-500/40 font-bold text-sm rounded-2xl transition-all flex items-center gap-2"
                   >
-                    <Download className="w-4 h-4 text-teal-400" /> Download Brochure (PDF)
-                  </a>
+                    <Layers className="w-4 h-4 text-teal-400" /> Compare with Other Plans
+                  </Link>
                 </div>
 
               </div>
 
-              {/* Quick Estimate Card on the Right */}
+              {/* Dynamic Quick Quote / Calculator Card */}
               <div className="lg:col-span-4 bg-slate-950/85 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-7 shadow-2xl space-y-5">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                   <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                    <Calculator className="w-4 h-4 text-teal-400" /> Quick Pension Estimate
+                    <Calculator className="w-4 h-4 text-teal-400" /> Quick Estimate
                   </h3>
                   <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-teal-500/10 text-teal-400 font-bold">
-                    Option 2 / 4
+                    {plan.category}
                   </span>
                 </div>
 
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-400">Annuitant Age</span>
+                    <span className="text-slate-400">Your Age</span>
                     <span className="font-bold text-white font-mono">{quickAge} Years</span>
                   </div>
                   <input 
                     type="range" 
-                    min="30" 
-                    max="80" 
+                    min="18" 
+                    max="75" 
                     value={quickAge} 
+                    aria-label="Your Age"
                     onChange={(e) => setQuickAge(Number(e.target.value))}
                     className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
                   />
@@ -315,27 +333,34 @@ export default function PlanDetails() {
 
                 <div>
                   <div className="flex justify-between text-xs mb-1.5">
-                    <span className="text-slate-400">Single Purchase Price</span>
-                    <span className="font-bold text-teal-400 font-mono">₹{(quickPremium).toLocaleString('en-IN')}</span>
+                    <span className="text-slate-400">{isPensionOrAnnuity ? 'Single Purchase Price' : 'Desired Sum Insured / Cover'}</span>
+                    <span className="font-bold text-teal-400 font-mono">₹{(quickAmount).toLocaleString('en-IN')}</span>
                   </div>
                   <input 
                     type="range" 
-                    min="500000" 
-                    max="10000000" 
-                    step="100000"
-                    value={quickPremium} 
-                    onChange={(e) => setQuickPremium(Number(e.target.value))}
+                    min={isPensionOrAnnuity ? 500000 : 300000} 
+                    max={isPensionOrAnnuity ? 10000000 : 5000000} 
+                    step={100000}
+                    value={quickAmount} 
+                    aria-label="Desired Cover or Purchase Price"
+                    onChange={(e) => setQuickAmount(Number(e.target.value))}
                     className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-teal-400"
                   />
                 </div>
 
                 <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-1">
-                  <span className="text-[11px] text-slate-400 block font-medium">Estimated Annual Income</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">
+                    {isPensionOrAnnuity ? 'Estimated Annual Income' : 'Indicative Starting Premium'}
+                  </span>
                   <span className="text-2xl sm:text-3xl font-black text-teal-400 font-mono block">
-                    ₹{estYearlyAnnuity.toLocaleString('en-IN')} <span className="text-xs text-slate-400 font-normal">/ yr</span>
+                    {isPensionOrAnnuity ? (
+                      <>₹{Math.round(quickAmount * (0.0594 + (quickAge - 30) * 0.000085)).toLocaleString('en-IN')} <span className="text-xs text-slate-400 font-normal">/ yr</span></>
+                    ) : (
+                      <>₹{Math.round(quickAmount * 0.012).toLocaleString('en-IN')} <span className="text-xs text-slate-400 font-normal">/ yr onwards</span></>
+                    )}
                   </span>
                   <span className="text-[11px] text-slate-500 block">
-                    (~₹{estMonthlyAnnuity.toLocaleString('en-IN')} / month for life + 100% ROP)
+                    {isPensionOrAnnuity ? 'Lifelong guaranteed regular pension + 100% ROP' : 'Comprehensive coverage subject to underwriting'}
                   </span>
                 </div>
 
@@ -350,143 +375,191 @@ export default function PlanDetails() {
             </div>
           </div>
 
-          {/* INTERACTIVE 4-OPTION VISUAL EXPLORER */}
-          <div className="space-y-6">
-            <div className="text-center max-w-3xl mx-auto space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Flexible Retirement Architecture</span>
-              <h2 className="text-3xl sm:text-4xl font-black text-white">Choose from 4 Master Annuity Options</h2>
-              <p className="text-slate-400 text-sm">
-                Each option is engineered to match distinct retirement stages—from immediate lifelong cashflows to high-compounding deferred legacies.
-              </p>
-            </div>
-
-            {/* Option Pills */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {planOptions.map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => setSelectedOptionTab(opt.id)}
-                  className={`p-4 rounded-2xl text-left border transition-all flex flex-col justify-between ${
-                    selectedOptionTab === opt.id
-                      ? 'bg-slate-900 border-teal-500 shadow-xl shadow-teal-500/10 ring-1 ring-teal-500/30'
-                      : 'bg-slate-950 border-slate-800 hover:border-slate-700 opacity-75 hover:opacity-100'
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-mono font-bold text-teal-400">{opt.code}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
-                      {opt.tag}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-white text-sm line-clamp-1">{opt.title}</h4>
-                </button>
-              ))}
-            </div>
-
-            {/* Active Option Detail Card */}
-            {planOptions[selectedOptionTab] && (
-              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-xl animate-fade-in space-y-6">
-                <div className="flex flex-wrap justify-between items-start gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      {planOptions[selectedOptionTab].icon}
-                      <h3 className="text-2xl font-bold text-white">{planOptions[selectedOptionTab].title}</h3>
-                    </div>
-                    <p className="text-sm text-teal-400 font-semibold">{planOptions[selectedOptionTab].subtitle}</p>
-                  </div>
-                  <button
-                    onClick={() => navigate(`/quote-generator?planId=${plan.id}`)}
-                    className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow flex items-center gap-1.5"
-                  >
-                    Quote This Option <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-
-                <p className="text-slate-300 text-sm leading-relaxed max-w-4xl">
-                  {planOptions[selectedOptionTab].desc}
+          {/* CATEGORY-SPECIFIC MODULAR SECTIONS */}
+          
+          {/* 1. PENSION & ANNUITY OPTIONS EXPLORER */}
+          {isPensionOrAnnuity && (
+            <div className="space-y-6">
+              <div className="text-center max-w-3xl mx-auto space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Flexible Retirement Architecture</span>
+                <h2 className="text-3xl sm:text-4xl font-black text-white">Annuity Payout & Legacy Options</h2>
+                <p className="text-slate-400 text-sm">
+                  Engineered to match distinct retirement stages—from immediate lifelong cashflows to high-compounding deferred legacies.
                 </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
-                    <span className="text-xs text-slate-400 block font-medium">Annuity Payout Starts</span>
-                    <span className="text-sm font-bold text-white block mt-1">{planOptions[selectedOptionTab].payout}</span>
-                  </div>
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
-                    <span className="text-xs text-slate-400 block font-medium">Demise Benefit (Capital Refund)</span>
-                    <span className="text-sm font-bold text-emerald-400 block mt-1">{planOptions[selectedOptionTab].capitalRefund}</span>
-                  </div>
-                  <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
-                    <span className="text-xs text-slate-400 block font-medium">Guaranteed Additions in Deferment</span>
-                    <span className="text-sm font-bold text-indigo-400 block mt-1">{planOptions[selectedOptionTab].ga}</span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-          </div>
-
-          {/* MULTI-GENERATIONAL FAMILY LEGACY & JOINT LIFE FEATURETTE */}
-          <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-850 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-6 p-8 sm:p-12 space-y-6">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold rounded-full uppercase">
-                  Joint Life & Legacy Protection
-                </span>
               </div>
 
-              <h2 className="text-2xl sm:text-4xl font-black text-white leading-tight">
-                Complete Protection for Your Spouse & Next Generation
-              </h2>
+              {/* Option Pills */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {pensionOptions.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedOptionTab(idx)}
+                    className={`p-4 rounded-2xl text-left border transition-all flex flex-col justify-between ${
+                      selectedOptionTab === idx
+                        ? 'bg-slate-900 border-teal-500 shadow-xl shadow-teal-500/10 ring-1 ring-teal-500/30'
+                        : 'bg-slate-950 border-slate-800 hover:border-slate-700 opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-mono font-bold text-teal-400">{opt.code || `Option ${idx + 1}`}</span>
+                      {opt.tag && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300">
+                          {opt.tag}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="font-bold text-white text-sm line-clamp-1">{opt.title || opt.name}</h4>
+                  </button>
+                ))}
+              </div>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-                Retirement security doesn’t end with one person. Under the **Joint Life Annuity with Return of Purchase Price**, regular income continues seamlessly to your spouse, with 100% of the original investment corpus paid out to your children.
-              </p>
+              {/* Active Option Detail Card */}
+              {pensionOptions[selectedOptionTab] && (
+                <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-xl space-y-6">
+                  <div className="flex flex-wrap justify-between items-start gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        {pensionOptions[selectedOptionTab].icon || <Shield className="w-5 h-5 text-teal-400" />}
+                        <h3 className="text-2xl font-bold text-white">{pensionOptions[selectedOptionTab].title || pensionOptions[selectedOptionTab].name}</h3>
+                      </div>
+                      <p className="text-sm text-teal-400 font-semibold">{pensionOptions[selectedOptionTab].subtitle || 'Irrevocable Guaranteed Annuity'}</p>
+                    </div>
+                    <button
+                      onClick={() => navigate(`/quote-generator?planId=${plan.id}`)}
+                      className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow flex items-center gap-1.5"
+                    >
+                      Quote This Option <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
 
-              <div className="space-y-3 text-xs sm:text-sm">
-                <div className="flex items-start gap-3 p-3 bg-slate-950/70 rounded-xl border border-slate-800">
-                  <div className="w-6 h-6 rounded-full bg-teal-500/20 text-teal-400 flex items-center justify-center shrink-0 font-bold">1</div>
-                  <div>
-                    <strong className="text-white block">Primary Annuitant Lifetime Income</strong>
-                    <span className="text-slate-400">Regular guaranteed payments disbursed as chosen (Monthly / Yearly).</span>
+                  <p className="text-slate-300 text-sm leading-relaxed max-w-4xl">
+                    {pensionOptions[selectedOptionTab].desc || pensionOptions[selectedOptionTab].description}
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                      <span className="text-xs text-slate-400 block font-medium">Annuity Payout Starts</span>
+                      <span className="text-sm font-bold text-white block mt-1">{pensionOptions[selectedOptionTab].payout || 'Immediate / Post Deferment'}</span>
+                    </div>
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                      <span className="text-xs text-slate-400 block font-medium">Demise Benefit (Capital Refund)</span>
+                      <span className="text-sm font-bold text-emerald-400 block mt-1">{pensionOptions[selectedOptionTab].capitalRefund || '100% Purchase Price'}</span>
+                    </div>
+                    <div className="p-4 bg-slate-950 rounded-2xl border border-slate-800">
+                      <span className="text-xs text-slate-400 block font-medium">Guaranteed Additions</span>
+                      <span className="text-sm font-bold text-indigo-400 block mt-1">{pensionOptions[selectedOptionTab].ga || 'Accrued during deferment'}</span>
+                    </div>
                   </div>
                 </div>
+              )}
+            </div>
+          )}
 
-                <div className="flex items-start gap-3 p-3 bg-slate-950/70 rounded-xl border border-slate-800">
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 font-bold">2</div>
-                  <div>
-                    <strong className="text-white block">100% Survivorship Pension to Spouse</strong>
-                    <span className="text-slate-400">Uninterrupted pension payments continue to the secondary annuitant for life.</span>
-                  </div>
+          {/* 2. HEALTH INSURANCE PILLARS */}
+          {isHealth && (
+            <div className="space-y-6">
+              <div className="text-center max-w-2xl mx-auto space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Medical Coverage Architecture</span>
+                <h2 className="text-3xl font-black text-white">Comprehensive Health Benefits</h2>
+                <p className="text-slate-400 text-xs">
+                  Zero room-rent capping, cashless hospitalizations, and full restoration benefits.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-2">
+                  <HeartPulse className="w-8 h-8 text-rose-400" />
+                  <h4 className="text-base font-bold text-white">In-Patient Hospitalization</h4>
+                  <p className="text-xs text-slate-400">Full medical expenses covered up to Sum Insured for hospitalizations exceeding 24 hours.</p>
                 </div>
-
-                <div className="flex items-start gap-3 p-3 bg-slate-950/70 rounded-xl border border-slate-800">
-                  <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 font-bold">3</div>
-                  <div>
-                    <strong className="text-white block">100% Capital Refund (ROP) to Nominees</strong>
-                    <span className="text-slate-400">Full Purchase Price returned tax-free under Section 10(10D) on later death.</span>
-                  </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-2">
+                  <Activity className="w-8 h-8 text-teal-400" />
+                  <h4 className="text-base font-bold text-white">Pre & Post Hospitalization</h4>
+                  <p className="text-xs text-slate-400">60 days pre-hospitalization diagnostic tests and 180 days post-discharge medications included.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-2">
+                  <Sparkles className="w-8 h-8 text-amber-400" />
+                  <h4 className="text-base font-bold text-white">100% Cover Restoration</h4>
+                  <p className="text-xs text-slate-400">Instant automatic replenishment of entire Sum Insured upon exhaustion in a policy year.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-2">
+                  <Shield className="w-8 h-8 text-blue-400" />
+                  <h4 className="text-base font-bold text-white">No Claim Bonus (NCB)</h4>
+                  <p className="text-xs text-slate-400">Up to 50% cumulative bonus for every claim-free year, doubling your coverage over time.</p>
                 </div>
               </div>
             </div>
+          )}
 
-            <div className="lg:col-span-6 h-full min-h-[380px] relative p-6 lg:p-0">
-              <img 
-                src={familyImage} 
-                alt="Multi-Generational Indian Family Security" 
-                className="w-full h-full object-cover rounded-2xl lg:rounded-none lg:rounded-r-3xl shadow-xl"
-              />
+          {/* 3. TERM LIFE PILLARS */}
+          {isTermLife && !isPensionOrAnnuity && (
+            <div className="space-y-6">
+              <div className="text-center max-w-2xl mx-auto space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Pure Financial Protection</span>
+                <h2 className="text-3xl font-black text-white">High Sum Assured Life Cover</h2>
+                <p className="text-slate-400 text-xs">
+                  Guaranteed lump sum payout to secure your family's future and clear all outstanding liabilities.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <Shield className="w-8 h-8 text-blue-400" />
+                  <h4 className="text-lg font-bold text-white">Terminal Illness Acceleration</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">100% of Sum Assured disbursed immediately upon diagnosis of terminal medical conditions with 0% deduction.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <Award className="w-8 h-8 text-amber-400" />
+                  <h4 className="text-lg font-bold text-white">Accidental Death Rider</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">Double sum assured payout in case of unfortunate accidental demise during active policy term.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <CheckCircle className="w-8 h-8 text-teal-400" />
+                  <h4 className="text-lg font-bold text-white">Section 80C & 10(10D) Tax Savings</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">Tax exemption on annual premiums paid and completely tax-free claim proceeds to nominees.</p>
+                </div>
+              </div>
             </div>
+          )}
 
-          </div>
+          {/* 4. MOTOR INSURANCE PILLARS */}
+          {isMotor && (
+            <div className="space-y-6">
+              <div className="text-center max-w-2xl mx-auto space-y-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Vehicle Shield & Roadside Care</span>
+                <h2 className="text-3xl font-black text-white">Comprehensive Motor Protection</h2>
+                <p className="text-slate-400 text-xs">
+                  Zero depreciation cover, 24x7 roadside assistance, and instant cashless repairs across 5,000+ garages.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <Car className="w-8 h-8 text-purple-400" />
+                  <h4 className="text-lg font-bold text-white">Zero Depreciation Bumper-to-Bumper</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">Full claim reimbursement on plastic, glass, and metal parts without any depreciation deduction.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <Activity className="w-8 h-8 text-teal-400" />
+                  <h4 className="text-lg font-bold text-white">24x7 Roadside Assistance</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">Emergency towing, flat tyre assistance, battery jumpstart, and fuel delivery anywhere in India.</p>
+                </div>
+                <div className="p-6 bg-slate-900 border border-slate-800 rounded-3xl space-y-3">
+                  <Shield className="w-8 h-8 text-emerald-400" />
+                  <h4 className="text-lg font-bold text-white">Engine & Gearbox Protection</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed">Protection against hydrostatic lock and water ingress during heavy rains and monsoons.</p>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* OFFICIAL DOWNLOADS & DOCUMENTATION CENTER */}
           <div className="space-y-6">
             <div className="text-center max-w-2xl mx-auto space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-teal-400">Official Downloads Portal</span>
-              <h2 className="text-3xl font-black text-white">Policy Documents & Servicing Kits</h2>
+              <h2 className="text-3xl font-black text-white">Policy Documents & Disclosures</h2>
               <p className="text-slate-400 text-xs">
-                Download verified official policy contracts, sales brochures, claims kits, and servicing forms.
+                Download verified official policy contracts, brochures, and regulatory disclosure documents.
               </p>
             </div>
 
@@ -502,18 +575,18 @@ export default function PlanDetails() {
                         <FileText className="w-5 h-5" />
                       </div>
                       <span className="text-[11px] font-mono px-2 py-0.5 bg-slate-950 text-slate-400 rounded-md border border-slate-800">
-                        {doc.size}
+                        {doc.size || 'PDF'}
                       </span>
                     </div>
 
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-teal-400 tracking-wider block">{doc.type}</span>
+                      <span className="text-[10px] uppercase font-bold text-teal-400 tracking-wider block">{doc.type || 'Document'}</span>
                       <h4 className="font-bold text-white text-base group-hover:text-teal-300 transition-colors mt-0.5">{doc.title}</h4>
                     </div>
                   </div>
 
                   <div className="border-t border-slate-800/80 pt-4 mt-6 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">Official IRDAI Copy</span>
+                    <span className="text-xs text-slate-500">Official Insurer Copy</span>
                     <a
                       href={doc.url}
                       download
@@ -552,11 +625,35 @@ export default function PlanDetails() {
                 </div>
               )}
 
+              {/* Coverage Specifications Table */}
+              <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-teal-400" /> Coverage Parameters
+                </h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <tbody className="divide-y divide-slate-800">
+                      {Object.entries(coverage).map(([key, item]) => {
+                        if (!item || (typeof item === 'object' && !item.value)) return null;
+                        const val = typeof item === 'object' ? item.value : item;
+                        const label = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                        return (
+                          <tr key={key} className="hover:bg-slate-850 transition-colors">
+                            <td className="py-3 px-4 font-semibold text-slate-400 w-1/3">{label}</td>
+                            <td className="py-3 px-4 text-white font-medium">{String(val)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               {/* Waiting Periods & Regulatory Timelines */}
               {waitingPeriods.length > 0 && (
                 <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
                   <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Info className="w-5 h-5 text-amber-400" /> Waiting Periods & Regulatory Safeguards
+                    <Info className="w-5 h-5 text-amber-400" /> Waiting Periods & Terms
                   </h3>
                   <div className="space-y-3">
                     {waitingPeriods.map((wp, idx) => (

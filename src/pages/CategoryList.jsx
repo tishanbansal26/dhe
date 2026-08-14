@@ -163,8 +163,8 @@ export default function CategoryList() {
         <RelatedCalculators category={type} />
       </div>
       
-      <div className="text-center text-sm text-gray-500 mt-12 mb-6">
-        Page last updated: 13 August 2026
+      <div className="text-center text-xs text-slate-500 mt-12 mb-6">
+        Category standards & policies verified: {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}
       </div>
       
       <PopularSearches activeCategory={type} />

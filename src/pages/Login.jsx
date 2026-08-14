@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 import { Lock, User, ShieldAlert } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { Helmet } from 'react-helmet-async';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,10 +17,6 @@ export default function Login() {
   
   const hostname = window.location.hostname;
   const isAdminSubdomain = hostname.startsWith('admin.') || hostname.startsWith('portal.');
-
-  useEffect(() => {
-    document.title = 'Login - Radhe Investments';
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -85,13 +82,17 @@ export default function Login() {
   };
 
   return (
-    <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
-      <div className="w-full max-w-md p-8 glass-panel rounded-3xl border border-slate-700/50">
+    <div className="min-h-screen pt-32 pb-20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <Helmet>
+        <title>{isAdminSubdomain ? 'Admin Portal Login' : 'Login / Sign In'} | Radhe Investments</title>
+        <meta name="description" content="Secure login for Radhe Investments customers, advisors and administrators." />
+      </Helmet>
+      <div className="max-w-md w-full glass-panel rounded-3xl p-8 md:p-10 border border-slate-700/50">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Lock className="w-8 h-8 text-teal-400" />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+            <Lock className="w-8 h-8 text-navy-900" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">{isAdminSubdomain ? 'Admin Login' : 'Welcome Back'}</h2>
+          <h1 className="text-2xl font-bold text-white mb-2">{isAdminSubdomain ? 'Admin Login' : 'Welcome Back'}</h1>
           <p className="text-sm text-gray-400">Please authenticate to continue.</p>
         </div>
 

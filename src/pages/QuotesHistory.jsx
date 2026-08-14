@@ -145,7 +145,12 @@ export default function QuotesHistory() {
 
         {/* Quotes Table */}
         {loading ? (
-          <div className="py-20 text-center text-teal-400">Loading quotations pipeline...</div>
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden p-6 space-y-4 animate-pulse">
+            <div className="h-6 bg-slate-800 rounded w-1/4 mb-4"></div>
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className="h-12 bg-slate-800/50 rounded-xl"></div>
+            ))}
+          </div>
         ) : filteredQuotes.length === 0 ? (
           <div className="py-20 text-center bg-slate-900/40 border border-slate-800 rounded-3xl p-8 space-y-4">
             <FileText className="w-12 h-12 text-slate-600 mx-auto" />

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Users, Phone, Calendar, CheckCircle, BarChart3, TrendingUp, IndianRupee, Clock, Activity } from 'lucide-react';
+import { Search, Users, Phone, Calendar, CheckCircle, BarChart3, TrendingUp, IndianRupee, Clock, Activity, Plus, X } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/AuthContext';
 import toast from 'react-hot-toast';
+import { Helmet } from 'react-helmet-async';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 
 export default function EmployeePortal() {
@@ -13,9 +14,20 @@ export default function EmployeePortal() {
   const [agentSearch, setAgentSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState(null);
   
-  useEffect(() => {
-    document.title = 'Employee Portal - Radhe Investments';
-  }, []);
+  // Add Lead Modal State
+  const [isAddLeadModalOpen, setIsAddLeadModalOpen] = useState(false);
+  const [newLeadForm, setNewLeadForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    age: '35',
+    gender: 'male',
+    pincode: '',
+    plan_interest: 'Term Life Insurance',
+    status: 'new',
+    notes: ''
+  });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   const [agents, setAgents] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -99,6 +111,56 @@ export default function EmployeePortal() {
     }
   };
 
+  const handleCreateLead = async (e) => {
+    e.preventDefault();
+    if (!newLeadForm.name || newLeadForm.name.trim().length < 2) {
+      toast.error('Please enter a valid client name');
+      return;
+    }
+    if (!newLeadForm.phone || !/^[0-9]{10}$/.test(newLeadForm.phone.replace(/[^0-9]/g, '').slice(-10))) {
+      toast.error('Please enter a valid 10-digit phone number');
+      return;
+    }
+
+    setIsSubmittingLead(true);
+    try {
+      const payload = {
+        name: newLeadForm.name.trim(),
+        phone: newLeadForm.phone.trim(),
+        email: newLeadForm.email.trim() || null,
+        age: parseInt(newLeadForm.age) || 35,
+        gender: newLeadForm.gender || 'male',
+        pincode: newLeadForm.pincode.trim() || null,
+        plan_interest: newLeadForm.plan_interest || 'General',
+        status: newLeadForm.status || 'new',
+        notes: newLeadForm.notes.trim() || null
+      };
+
+      const { data, error } = await supabase.from('leads').insert([payload]).select().single();
+      if (error) throw error;
+
+      toast.success(`Client "${payload.name}" successfully added!`);
+      setIsAddLeadModalOpen(false);
+      setNewLeadForm({
+        name: '',
+        phone: '',
+        email: '',
+        age: '35',
+        gender: 'male',
+        pincode: '',
+        plan_interest: 'Term Life Insurance',
+        status: 'new',
+        notes: ''
+      });
+      fetchLeads();
+    } catch (err) {
+      console.error('Failed to create lead:', err);
+      toast.error('Failed to add client: ' + (err.message || 'Database error'));
+    } finally {
+      setIsSubmittingLead(false);
+    }
+  };
+
   const STAGES = ['new', 'contacted', 'converted', 'lost'];
   const getLeadsByStage = (stage) => leads.filter(l => l.status === stage);
 
@@ -134,10 +196,14 @@ export default function EmployeePortal() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <Helmet>
+        <title>Employee Portal - Pipeline & Client Management | Radhe Investments</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
           <span className="text-blue-400 font-semibold tracking-wider text-sm uppercase">Welcome Back</span>
-          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-2">Employee <span className="text-blue-400">Portal</span></h2>
+          <h1 className="text-3xl md:text-4xl font-bold mt-2 mb-2">Employee <span className="text-blue-400">Portal</span></h1>
           <p className="text-gray-400">Manage your business, leads pipeline, and team.</p>
           {agents.length > 0 && agents.find(a => a.user_id === user.id)?.company_name && (
             <p className="inline-block mt-3 px-4 py-1.5 bg-blue-500/20 border border-blue-500/30 text-blue-400 font-bold rounded-full text-sm">
@@ -297,15 +363,10 @@ export default function EmployeePortal() {
               <div className="space-y-4">
                 <div className="flex justify-end">
                   <button 
-                    onClick={() => {
-                      // We can just open LeadDetailsModal with no lead to create one
-                      // but LeadDetailsModal might only be for viewing.
-                      // Let's assume there's an 'Add Client' capability or just show a Toast for now
-                      toast.success("Client added successfully!");
-                    }} 
-                    className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 py-2 rounded-lg font-bold text-sm"
+                    onClick={() => setIsAddLeadModalOpen(true)} 
+                    className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-4 py-2 rounded-xl font-bold text-sm flex items-center gap-1.5 shadow-lg shadow-teal-500/20 transition-all hover:scale-105"
                   >
-                    + Add New Client
+                    <Plus className="w-4 h-4" /> Add New Client
                   </button>
                 </div>
                 <div className="flex flex-col md:flex-row gap-6 overflow-x-auto pb-4">
@@ -532,6 +593,159 @@ export default function EmployeePortal() {
           setLeads(leads.map(l => l.id === id ? { ...l, ...updates } : l));
         }}
       />
+
+      {/* Add New Client Modal */}
+      {isAddLeadModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-700/80 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setIsAddLeadModalOpen(false)}
+              className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="space-y-1">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <Users className="w-5 h-5 text-teal-400" /> Add New Client / Lead
+              </h3>
+              <p className="text-slate-400 text-xs">Record a new customer into your active sales pipeline.</p>
+            </div>
+
+            <form onSubmit={handleCreateLead} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Gurpreet Singh"
+                  value={newLeadForm.name}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, name: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Phone Number *</label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="10-digit mobile"
+                    value={newLeadForm.phone}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, phone: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Email (Optional)</label>
+                  <input
+                    type="email"
+                    placeholder="client@example.com"
+                    value={newLeadForm.email}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, email: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Age</label>
+                  <input
+                    type="number"
+                    min="18"
+                    max="99"
+                    value={newLeadForm.age}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, age: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Gender</label>
+                  <select
+                    value={newLeadForm.gender}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, gender: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">PIN Code</label>
+                  <input
+                    type="text"
+                    placeholder="151505"
+                    value={newLeadForm.pincode}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, pincode: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Plan Interest</label>
+                  <select
+                    value={newLeadForm.plan_interest}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, plan_interest: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="Health Insurance">Health Insurance</option>
+                    <option value="Term Life Insurance">Term Life Insurance</option>
+                    <option value="Guaranteed Pension / Annuity">Guaranteed Pension / Annuity</option>
+                    <option value="Motor / Vehicle Insurance">Motor / Vehicle Insurance</option>
+                    <option value="Investment / Savings Plan">Investment / Savings Plan</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Initial Stage</label>
+                  <select
+                    value={newLeadForm.status}
+                    onChange={(e) => setNewLeadForm({ ...newLeadForm, status: e.target.value })}
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                  >
+                    <option value="new">New (Uncontacted)</option>
+                    <option value="contacted">Contacted (In Discussion)</option>
+                    <option value="converted">Converted (Policy Issued)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Notes / Requirement</label>
+                <textarea
+                  rows="2"
+                  placeholder="e.g. Interested in 10L health cover for parents or 50L term cover"
+                  value={newLeadForm.notes}
+                  onChange={(e) => setNewLeadForm({ ...newLeadForm, notes: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-teal-500"
+                ></textarea>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddLeadModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white text-sm font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingLead}
+                  className="px-6 py-2.5 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-teal-500/20 disabled:opacity-50 flex items-center gap-2"
+                >
+                  {isSubmittingLead ? 'Saving...' : 'Save Client'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
