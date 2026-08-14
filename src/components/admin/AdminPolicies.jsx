@@ -22,6 +22,8 @@ export default function AdminPolicies() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [policyType, setPolicyType] = useState('health'); // 'health' | 'life' | 'motor'
   const [filterExpiry, setFilterExpiry] = useState('all'); // 'all' | 'urgent' | 'soon' | 'expired' | 'healthy'
+  const [filterCategory, setFilterCategory] = useState('all'); // 'all' | 'health' | 'life' | 'motor'
+  const [filterAgent, setFilterAgent] = useState('all'); // 'all' | agentId
   const [searchTerm, setSearchTerm] = useState('');
   
   // WhatsApp Reminder Modal state
@@ -86,7 +88,7 @@ export default function AdminPolicies() {
     setLoading(true);
     const { data, error } = await supabase
       .from('policies')
-      .select('*, customers(name, email, phone), agents(name), insurance_plans(name, category)')
+      .select('*, customers(name, email, phone), agents(id, name, email, phone), insurance_plans(name, category)')
       .order('created_at', { ascending: false });
     
     if (!error) setPolicies(data || []);
@@ -97,7 +99,7 @@ export default function AdminPolicies() {
     const [cRes, pRes, aRes] = await Promise.all([
       supabase.from('customers').select('id, name, email, phone').order('name'),
       supabase.from('insurance_plans').select('id, name, category').order('name'),
-      supabase.from('agents').select('id, name').order('name')
+      supabase.from('agents').select('id, name, email, phone').order('name')
     ]);
     if (cRes.data) setCustomers(cRes.data);
     if (pRes.data) setPlans(pRes.data);
@@ -260,8 +262,21 @@ export default function AdminPolicies() {
     }
   };
 
-  // Metrics summary
+  // Metric calculations
   const totalPolicies = policies.length;
+  const healthPoliciesCount = policies.filter(p => {
+    const cat = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
+    return cat.includes('health') || cat.includes('mediclaim');
+  }).length;
+  const lifePoliciesCount = policies.filter(p => {
+    const cat = (p.policy_type || p.insurance_plans?.category || '').toLowerCase();
+    return cat.includes('life') || cat.includes('term');
+  }).length;
+  const motorPoliciesCount = policies.filter(p => {
+    const cat = (p.policy_type || p.insurance_plans?.category || '').toLowerCase();
+    return cat.includes('motor') || cat.includes('car') || cat.includes('vehicle');
+  }).length;
+
   const urgentRenewals = policies.filter(p => {
     const info = getExpiryInfo(p.end_date);
     return info.type === 'urgent';
@@ -275,11 +290,25 @@ export default function AdminPolicies() {
     return info.type === 'expired';
   }).length;
 
-  // Filter policies based on Expiry tab & Search query
+  // Filter policies based on Category, Advisor, Expiry tab & Search query
   const filteredPolicies = policies.filter(p => {
     const expiryInfo = getExpiryInfo(p.end_date);
+    const cat = (p.policy_type || p.insurance_plans?.category || 'health').toLowerCase();
     
-    // Filter by Tab
+    // Filter by Category
+    if (filterCategory !== 'all') {
+      if (filterCategory === 'health' && !cat.includes('health') && !cat.includes('mediclaim')) return false;
+      if (filterCategory === 'life' && !cat.includes('life') && !cat.includes('term')) return false;
+      if (filterCategory === 'motor' && !cat.includes('motor') && !cat.includes('car') && !cat.includes('vehicle')) return false;
+    }
+
+    // Filter by Advisor
+    if (filterAgent !== 'all') {
+      if (filterAgent === 'unassigned' && p.agent_id) return false;
+      if (filterAgent !== 'unassigned' && p.agent_id !== filterAgent) return false;
+    }
+
+    // Filter by Expiry Tab
     if (filterExpiry === 'urgent' && expiryInfo.type !== 'urgent') return false;
     if (filterExpiry === 'soon' && expiryInfo.type !== 'soon') return false;
     if (filterExpiry === 'expired' && expiryInfo.type !== 'expired') return false;
@@ -292,8 +321,9 @@ export default function AdminPolicies() {
       const nameMatch = p.customers?.name?.toLowerCase().includes(q);
       const emailMatch = p.customers?.email?.toLowerCase().includes(q);
       const planMatch = p.insurance_plans?.name?.toLowerCase().includes(q);
+      const agentMatch = p.agents?.name?.toLowerCase().includes(q);
       const regMatch = p.metadata?.vehicle_reg_number?.toLowerCase().includes(q);
-      return numMatch || nameMatch || emailMatch || planMatch || regMatch;
+      return numMatch || nameMatch || emailMatch || planMatch || agentMatch || regMatch;
     }
 
     return true;
@@ -393,11 +423,27 @@ export default function AdminPolicies() {
               Policy & Renewal Management
             </h3>
             <p className="text-xs text-gray-400 mt-1">
-              Dispatch 1-click WhatsApp alerts, monitor policy lifecycles, and issue new coverage.
+              Track policy lines (Health, Life, Motor), servicing advisors, and dispatch 1-click WhatsApp alerts.
             </p>
           </div>
           
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            
+            {/* Advisor Dropdown Filter */}
+            <div className="relative">
+              <select
+                value={filterAgent}
+                onChange={e => setFilterAgent(e.target.value)}
+                className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-teal-300 focus:outline-none focus:border-teal-500"
+              >
+                <option value="all">👥 All Advisors ({agents.length})</option>
+                <option value="unassigned">🏢 Direct / House Account</option>
+                {agents.map(a => (
+                  <option key={a.id} value={a.id}>👤 {a.name}</option>
+                ))}
+              </select>
+            </div>
+
             {/* Search Input */}
             <div className="relative flex-1 sm:w-64">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -405,7 +451,7 @@ export default function AdminPolicies() {
                 type="text"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search policy #, customer, reg..."
+                placeholder="Search policy #, customer, advisor, reg..."
                 className="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-teal-500"
               />
             </div>
@@ -423,58 +469,109 @@ export default function AdminPolicies() {
           </div>
         </div>
 
-        {/* Expiry Filter Pills */}
-        <div className="flex flex-wrap items-center gap-2 border-y border-slate-800 py-3">
-          <span className="text-xs font-semibold text-gray-400 flex items-center gap-1 mr-1">
-            <Filter className="w-3.5 h-3.5 text-teal-400" /> Filter:
-          </span>
+        {/* Category & Expiry Filter Pills */}
+        <div className="space-y-2 border-y border-slate-800 py-3">
+          
+          {/* Row 1: Category Domains */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-gray-400 flex items-center gap-1 mr-1">
+              <Shield className="w-3.5 h-3.5 text-teal-400" /> Category:
+            </span>
 
-          <button
-            onClick={() => setFilterExpiry('all')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              filterExpiry === 'all' ? 'bg-teal-500 text-slate-950 font-bold' : 'bg-slate-800/60 text-gray-300 hover:bg-slate-800'
-            }`}
-          >
-            All Policies ({totalPolicies})
-          </button>
+            <button
+              onClick={() => setFilterCategory('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                filterCategory === 'all' ? 'bg-teal-500 text-slate-950 font-bold' : 'bg-slate-800/60 text-gray-300 hover:bg-slate-800'
+              }`}
+            >
+              All Lines ({totalPolicies})
+            </button>
 
-          <button
-            onClick={() => setFilterExpiry('urgent')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
-              filterExpiry === 'urgent' ? 'bg-orange-500 text-white font-bold' : 'bg-orange-500/10 text-orange-400 hover:bg-orange-500/20'
-            }`}
-          >
-            <AlertTriangle className="w-3 h-3" />
-            Urgent ≤ 7 Days ({urgentRenewals})
-          </button>
+            <button
+              onClick={() => setFilterCategory('health')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                filterCategory === 'health' ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+              }`}
+            >
+              <Heart className="w-3 h-3" />
+              Health Insurance ({healthPoliciesCount})
+            </button>
 
-          <button
-            onClick={() => setFilterExpiry('soon')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
-              filterExpiry === 'soon' ? 'bg-amber-500 text-slate-950 font-bold' : 'bg-amber-500/10 text-amber-400 hover:bg-amber-500/20'
-            }`}
-          >
-            <Clock className="w-3 h-3" />
-            Expiring in 30 Days ({soonRenewals})
-          </button>
+            <button
+              onClick={() => setFilterCategory('life')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                filterCategory === 'life' ? 'bg-purple-500 text-white font-bold' : 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20'
+              }`}
+            >
+              <Shield className="w-3 h-3" />
+              Life & Term Cover ({lifePoliciesCount})
+            </button>
 
-          <button
-            onClick={() => setFilterExpiry('expired')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
-              filterExpiry === 'expired' ? 'bg-rose-500 text-white font-bold' : 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
-            }`}
-          >
-            Lapsed / Expired ({expiredPolicies})
-          </button>
+            <button
+              onClick={() => setFilterCategory('motor')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors ${
+                filterCategory === 'motor' ? 'bg-blue-500 text-white font-bold' : 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20'
+              }`}
+            >
+              <Car className="w-3 h-3" />
+              Motor Insurance ({motorPoliciesCount})
+            </button>
+          </div>
 
-          <button
-            onClick={() => setFilterExpiry('healthy')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-              filterExpiry === 'healthy' ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
-            }`}
-          >
-            Healthy Cover (&gt; 30d)
-          </button>
+          {/* Row 2: Expiry Status Pills */}
+          <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/60">
+            <span className="text-xs font-semibold text-gray-400 flex items-center gap-1 mr-1">
+              <Filter className="w-3.5 h-3.5 text-teal-400" /> Expiry:
+            </span>
+
+            <button
+              onClick={() => setFilterExpiry('all')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                filterExpiry === 'all' ? 'bg-slate-700 text-white font-bold' : 'text-gray-400 hover:text-gray-200'
+              }`}
+            >
+              All Statuses
+            </button>
+
+            <button
+              onClick={() => setFilterExpiry('urgent')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors ${
+                filterExpiry === 'urgent' ? 'bg-orange-500 text-white font-bold' : 'text-orange-400 hover:bg-orange-500/10'
+              }`}
+            >
+              <AlertTriangle className="w-3 h-3" />
+              Urgent ≤ 7 Days ({urgentRenewals})
+            </button>
+
+            <button
+              onClick={() => setFilterExpiry('soon')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors ${
+                filterExpiry === 'soon' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-amber-400 hover:bg-amber-500/10'
+              }`}
+            >
+              <Clock className="w-3 h-3" />
+              Expiring in 30 Days ({soonRenewals})
+            </button>
+
+            <button
+              onClick={() => setFilterExpiry('expired')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1 transition-colors ${
+                filterExpiry === 'expired' ? 'bg-rose-500 text-white font-bold' : 'text-rose-400 hover:bg-rose-500/10'
+              }`}
+            >
+              Lapsed / Expired ({expiredPolicies})
+            </button>
+
+            <button
+              onClick={() => setFilterExpiry('healthy')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                filterExpiry === 'healthy' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-emerald-400 hover:bg-emerald-500/10'
+              }`}
+            >
+              Healthy Cover (&gt; 30d)
+            </button>
+          </div>
+
         </div>
 
         {/* Table Content */}
@@ -483,15 +580,16 @@ export default function AdminPolicies() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-800/50 text-gray-300">
                 <tr>
-                  <th className="px-4 py-3 rounded-l-lg">Type</th>
+                  <th className="px-4 py-3 rounded-l-lg">Insurance Line</th>
                   <th className="px-4 py-3">Policy Number</th>
-                  <th className="px-4 py-3">Customer</th>
-                  <th className="px-4 py-3">Plan</th>
+                  <th className="px-4 py-3">Customer & Contact</th>
+                  <th className="px-4 py-3">Plan Details</th>
+                  <th className="px-4 py-3">Assigned Advisor</th>
                   <th className="px-4 py-3">Sum Insured</th>
-                  <th className="px-4 py-3">Expiry / Countdown</th>
-                  <th className="px-4 py-3">WhatsApp Alert</th>
+                  <th className="px-4 py-3">Expiry Countdown</th>
+                  <th className="px-4 py-3 text-center">1-Click Renewal</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 rounded-r-lg">Action</th>
+                  <th className="px-4 py-3 rounded-r-lg">Manage</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700/50">
@@ -501,6 +599,7 @@ export default function AdminPolicies() {
                     <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
                     <td className="px-4 py-4 space-y-2"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
                     <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-32"></div></td>
+                    <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
                     <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-20"></div></td>
                     <td className="px-4 py-4"><div className="h-4 bg-slate-700/50 rounded w-24"></div></td>
                     <td className="px-4 py-4"><div className="h-6 bg-slate-700/50 rounded w-16"></div></td>
@@ -516,10 +615,11 @@ export default function AdminPolicies() {
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-800/50 text-gray-300">
                 <tr>
-                  <th className="px-4 py-3 rounded-l-lg">Domain</th>
+                  <th className="px-4 py-3 rounded-l-lg">Insurance Line</th>
                   <th className="px-4 py-3">Policy Number</th>
                   <th className="px-4 py-3">Customer & Contact</th>
                   <th className="px-4 py-3">Plan Details</th>
+                  <th className="px-4 py-3">Assigned Advisor</th>
                   <th className="px-4 py-3">Sum Insured</th>
                   <th className="px-4 py-3">Expiry Countdown</th>
                   <th className="px-4 py-3 text-center">1-Click Renewal</th>
@@ -534,24 +634,27 @@ export default function AdminPolicies() {
 
                   return (
                     <tr key={p.id} className="hover:bg-slate-800/30 transition-colors">
+                      
+                      {/* 1. Insurance Line (Domain) */}
                       <td className="px-4 py-4">
                         {type.includes('motor') || type.includes('car') || type.includes('vehicle') ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/30 shadow-sm">
                             <Car className="w-3.5 h-3.5" /> Motor
                           </span>
                         ) : type.includes('life') || type.includes('term') ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-purple-500/15 text-purple-400 border border-purple-500/30 shadow-sm">
                             <Shield className="w-3.5 h-3.5" /> Life
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm">
                             <Heart className="w-3.5 h-3.5" /> Health
                           </span>
                         )}
                       </td>
 
+                      {/* 2. Policy Number & Vehicle info */}
                       <td className="px-4 py-4 font-semibold text-white">
-                        {p.policy_number}
+                        <span className="font-mono text-sm">{p.policy_number}</span>
                         {p.metadata?.vehicle_reg_number && (
                           <div className="text-[11px] text-blue-300 font-mono mt-0.5 flex items-center gap-1">
                             <Car className="w-3 h-3" /> {p.metadata.vehicle_reg_number}
@@ -559,6 +662,7 @@ export default function AdminPolicies() {
                         )}
                       </td>
 
+                      {/* 3. Customer Contact */}
                       <td className="px-4 py-4">
                         <span className="text-teal-400 font-medium">{p.customers?.name || 'Unknown'}</span>
                         <div className="text-xs text-gray-400">{p.customers?.email}</div>
@@ -569,6 +673,7 @@ export default function AdminPolicies() {
                         )}
                       </td>
 
+                      {/* 4. Plan Details */}
                       <td className="px-4 py-4 text-gray-200">
                         <div className="font-medium">{p.insurance_plans?.name || 'Custom Plan'}</div>
                         {p.document_url && (
@@ -578,10 +683,35 @@ export default function AdminPolicies() {
                         )}
                       </td>
 
+                      {/* 5. Assigned Advisor */}
+                      <td className="px-4 py-4">
+                        {p.agents?.name ? (
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 font-bold text-xs shrink-0 shadow-sm">
+                              {p.agents.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="text-white font-medium text-xs flex items-center gap-1">
+                                {p.agents.name}
+                              </div>
+                              <div className="text-[10px] text-gray-400 font-mono">
+                                {p.agents.phone || p.agents.email || 'Licensed Advisor'}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-800 text-gray-400 border border-slate-700">
+                            <Briefcase className="w-3 h-3 text-slate-500" /> Direct / House Account
+                          </span>
+                        )}
+                      </td>
+
+                      {/* 6. Sum Insured */}
                       <td className="px-4 py-4 text-emerald-400 font-semibold">
                         {p.sum_insured ? `₹${parseFloat(p.sum_insured).toLocaleString('en-IN')}` : '-'}
                       </td>
 
+                      {/* 7. Expiry Countdown */}
                       <td className="px-4 py-4">
                         <div className="text-xs text-gray-300">
                           {p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
@@ -598,7 +728,7 @@ export default function AdminPolicies() {
                         </div>
                       </td>
 
-                      {/* 1-Click WhatsApp Button */}
+                      {/* 8. 1-Click WhatsApp Renewal */}
                       <td className="px-4 py-4 text-center">
                         <button
                           type="button"
@@ -611,6 +741,7 @@ export default function AdminPolicies() {
                         </button>
                       </td>
 
+                      {/* 9. Status */}
                       <td className="px-4 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-semibold border ${
                           p.status === 'active' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' : 
@@ -621,6 +752,7 @@ export default function AdminPolicies() {
                         </span>
                       </td>
 
+                      {/* 10. Manage */}
                       <td className="px-4 py-4">
                         <select 
                           value={p.status || 'active'}
@@ -629,28 +761,25 @@ export default function AdminPolicies() {
                         >
                           <option value="active">Active</option>
                           <option value="pending">Pending</option>
-                          <option value="cancelled">Cancelled</option>
                           <option value="expired">Expired</option>
+                          <option value="cancelled">Cancelled</option>
                         </select>
                       </td>
                     </tr>
                   );
                 })}
-                {filteredPolicies.length === 0 && (
-                  <tr>
-                    <td colSpan="9" className="px-4 py-12">
-                      <EmptyState 
-                        title="No Policies Match Criteria" 
-                        description="Try adjusting your expiry filter or search keywords."
-                      />
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
         )}
 
+        {/* Empty State */}
+        {!loading && filteredPolicies.length === 0 && (
+          <EmptyState
+            title="No Policies Match Criteria"
+            description="Try adjusting your insurance category, advisor selection, expiry filter, or search keywords."
+          />
+        )}
       </div>
 
       {/* ============================================================ */}
