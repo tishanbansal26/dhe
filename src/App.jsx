@@ -26,6 +26,7 @@ import CookiePolicy from './pages/CookiePolicy';
 import SearchResults from './pages/SearchResults';
 import ProductBuilder from './pages/ProductBuilder';
 import ProductBuilderAI from './pages/ProductBuilderAI';
+import ReviewDashboardPage from './pages/ReviewDashboardPage';
 import { Toaster } from 'react-hot-toast';
 
 // Calculators
@@ -122,6 +123,14 @@ export default function App() {
                   } 
                 />
                 <Route 
+                  path="/admin/ai-builder/review/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ReviewDashboardPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="/admin/product-builder/:id" 
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
@@ -158,6 +167,22 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/ai-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilderAI />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/ai-builder/review/:id" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ReviewDashboardPage />
                     </ProtectedRoute>
                   } 
                 />
