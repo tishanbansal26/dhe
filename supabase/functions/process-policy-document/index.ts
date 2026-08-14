@@ -86,7 +86,7 @@ serve(async (req) => {
     // 4. Call Gemini
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-pro",
+      model: "gemini-flash-latest",
       generationConfig: { responseMimeType: "application/json" }
     });
 
