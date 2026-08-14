@@ -87,19 +87,21 @@ serve(async (req) => {
     const genAI = new GoogleGenerativeAI(geminiApiKey);
     const model = genAI.getGenerativeModel({ 
       model: "gemini-3.5-flash",
+      tools: [{ googleSearch: {} }],
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    const prompt = `You are an expert insurance data extractor.
-Read the provided insurance policy document/brochure.
+    const prompt = `You are an expert insurance data extractor and marketing copywriter.
+Read the provided insurance policy document/brochure. You also have access to Google Search to look up additional facts about this specific policy name on the internet to enrich your extraction.
 Extract the following information perfectly and return it ONLY as a JSON object matching this schema.
-Include a "confidence" score (0-100) and the "source_page" number for every nested extracted field based on how clearly it was stated in the document.
+Include a "confidence" score (0-100) and the "source_page" number for every nested extracted field based on how clearly it was stated in the document or search.
 If a field is not found, leave its value null or empty, but still include the field.
 
 {
   "name": { "value": "String", "confidence": Number, "source_page": Number },
   "category": { "value": "String", "confidence": Number, "source_page": Number },
   "description": { "value": "String", "confidence": Number, "source_page": Number },
+  "image_keywords": { "value": "String", "confidence": Number, "source_page": Number },
   "coverage": {
     "roomRent": { "value": "String", "confidence": Number, "source_page": Number },
     "icuLimit": { "value": "String", "confidence": Number, "source_page": Number },
@@ -124,8 +126,15 @@ If a field is not found, leave its value null or empty, but still include the fi
   ],
   "exclusions": [
     { "name": "String", "source_page": Number }
+  ],
+  "highlights": [
+    { "name": "String", "source_page": Number }
   ]
-}`;
+}
+
+Instructions for new fields:
+- "image_keywords": Generate 2-3 highly descriptive visual keywords (e.g. "happy healthy family running in park", "senior couple holding hands outdoors", "modern car driving on highway") that capture the essence of this policy to be used in an Unsplash image search. Do not use the word insurance.
+- "highlights": Write 3-5 short, extremely eye-catchy marketing highlights or selling points about this policy. Focus on the best USPs (Unique Selling Propositions) like "Zero Co-pay!", "Cashless at 10,000+ hospitals!", or "100% Return of Premium!". Make them sound exciting.`;
 
     // Retry logic for transient 503 errors
     let result;
@@ -184,6 +193,7 @@ If a field is not found, leave its value null or empty, but still include the fi
     processField('name', parsedData.name, documents[0]);
     processField('category', parsedData.category, documents[0]);
     processField('description', parsedData.description, documents[0]);
+    processField('image_keywords', parsedData.image_keywords, documents[0]);
     
     if (parsedData.coverage) {
       Object.keys(parsedData.coverage).forEach(key => {
@@ -203,6 +213,7 @@ If a field is not found, leave its value null or empty, but still include the fi
     processField('benefits', parsedData.benefits, documents[0]);
     processField('waiting_periods', parsedData.waiting_periods, documents[0]);
     processField('exclusions', parsedData.exclusions, documents[0]);
+    processField('highlights', parsedData.highlights, documents[0]);
 
     if (extractionsToInsert.length > 0) {
       await supabase.from('product_ai_extractions').insert(extractionsToInsert);

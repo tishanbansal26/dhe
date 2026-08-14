@@ -68,6 +68,8 @@ export default function ProductBuilder() {
         waiting_periods: data.waiting_periods || [],
         exclusions: data.exclusions || [],
         faqs: data.faqs || [],
+        highlights: data.highlights || [],
+        image_keywords: data.image_keywords || '',
         ai_metadata: data.ai_metadata || {}
       });
     }
