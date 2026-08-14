@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Save, Eye, CheckCircle, UploadCloud, Shield, Check, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Save, Eye, CheckCircle, UploadCloud, Shield, Check, AlertTriangle, ArrowLeft, Layers } from 'lucide-react';
 import toast from 'react-hot-toast';
 import OverviewTab from '../components/admin/product-builder/OverviewTab';
 import CoverageTab from '../components/admin/product-builder/CoverageTab';
