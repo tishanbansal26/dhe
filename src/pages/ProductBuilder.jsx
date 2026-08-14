@@ -76,6 +76,9 @@ export default function ProductBuilder() {
       ...productData,
       status: statusOverride || productData.status
     };
+    if (!payload.company_id) {
+      payload.company_id = null;
+    }
 
     let result;
     if (id) {
