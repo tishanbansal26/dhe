@@ -1,30 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { CheckCircle, Circle, Loader2, ArrowRight } from 'lucide-react';
+import { executeAiExtraction } from '../../../lib/aiProductExtractor';
 
 const STEPS = [
   { id: 'QUEUED', label: 'Queued' },
-  { id: 'RESEARCHING_WEB', label: 'Researching Official Sources' },
-  { id: 'PROCESSING_DOCUMENTS', label: 'Reading Documents & Extracting Tables' },
-  { id: 'DETECTING_CONFLICTS', label: 'Cross-checking & Detecting Conflicts' },
-  { id: 'READY_FOR_REVIEW', label: 'Ready for Review' }
+  { id: 'EXTRACTING', label: 'Researching Official Sources' },
+  { id: 'PROCESSING', label: 'Reading Documents & Extracting Tables' },
+  { id: 'VALIDATING', label: 'Cross-checking & Detecting Conflicts' },
+  { id: 'REVIEW_REQUIRED', label: 'Ready for Review' }
 ];
 
 export default function ProgressDashboard({ importId, onReview }) {
   const [status, setStatus] = useState('QUEUED');
+  const isExecutingRef = useRef(false);
 
   useEffect(() => {
-    // Initial fetch
-    const fetchStatus = async () => {
+    // Initial fetch and auto-execution trigger
+    const fetchStatusAndExecute = async () => {
+      const { data } = await supabase.from('product_ai_imports').select('status').eq('id', importId).single();
+      if (data && data.status) {
+        setStatus(data.status);
+        
+        // If status is QUEUED and not yet executing, immediately run the AI extractor
+        if ((data.status === 'QUEUED' || data.status === 'EXTRACTING' || data.status === 'RESEARCHING_WEB') && !isExecutingRef.current) {
+          isExecutingRef.current = true;
+          executeAiExtraction(importId, (newStatus) => {
+            setStatus(newStatus);
+          });
+        }
+      }
+    };
+    fetchStatusAndExecute();
+
+    // Fallback polling every 2 seconds in case Realtime is disabled or blocked
+    const interval = setInterval(async () => {
       const { data } = await supabase.from('product_ai_imports').select('status').eq('id', importId).single();
       if (data && data.status) {
         setStatus(data.status);
       }
-    };
-    fetchStatus();
-
-    // Fallback polling every 3 seconds in case Realtime is disabled or blocked
-    const interval = setInterval(fetchStatus, 3000);
+    }, 2000);
 
     // Subscribe to changes (Realtime)
     const channel = supabase
@@ -44,8 +59,14 @@ export default function ProgressDashboard({ importId, onReview }) {
     };
   }, [importId]);
 
+  const isReady = status === 'REVIEW_REQUIRED' || status === 'COMPLETED' || status === 'APPROVED' || status === 'READY_FOR_REVIEW';
+
   const getCurrentStepIndex = () => {
-    return STEPS.findIndex(s => s.id === status);
+    if (isReady) return 4;
+    if (status === 'VALIDATING' || status === 'DETECTING_CONFLICTS') return 3;
+    if (status === 'PROCESSING' || status === 'PROCESSING_DOCUMENTS') return 2;
+    if (status === 'EXTRACTING' || status === 'RESEARCHING_WEB') return 1;
+    return 0;
   };
 
   const currentIdx = getCurrentStepIndex();
@@ -60,8 +81,8 @@ export default function ProgressDashboard({ importId, onReview }) {
       <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8 max-w-lg mx-auto text-left">
         <div className="space-y-6">
           {STEPS.map((step, idx) => {
-            const isCompleted = currentIdx > idx || status === 'READY_FOR_REVIEW' || status === 'APPROVED' || status === 'PUBLISHED';
-            const isCurrent = currentIdx === idx && status !== 'READY_FOR_REVIEW';
+            const isCompleted = currentIdx > idx || isReady;
+            const isCurrent = currentIdx === idx && !isReady;
 
             return (
               <div key={step.id} className="flex items-center gap-4">
@@ -83,11 +104,11 @@ export default function ProgressDashboard({ importId, onReview }) {
         </div>
       </div>
 
-      {status === 'READY_FOR_REVIEW' && (
+      {isReady && (
         <div className="mt-8 animate-fade-in-up">
           <button
             onClick={onReview}
-            className="flex items-center gap-2 mx-auto px-8 py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 text-white rounded-xl font-medium shadow-lg shadow-teal-500/25 transition-all"
+            className="flex items-center gap-2 mx-auto px-8 py-3 bg-gradient-to-r from-teal-500 to-blue-600 hover:from-teal-400 hover:to-blue-500 text-white rounded-xl font-bold shadow-lg shadow-teal-500/25 transition-all text-base animate-bounce"
           >
             Review Extracted Product
             <ArrowRight className="w-5 h-5" />
