@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
-import { Plus, Edit2, Trash2, X, Upload } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Upload, Hash, User, Shield, Briefcase, DollarSign, Activity, Calendar, UploadCloud, ShieldCheck } from 'lucide-react';
 import { uploadDocument } from '../../lib/SupabaseStorageService';
 import EmptyState from '../EmptyState';
 export default function AdminPolicies() {
@@ -244,123 +244,168 @@ export default function AdminPolicies() {
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto">
-              <form id="add-policy-form" onSubmit={handleAddPolicy} className="space-y-6">
+            <div className="p-0 overflow-y-auto">
+              <form id="add-policy-form" onSubmit={handleAddPolicy}>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Policy Number *</label>
-                    <input 
-                      type="text" 
-                      required
-                      value={newPolicy.policy_number}
-                      onChange={e => setNewPolicy({...newPolicy, policy_number: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                      placeholder="e.g. POL-2023-1001"
-                    />
+                {/* 1. Policy Details */}
+                <div className="p-6 space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck className="w-5 h-5 text-teal-400" />
+                    <h4 className="font-bold text-white text-lg">Policy Details</h4>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Customer *</label>
-                    <select
-                      required
-                      value={newPolicy.customer_id}
-                      onChange={e => setNewPolicy({...newPolicy, customer_id: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    >
-                      <option value="">Select Customer...</option>
-                      {customers.map(c => (
-                        <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
-                      ))}
-                    </select>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Policy Number *</label>
+                      <div className="relative">
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <input 
+                          type="text" 
+                          required
+                          value={newPolicy.policy_number}
+                          onChange={e => setNewPolicy({...newPolicy, policy_number: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                          placeholder="e.g. POL-2023-1001"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Insurance Plan *</label>
+                      <div className="relative">
+                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <select
+                          required
+                          value={newPolicy.plan_id}
+                          onChange={e => setNewPolicy({...newPolicy, plan_id: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white appearance-none focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        >
+                          <option value="">Select Plan...</option>
+                          {plans.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Sum Insured (₹)</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <input 
+                          type="number"
+                          value={newPolicy.sum_insured}
+                          onChange={e => setNewPolicy({...newPolicy, sum_insured: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                          placeholder="500000"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Insurance Plan *</label>
-                    <select
-                      required
-                      value={newPolicy.plan_id}
-                      onChange={e => setNewPolicy({...newPolicy, plan_id: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    >
-                      <option value="">Select Plan...</option>
-                      {plans.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Assign Agent</label>
-                    <select
-                      value={newPolicy.agent_id}
-                      onChange={e => setNewPolicy({...newPolicy, agent_id: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    >
-                      <option value="">Unassigned (Direct)</option>
-                      {agents.map(a => (
-                        <option key={a.id} value={a.id}>{a.name}</option>
-                      ))}
-                    </select>
+                {/* 2. Assignment */}
+                <div className="p-6 bg-slate-800/50 border-y border-slate-700/50 space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="w-5 h-5 text-blue-400" />
+                    <h4 className="font-bold text-white text-lg">Assignment</h4>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Sum Insured (₹)</label>
-                    <input 
-                      type="number"
-                      value={newPolicy.sum_insured}
-                      onChange={e => setNewPolicy({...newPolicy, sum_insured: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                      placeholder="500000"
-                    />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Customer *</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <select
+                          required
+                          value={newPolicy.customer_id}
+                          onChange={e => setNewPolicy({...newPolicy, customer_id: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white appearance-none focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        >
+                          <option value="">Select Customer...</option>
+                          {customers.map(c => (
+                            <option key={c.id} value={c.id}>{c.name} ({c.email})</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Assign Agent</label>
+                      <div className="relative">
+                        <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <select
+                          value={newPolicy.agent_id}
+                          onChange={e => setNewPolicy({...newPolicy, agent_id: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white appearance-none focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        >
+                          <option value="">Unassigned (Direct)</option>
+                          {agents.map(a => (
+                            <option key={a.id} value={a.id}>{a.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Status *</label>
-                    <select
-                      required
-                      value={newPolicy.status}
-                      onChange={e => setNewPolicy({...newPolicy, status: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="active">Active</option>
-                      <option value="cancelled">Cancelled</option>
-                      <option value="expired">Expired</option>
-                    </select>
+                {/* 3. Validity & Document */}
+                <div className="p-6 space-y-6">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-5 h-5 text-emerald-400" />
+                    <h4 className="font-bold text-white text-lg">Validity & File</h4>
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Start Date *</label>
-                    <input 
-                      type="date"
-                      required
-                      value={newPolicy.start_date}
-                      onChange={e => setNewPolicy({...newPolicy, start_date: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">End Date *</label>
-                    <input 
-                      type="date"
-                      required
-                      value={newPolicy.end_date}
-                      onChange={e => setNewPolicy({...newPolicy, end_date: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Policy Document (PDF)</label>
-                    <div className="relative">
-                      <input 
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        onChange={e => setSelectedFile(e.target.files[0])}
-                        className="w-full px-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-teal-500/10 file:text-teal-400 hover:file:bg-teal-500/20"
-                      />
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Status *</label>
+                      <div className="relative">
+                        <Activity className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <select
+                          required
+                          value={newPolicy.status}
+                          onChange={e => setNewPolicy({...newPolicy, status: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white appearance-none focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="active">Active</option>
+                          <option value="cancelled">Cancelled</option>
+                          <option value="expired">Expired</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Start Date *</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <input 
+                          type="date"
+                          required
+                          value={newPolicy.start_date}
+                          onChange={e => setNewPolicy({...newPolicy, start_date: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">End Date *</label>
+                      <div className="relative">
+                        <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                        <input 
+                          type="date"
+                          required
+                          value={newPolicy.end_date}
+                          onChange={e => setNewPolicy({...newPolicy, end_date: e.target.value})}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="md:col-span-3 mt-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Policy Document (PDF)</label>
+                      <div className="relative">
+                        <UploadCloud className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                        <input 
+                          type="file"
+                          accept=".pdf,.jpg,.jpeg,.png"
+                          onChange={e => setSelectedFile(e.target.files[0])}
+                          className="w-full pl-12 pr-4 py-3 bg-slate-900/50 border border-dashed border-slate-600 rounded-xl text-white focus:outline-none focus:border-teal-500 focus:bg-slate-800 transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-teal-500/10 file:text-teal-400 hover:file:bg-teal-500/20 cursor-pointer"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
