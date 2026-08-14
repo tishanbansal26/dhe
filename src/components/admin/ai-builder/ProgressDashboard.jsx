@@ -72,7 +72,7 @@ export default function ProgressDashboard({ importId, onReview }) {
   const currentIdx = getCurrentStepIndex();
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+    <div className="max-w-3xl mx-auto px-4 pt-28 pb-20 text-center">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-white">AI Research in Progress</h2>
         <p className="text-slate-400 mt-2">Please wait while the AI compiles your product draft.</p>

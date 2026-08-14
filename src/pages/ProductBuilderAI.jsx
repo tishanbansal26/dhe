@@ -112,7 +112,7 @@ export default function ProductBuilderAI() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 pt-28 pb-20">
       <Helmet>
         <title>Create Product with AI - Radhe Investments</title>
       </Helmet>
