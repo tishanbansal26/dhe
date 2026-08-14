@@ -152,7 +152,16 @@ export default function ProductBuilder() {
             >
               <Save className="w-4 h-4" /> {isSaving ? 'Saving...' : 'Save Draft'}
             </button>
-            <button className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 text-sm font-medium flex items-center gap-2 transition-colors">
+            <button 
+              onClick={() => {
+                if (!id) {
+                  toast.error('Please save the draft first to preview it.');
+                  return;
+                }
+                window.open(`/plan/${id}`, '_blank');
+              }}
+              className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 text-sm font-medium flex items-center gap-2 transition-colors"
+            >
               <Eye className="w-4 h-4" /> Preview
             </button>
             <button 

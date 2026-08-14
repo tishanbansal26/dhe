@@ -120,6 +120,7 @@ export default function App() {
                     </ProtectedRoute>
                   } 
                 />
+                <Route path="/plan/:id" element={<PlanDetails />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
               </>
