@@ -31,3 +31,36 @@ entrypoint = "./functions/process-policy-document/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/process-policy-document/*.html" ]
+
+[functions.ai-product-orchestrator]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ai-product-orchestrator/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/ai-product-orchestrator/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/ai-product-orchestrator/*.html" ]
+
+[functions.ai-web-researcher]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ai-web-researcher/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/ai-web-researcher/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/ai-web-researcher/*.html" ]
+
+[functions.ai-document-processor]
+enabled = true
+verify_jwt = false
+import_map = "./functions/ai-document-processor/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/ai-document-processor/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/ai-document-processor/*.html" ]

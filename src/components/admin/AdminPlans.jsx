@@ -33,12 +33,20 @@ export default function AdminPlans() {
     <div className="glass-panel rounded-3xl p-6 md:p-8 border border-slate-700/50">
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-xl font-bold text-white">Insurance Plans</h3>
-        <button 
-          onClick={() => navigate('/admin/product-builder')}
-          className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(20,184,166,0.2)] transition-colors"
-        >
-          <BrainCircuit className="w-4 h-4" /> Policy Product Builder
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate('/admin/product-builder')}
+            className="bg-slate-700 hover:bg-slate-600 text-white px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 transition-colors border border-slate-600"
+          >
+            <Plus className="w-4 h-4" /> Manual Builder
+          </button>
+          <button 
+            onClick={() => navigate('/admin/ai-builder')}
+            className="bg-teal-500 hover:bg-teal-400 text-slate-900 px-5 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(20,184,166,0.2)] transition-colors"
+          >
+            <BrainCircuit className="w-4 h-4" /> + Create Product with AI
+          </button>
+        </div>
       </div>
 
       {loading ? (

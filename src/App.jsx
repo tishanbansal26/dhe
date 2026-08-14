@@ -25,6 +25,7 @@ import TermsOfService from './pages/TermsOfService';
 import CookiePolicy from './pages/CookiePolicy';
 import SearchResults from './pages/SearchResults';
 import ProductBuilder from './pages/ProductBuilder';
+import ProductBuilderAI from './pages/ProductBuilderAI';
 import { Toaster } from 'react-hot-toast';
 
 // Calculators
@@ -109,6 +110,14 @@ export default function App() {
                   element={
                     <ProtectedRoute allowedRoles={['admin']}>
                       <ProductBuilder />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin/ai-builder" 
+                  element={
+                    <ProtectedRoute allowedRoles={['admin']}>
+                      <ProductBuilderAI />
                     </ProtectedRoute>
                   } 
                 />
