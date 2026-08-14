@@ -7,6 +7,7 @@ import SEO from '../components/SEO';
 import PopularSearches from '../components/seo/PopularSearches';
 import RelatedCalculators from '../components/seo/RelatedCalculators';
 import { generateBreadcrumbSchema, generateFAQSchema } from '../lib/schema';
+import { getIrdaiCategoryStandards } from '../lib/irdaiStandards';
 
 export default function PlanDetails() {
   const { id } = useParams();
@@ -50,11 +51,12 @@ export default function PlanDetails() {
     return <div className="min-h-screen flex items-center justify-center text-red-400">Product not found.</div>;
   }
 
-  const coverage = plan.coverage || {};
-  const eligibility = plan.eligibility || {};
+  const irdaiStd = getIrdaiCategoryStandards(plan.category);
+  const coverage = plan.coverage && Object.keys(plan.coverage).length > 0 ? plan.coverage : irdaiStd.coverageDefaults;
+  const eligibility = plan.eligibility && Object.keys(plan.eligibility).length > 0 ? plan.eligibility : irdaiStd.eligibilityDefaults;
   const benefits = plan.benefits || [];
-  const exclusions = plan.exclusions || [];
-  const waitingPeriods = plan.waiting_periods || [];
+  const exclusions = plan.exclusions && plan.exclusions.length > 0 ? plan.exclusions : irdaiStd.exclusions;
+  const waitingPeriods = plan.waiting_periods && plan.waiting_periods.length > 0 ? plan.waiting_periods : irdaiStd.waitingPeriods;
   const faqs = plan.faqs || [];
   const providerName = plan.insurance_companies?.name || 'Insurer';
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, Shield, Car, TrendingUp, Sparkles, Building, Layers, CheckCircle2 } from 'lucide-react';
+import { getIrdaiCategoryStandards } from '../../../lib/irdaiStandards';
 
 export default function OverviewTab({ data, updateData, companies }) {
   const currentCategory = data.category || 'Health';
@@ -67,9 +68,14 @@ export default function OverviewTab({ data, updateData, companies }) {
   };
 
   const handleCategorySelect = (catKey) => {
+    const std = getIrdaiCategoryStandards(catKey);
     updateData({
       category: catKey,
-      type: categoryConfigs[catKey].planTypes[0] // Set default plan type for this category
+      type: categoryConfigs[catKey].planTypes[0],
+      coverage: std.coverageDefaults,
+      eligibility: std.eligibilityDefaults,
+      waiting_periods: std.waitingPeriods,
+      exclusions: std.exclusions
     });
   };
 

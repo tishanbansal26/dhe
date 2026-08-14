@@ -12,6 +12,8 @@ import AiImportWorkspace from '../components/admin/product-builder/AiImportWorks
 import MediaDocsTab from '../components/admin/product-builder/MediaDocsTab';
 import ReviewPublishTab from '../components/admin/product-builder/ReviewPublishTab';
 
+import { getIrdaiCategoryStandards, IRDAI_STANDARDS } from '../lib/irdaiStandards';
+
 export default function ProductBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -20,19 +22,21 @@ export default function ProductBuilder() {
   const [isSaving, setIsSaving] = useState(false);
   const [companies, setCompanies] = useState([]);
 
+  const defaultStandards = IRDAI_STANDARDS.HEALTH;
+
   const [productData, setProductData] = useState({
     name: '',
     company_id: '',
     category: 'Health',
-    type: '',
+    type: 'Comprehensive Health Plan',
     status: 'draft',
     description: '',
-    coverage: {},
-    eligibility: {},
+    coverage: defaultStandards.coverageDefaults,
+    eligibility: defaultStandards.eligibilityDefaults,
     premium_data: {},
     benefits: [],
-    waiting_periods: [],
-    exclusions: [],
+    waiting_periods: defaultStandards.waitingPeriods,
+    exclusions: defaultStandards.exclusions,
     faqs: [],
     ai_metadata: {},
     active: true
