@@ -69,13 +69,23 @@ export default function AiImportWorkspace({ productId, onExtractionComplete }) {
     // Convert flat extractions array into nested object
     const result = {};
     
-    // Simplistic reconstruction for demo purposes - in production, deeper mapping needed
     extractions.forEach(ex => {
       if (ex.verification_status !== 'REJECTED') {
          let valueStr = ex.value;
          try { valueStr = JSON.parse(valueStr); } catch(e){}
-         // We simply pass this to the parent to merge where it can
-         result[ex.field_path] = valueStr;
+         
+         // Unflatten field_path (e.g. 'benefits[0]' -> result.benefits[0])
+         const pathParts = ex.field_path.split(/\.|\[|\]/).filter(Boolean);
+         let current = result;
+         for (let i = 0; i < pathParts.length - 1; i++) {
+           const part = pathParts[i];
+           const nextPart = pathParts[i + 1];
+           if (!current[part]) {
+             current[part] = !isNaN(nextPart) ? [] : {};
+           }
+           current = current[part];
+         }
+         current[pathParts[pathParts.length - 1]] = valueStr;
       }
     });
 
