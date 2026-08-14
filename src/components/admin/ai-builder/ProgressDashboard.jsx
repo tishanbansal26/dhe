@@ -17,21 +17,29 @@ export default function ProgressDashboard({ importId, onReview }) {
     // Initial fetch
     const fetchStatus = async () => {
       const { data } = await supabase.from('product_ai_imports').select('status').eq('id', importId).single();
-      if (data) setStatus(data.status);
+      if (data && data.status) {
+        setStatus(data.status);
+      }
     };
     fetchStatus();
 
-    // Subscribe to changes
+    // Fallback polling every 3 seconds in case Realtime is disabled or blocked
+    const interval = setInterval(fetchStatus, 3000);
+
+    // Subscribe to changes (Realtime)
     const channel = supabase
       .channel(`import-${importId}`)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'product_ai_imports', filter: `id=eq.${importId}` },
         (payload) => {
-          setStatus(payload.new.status);
+          if (payload.new && payload.new.status) {
+            setStatus(payload.new.status);
+          }
         }
       )
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(channel);
     };
   }, [importId]);

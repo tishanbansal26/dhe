@@ -26,13 +26,12 @@ Deno.serve(async (req) => {
     // Update status to RESEARCHING_WEB
     await supabase.from('product_ai_imports').update({ status: 'RESEARCHING_WEB' }).eq('id', import_id);
 
-    // Call ai-web-researcher asynchronously
-    // This is a placeholder for triggering the next step in the async pipeline.
-    supabase.functions.invoke('ai-web-researcher', {
+    // Call ai-web-researcher synchronously so Deno doesn't abort it
+    await supabase.functions.invoke('ai-web-researcher', {
       body: { import_id }
-    }).catch(err => console.error("Web researcher failed:", err));
+    });
 
-    return new Response(JSON.stringify({ success: true, message: "Job queued" }), {
+    return new Response(JSON.stringify({ success: true, message: "Job completed" }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (error) {

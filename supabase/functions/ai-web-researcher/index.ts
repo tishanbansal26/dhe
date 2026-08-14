@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
     // 4. Trigger next step (Document Processing) if there are documents, else trigger CONFLICT resolution
     if (importJob.total_documents > 0) {
        await supabase.from('product_ai_imports').update({ status: 'PROCESSING_DOCUMENTS' }).eq('id', import_id);
-       supabase.functions.invoke('ai-document-processor', { body: { import_id } }).catch(console.error);
+       await supabase.functions.invoke('ai-document-processor', { body: { import_id } });
     } else {
        // Skip directly to conflict/validation since there are no documents
        await supabase.from('product_ai_imports').update({ status: 'DETECTING_CONFLICTS' }).eq('id', import_id);
