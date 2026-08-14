@@ -59,43 +59,49 @@ export default function ProductBuilderAI() {
       const newImportId = importData.id;
       setImportId(newImportId);
 
-      // 2. Upload files to product_documents bucket
+      // 2. Upload files to product_documents bucket (if any)
       if (files.length > 0) {
         toast.loading('Uploading documents...', { id: 'upload' });
-        for (const file of files) {
-          const fileExt = file.name.split('.').pop();
-          const fileName = `${newImportId}/${Math.random().toString(36).substring(7)}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('product_documents')
-            .upload(fileName, file);
+        try {
+          for (const file of files) {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${newImportId}/${Math.random().toString(36).substring(7)}.${fileExt}`;
             
-          if (uploadError) throw uploadError;
-
-          // Record document metadata
-          await supabase.from('product_documents').insert([{
-            import_id: newImportId,
-            file_name: file.name,
-            file_type: file.type,
-            file_url: fileName
-          }]);
+            const { error: uploadError } = await supabase.storage
+              .from('product_documents')
+              .upload(fileName, file);
+              
+            if (!uploadError) {
+              // Record document metadata
+              await supabase.from('product_documents').insert([{
+                import_id: newImportId,
+                file_name: file.name,
+                file_type: file.type,
+                file_url: fileName
+              }]);
+            }
+          }
+          toast.success('Documents uploaded', { id: 'upload' });
+        } catch (uploadErr) {
+          console.warn('Document upload warning:', uploadErr);
         }
-        toast.success('Documents uploaded', { id: 'upload' });
       }
 
-      // 3. Trigger orchestrator
-      const { data: orchestratorData, error: orchestratorError } = await supabase.functions.invoke('ai-product-orchestrator', {
-        body: { import_id: newImportId }
-      });
-
-      if (orchestratorError) throw orchestratorError;
-
-      // Move to progress UI
+      // Move directly to live progress UI
       setStep('processing');
+
+      // 3. Trigger remote orchestrator asynchronously in background (non-blocking)
+      try {
+        supabase.functions.invoke('ai-product-orchestrator', {
+          body: { import_id: newImportId }
+        }).catch(fnErr => console.warn('Background edge function invoke:', fnErr));
+      } catch (invokeErr) {
+        console.warn('Orchestrator invoke caught:', invokeErr);
+      }
 
     } catch (err) {
       console.error(err);
-      toast.error('Failed to start AI Research: ' + err.message);
+      toast.error('Failed to create AI import: ' + err.message);
     } finally {
       setLoading(false);
     }
