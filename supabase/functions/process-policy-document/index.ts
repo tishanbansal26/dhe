@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.192.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.2.1";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.14.0";
 import { encode } from "https://deno.land/std@0.192.0/encoding/base64.ts";
 
 const corsHeaders = {
@@ -66,7 +66,7 @@ serve(async (req) => {
       }
       
       const buffer = await data.arrayBuffer();
-      const base64Data = encode(new Uint8Array(buffer));
+      const base64Data = encode(buffer);
       
       fileParts.push({
         inlineData: {
@@ -220,7 +220,7 @@ If a field is not found, leave its value null or empty, but still include the fi
 
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500
+      status: 200 // Return 200 so the frontend can read the JSON error message instead of throwing a generic 500 error
     });
   }
 });
