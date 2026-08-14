@@ -118,9 +118,9 @@ export default function ProductBuilder() {
   if (loading) return <div className="p-8 text-center text-teal-400">Loading Product...</div>;
 
   return (
-    <div className="min-h-screen bg-navy-950 pb-20">
+    <div className="min-h-screen bg-navy-950 pt-20 pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700 shadow-lg px-6 py-4">
+      <div className="sticky top-20 z-40 bg-slate-900/80 backdrop-blur-md border-b border-slate-700 shadow-lg px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button onClick={() => navigate(-1)} className="text-gray-400 hover:text-white transition-colors p-1.5 hover:bg-slate-800 rounded-lg" title="Back to Plans">
@@ -163,7 +163,7 @@ export default function ProductBuilder() {
         
         {/* Sidebar Navigation */}
         <div className="md:col-span-3">
-          <div className="glass-panel border border-slate-700 rounded-2xl overflow-hidden sticky top-28">
+          <div className="glass-panel border border-slate-700 rounded-2xl overflow-hidden sticky top-40">
             <div className="p-4 border-b border-slate-700 bg-slate-800/50">
               <h3 className="font-semibold text-white">Sections</h3>
             </div>
