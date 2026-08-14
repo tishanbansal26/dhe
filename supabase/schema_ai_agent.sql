@@ -8,7 +8,8 @@ ALTER TABLE product_ai_imports ADD COLUMN IF NOT EXISTS input_urls JSONB DEFAULT
 ALTER TABLE product_ai_imports ADD COLUMN IF NOT EXISTS input_documents JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE product_ai_imports ADD COLUMN IF NOT EXISTS total_documents INTEGER DEFAULT 0;
 ALTER TABLE product_ai_imports ADD COLUMN IF NOT EXISTS total_pages INTEGER DEFAULT 0;
--- Status is already a TEXT column, but we will now support new states like 'RESEARCHING_WEB', etc.
+-- Drop the check constraint so we can use new states like 'RESEARCHING_WEB'
+ALTER TABLE product_ai_imports DROP CONSTRAINT IF EXISTS product_ai_imports_status_check;
 
 -- 2. Enhance product_ai_extractions
 ALTER TABLE product_ai_extractions ADD COLUMN IF NOT EXISTS source_type TEXT; -- e.g., 'OFFICIAL_INSURER', 'OFFICIAL_DOCUMENT'
