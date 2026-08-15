@@ -81,8 +81,8 @@ function deriveBaseAnnuityRate(age, optionCode, isJointLife, defermentPeriod, is
     // We dynamically calculate the base rate for Regular Pay based on Deferment and Age.
     // The constants are derived by solving a system of equations from two official PDFs:
     // 1. Age 50, Def 10 -> Rate ~0.04385
-    // 2. Age 55, Def 17, Joint Life -> Rate ~0.05738 (Single Life ~0.06104)
-    baseRate = 0.01864 + (defermentPeriod * 0.002421) + ((age - 30) * 0.00005);
+    // 2. Age 55, Def 17, Joint Life -> Rate ~0.05738 (Single Life ~0.0610461)
+    baseRate = 0.0186561 + (defermentPeriod * 0.00242) + ((age - 30) * 0.00005);
   }
 
   if (isJointLife) {
