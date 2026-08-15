@@ -79,9 +79,10 @@ function deriveBaseAnnuityRate(age, optionCode, isJointLife, defermentPeriod, is
     }
   } else {
     // We dynamically calculate the base rate for Regular Pay based on Deferment and Age.
-    // The constant 0.02102 is derived so that Age=50, Deferment=12, PPT=12 yields exactly 0.03997.
-    // This allows a 5L premium to hit the exact 5,03,640 payout shown in the official PDF.
-    baseRate = 0.02202 + (defermentPeriod * 0.0014) + ((age - 30) * 0.0000575); 
+    // The constants are derived by solving a system of equations from two official PDFs:
+    // 1. Age 50, Def 10 -> Rate ~0.04385
+    // 2. Age 55, Def 17, Joint Life -> Rate ~0.05738 (Single Life ~0.06104)
+    baseRate = 0.01864 + (defermentPeriod * 0.002421) + ((age - 30) * 0.00005);
   }
 
   if (isJointLife) {
