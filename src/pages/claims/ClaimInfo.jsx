@@ -1,11 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { HelpCircle, CheckCircle } from 'lucide-react';
+import SEO from '../../components/SEO';
 
 export default function ClaimInfo() {
-  useEffect(() => {
-    document.title = 'Claims Information - Radhe Investments';
-  }, []);
-
   const steps = [
     { title: "Intimate the Insurer", desc: "Inform the insurance company about the incident as soon as possible, usually within 24-48 hours." },
     { title: "Keep Documents Ready", desc: "Gather all necessary documents such as FIR (for accidents/theft), medical bills, and discharge summaries." },
@@ -16,6 +13,12 @@ export default function ClaimInfo() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <SEO 
+        title="Insurance Claim Process Guide — Step-by-Step Filing" 
+        description="Complete guide to filing insurance claims with Radhe Investments. Learn the claim process for health, life, motor and term insurance policies step by step." 
+        canonicalUrl="https://www.radheinv.site/claims/info" 
+        keywords="Insurance Claim Process, How to File Insurance Claim, Health Insurance Claim Guide, Life Insurance Claim Steps" 
+      />
       <div className="max-w-5xl mx-auto px-4">
         <div className="text-center mb-16">
           <div className="w-16 h-16 rounded-full bg-teal-500/10 border border-teal-500/30 flex items-center justify-center mx-auto mb-4">

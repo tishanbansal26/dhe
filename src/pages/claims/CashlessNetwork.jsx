@@ -5,6 +5,7 @@ import {
   CheckCircle2, ChevronDown, Quote, Stethoscope
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/SEO';
 
 export default function CashlessNetwork() {
   const [hospitals, setHospitals] = useState([]);
@@ -25,7 +26,6 @@ export default function CashlessNetwork() {
   const [openFaq, setOpenFaq] = useState(null);
 
   useEffect(() => {
-    document.title = 'Cashless Hospital Network - Radhe Investments';
     fetchInitialData();
   }, []);
 
@@ -114,6 +114,12 @@ export default function CashlessNetwork() {
 
   return (
     <div className="pt-24 pb-20 min-h-screen bg-navy-900">
+      <SEO 
+        title="Cashless Hospital Network — Find Cashless Hospitals Near You" 
+        description="Search cashless hospital networks across India for your health insurance plan. Find partner hospitals near Mansa, Bathinda, Chandigarh and all Punjab cities." 
+        canonicalUrl="https://www.radheinv.site/claims/cashless" 
+        keywords="Cashless Hospitals Mansa, Cashless Hospital Network Punjab, Health Insurance Cashless, Hospital Network India" 
+      />
       
       {/* 1. HERO SECTION & STATISTICS */}
       <section className="relative py-16 px-4 overflow-hidden">

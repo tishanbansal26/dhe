@@ -85,7 +85,9 @@ export default function Login() {
     <div className="min-h-screen pt-32 pb-20 flex items-center justify-center px-4 sm:px-6 lg:px-8">
       <Helmet>
         <title>{isAdminSubdomain ? 'Admin Portal Login' : 'Login / Sign In'} | Radhe Investments</title>
-        <meta name="description" content="Secure login for Radhe Investments customers, advisors and administrators." />
+        <meta name="description" content="Secure login for Radhe Investments customers, advisors and administrators. Access your insurance dashboard, quote history and policy management." />
+        <link rel="canonical" href="https://www.radheinv.site/login" />
+        {isAdminSubdomain && <meta name="robots" content="noindex, nofollow" />}
       </Helmet>
       <div className="max-w-md w-full glass-panel rounded-3xl p-8 md:p-10 border border-slate-700/50">
         <div className="text-center mb-8">

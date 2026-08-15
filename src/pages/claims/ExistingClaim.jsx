@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, Info, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import toast from 'react-hot-toast';
+import SEO from '../../components/SEO';
 
 export default function ExistingClaim() {
   const [insurer, setInsurer] = useState('');
   const [claimNumber, setClaimNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  useEffect(() => {
-    document.title = 'Link Existing Claim - Radhe Investments';
-  }, []);
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <SEO 
+        title="Existing Insurance Claim Support" 
+        description="Already filed a claim with your insurer? Get expert assistance from Radhe Investments to track, escalate and resolve your existing insurance claim." 
+        canonicalUrl="https://www.radheinv.site/claims/existing" 
+      />
       <div className="max-w-4xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-white mb-4">Claim Already Filed with Insurer</h2>

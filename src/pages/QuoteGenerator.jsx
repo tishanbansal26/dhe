@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { calculateQuote, validateQuoteInputs } from '../lib/quoteEngine';
+import { generateUlipQuote } from '../lib/ulipEngine';
 import QuotePDFDocument from '../components/quotes/QuotePDFDocument';
 import { 
   Shield, 
@@ -98,9 +99,18 @@ export default function QuoteGenerator() {
     setValidationErrors(val.errors);
 
     if (val.isValid) {
-      const calc = calculateQuote(planConfig, customerInputs);
-      if (calc.success) {
-        setLiveQuoteResult(calc.quote);
+      if (selectedPlan.name.includes('Smart Sampoorna Raksha Supreme')) {
+        const ulipInputs = {
+          ...customerInputs,
+          planOption: customerInputs.planOption || 'classic'
+        };
+        const calc = generateUlipQuote(ulipInputs);
+        setLiveQuoteResult(calc);
+      } else {
+        const calc = calculateQuote(planConfig, customerInputs);
+        if (calc.success) {
+          setLiveQuoteResult(calc.quote);
+        }
       }
     } else {
       setLiveQuoteResult(null);
@@ -807,21 +817,41 @@ export default function QuoteGenerator() {
                 <p className="text-xs text-slate-400 mt-1">UIN: {savedQuoteData.uin}</p>
               </div>
 
-              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Guaranteed Income</span>
-                <h4 className="text-2xl font-black text-teal-400 mt-1 font-mono">
-                  ₹{savedQuoteData.benefits.totalYearlyAnnuity.toLocaleString('en-IN')}
-                </h4>
-                <p className="text-xs text-slate-400 mt-1">Paid {savedQuoteData.configuration.payoutFrequencyName}</p>
-              </div>
-
-              <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
-                <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Legacy Capital Returned</span>
-                <h4 className="text-2xl font-black text-white mt-1 font-mono">
-                  ₹{savedQuoteData.benefits.guaranteedReturnOfPurchasePrice.toLocaleString('en-IN')}
-                </h4>
-                <p className="text-xs text-slate-400 mt-1">100% Tax-Free under 10(10D)</p>
-              </div>
+              {savedQuoteData.planName.includes('Supreme') ? (
+                <>
+                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                    <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Fund Value @ 4%</span>
+                    <h4 className="text-2xl font-black text-amber-500 mt-1 font-mono">
+                      ₹{savedQuoteData.benefits.fundValueAtMaturity4?.toLocaleString('en-IN') || 0}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">Projected at 4% gross return</p>
+                  </div>
+                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                    <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Fund Value @ 8%</span>
+                    <h4 className="text-2xl font-black text-teal-400 mt-1 font-mono">
+                      ₹{savedQuoteData.benefits.fundValueAtMaturity8?.toLocaleString('en-IN') || 0}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">Projected at 8% gross return</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                    <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Guaranteed Income</span>
+                    <h4 className="text-2xl font-black text-teal-400 mt-1 font-mono">
+                      ₹{savedQuoteData.benefits.totalYearlyAnnuity?.toLocaleString('en-IN') || 0}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">Paid {savedQuoteData.configuration.payoutFrequencyName}</p>
+                  </div>
+                  <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                    <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Legacy Capital Returned</span>
+                    <h4 className="text-2xl font-black text-white mt-1 font-mono">
+                      ₹{savedQuoteData.benefits.guaranteedReturnOfPurchasePrice?.toLocaleString('en-IN') || 0}
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-1">100% Tax-Free under 10(10D)</p>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Restart or Go Back */}

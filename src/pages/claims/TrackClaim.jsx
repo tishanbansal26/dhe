@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Search, Activity, Loader2, CheckCircle2, XCircle, Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import SEO from '../../components/SEO';
 
 export default function TrackClaim() {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [claim, setClaim] = useState(null);
-  useEffect(() => {
-    document.title = 'Track Your Claim - Radhe Investments';
-  }, []);
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <SEO 
+        title="Track Your Insurance Claim Status" 
+        description="Track the status of your insurance claim in real-time. Enter your claim reference number to get instant updates on your health, life or motor insurance claim." 
+        canonicalUrl="https://www.radheinv.site/claims/track" 
+        keywords="Track Insurance Claim, Claim Status Check, Insurance Claim Tracker India" 
+      />
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-12">
           <div className="w-16 h-16 rounded-full bg-orange-500/10 border border-orange-500/30 flex items-center justify-center mx-auto mb-4">

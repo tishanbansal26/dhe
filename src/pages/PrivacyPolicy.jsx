@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Shield } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function PrivacyPolicy() {
-  useEffect(() => {
-    document.title = 'Privacy Policy - Radhe Investments';
-  }, []);
-
   return (
     <div className="pt-24 pb-20 min-h-screen">
+      <SEO 
+        title="Privacy Policy" 
+        description="Radhe Investments privacy policy. We respect your data and explain how customer information is collected, stored and protected." 
+        canonicalUrl="https://www.radheinv.site/privacy" 
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center mx-auto mb-6">

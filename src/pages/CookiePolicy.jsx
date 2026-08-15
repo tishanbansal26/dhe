@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Cookie } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function CookiePolicy() {
-  useEffect(() => {
-    document.title = 'Cookie Policy - Radhe Investments';
-  }, []);
-
   return (
     <div className="pt-24 pb-20 min-h-screen">
+      <SEO 
+        title="Cookie Policy" 
+        description="Radhe Investments cookie policy. Learn how we use cookies to improve your browsing experience on our insurance portal." 
+        canonicalUrl="https://www.radheinv.site/cookies" 
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="w-16 h-16 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-6">

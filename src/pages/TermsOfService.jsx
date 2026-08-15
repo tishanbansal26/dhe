@@ -1,13 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { FileText } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function TermsOfService() {
-  useEffect(() => {
-    document.title = 'Terms of Service - Radhe Investments';
-  }, []);
-
   return (
     <div className="pt-24 pb-20 min-h-screen">
+      <SEO 
+        title="Terms of Service" 
+        description="Terms and conditions for using the Radhe Investments insurance advisory portal. Read our service agreement and user responsibilities." 
+        canonicalUrl="https://www.radheinv.site/terms" 
+      />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-6">

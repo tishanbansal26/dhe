@@ -187,35 +187,61 @@ export default function QuoteDetails() {
         </div>
 
         {/* Benefits Matrix */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-xs text-slate-500 block">Base Yearly Annuity</span>
-            <span className="text-lg sm:text-xl font-bold text-white font-mono mt-1 block">
-              ₹{(benefits.yearlyBaseAnnuity || 0).toLocaleString('en-IN')}
-            </span>
+        {quote.plan_interest?.includes('Supreme') || quote.calculation_result_snapshot?.planName?.includes('Supreme') ? (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Total Premiums</span>
+              <span className="text-lg sm:text-xl font-bold text-white font-mono mt-1 block">
+                ₹{((config.premiumAmount || quote.premium_amount) * config.ppt).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Life Cover</span>
+              <span className="text-lg sm:text-xl font-bold text-white font-mono mt-1 block">
+                ₹{(benefits.baseSumAssured || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Fund Value @ 4%</span>
+              <span className="text-lg sm:text-xl font-bold text-amber-500 font-mono mt-1 block">
+                ₹{(benefits.fundValueAtMaturity4 || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Fund Value @ 8%</span>
+              <span className="text-lg sm:text-xl font-bold text-teal-400 font-mono mt-1 block">
+                ₹{(benefits.fundValueAtMaturity8 || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
           </div>
-
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-xs text-slate-500 block">Persistency Booster</span>
-            <span className="text-lg sm:text-xl font-bold text-teal-400 font-mono mt-1 block">
-              +₹{(benefits.annuityBooster || 0).toLocaleString('en-IN')}
-            </span>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Base Yearly Annuity</span>
+              <span className="text-lg sm:text-xl font-bold text-white font-mono mt-1 block">
+                ₹{(benefits.yearlyBaseAnnuity || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Persistency Booster</span>
+              <span className="text-lg sm:text-xl font-bold text-teal-400 font-mono mt-1 block">
+                +₹{(benefits.annuityBooster || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Accrued GA (Deferment)</span>
+              <span className="text-lg sm:text-xl font-bold text-indigo-400 font-mono mt-1 block">
+                ₹{(benefits.totalAccruedGA || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
+            <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
+              <span className="text-xs text-slate-500 block">Capital Refund (ROP)</span>
+              <span className="text-lg sm:text-xl font-bold text-amber-400 font-mono mt-1 block">
+                ₹{(benefits.guaranteedReturnOfPurchasePrice || 0).toLocaleString('en-IN')}
+              </span>
+            </div>
           </div>
-
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-xs text-slate-500 block">Accrued GA (Deferment)</span>
-            <span className="text-lg sm:text-xl font-bold text-indigo-400 font-mono mt-1 block">
-              ₹{(benefits.totalAccruedGA || 0).toLocaleString('en-IN')}
-            </span>
-          </div>
-
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5">
-            <span className="text-xs text-slate-500 block">Capital Refund (ROP)</span>
-            <span className="text-lg sm:text-xl font-bold text-amber-400 font-mono mt-1 block">
-              ₹{(benefits.guaranteedReturnOfPurchasePrice || 0).toLocaleString('en-IN')}
-            </span>
-          </div>
-        </div>
+        )}
 
         {/* Cashflow Schedule Table */}
         {cashflowTimeline.length > 0 && (
@@ -230,34 +256,60 @@ export default function QuoteDetails() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-950 text-slate-400 font-bold uppercase tracking-wider border-b border-slate-800">
-                  <tr>
-                    <th className="p-3">Policy Year</th>
-                    <th className="p-3">Age</th>
-                    <th className="p-3">Premium</th>
-                    <th className="p-3">Base (A)</th>
-                    <th className="p-3">Booster (B)</th>
-                    <th className="p-3">Total (A+B)</th>
-                    <th className="p-3">Accrued GA</th>
-                    <th className="p-3">Death Benefit</th>
-                    <th className="p-3">Min GSV</th>
-                    <th className="p-3">Special SV</th>
-                    <th className="p-3">Surrender Value</th>
-                  </tr>
+                  {quote.plan_interest?.includes('Supreme') || quote.calculation_result_snapshot?.planName?.includes('Supreme') ? (
+                    <tr>
+                      <th className="p-3">Policy Year</th>
+                      <th className="p-3">Age</th>
+                      <th className="p-3">Premium</th>
+                      <th className="p-3 text-amber-500">Fund Value @ 4%</th>
+                      <th className="p-3 text-teal-400">Fund Value @ 8%</th>
+                      <th className="p-3">Death Benefit @ 4%</th>
+                      <th className="p-3">Death Benefit @ 8%</th>
+                      <th className="p-3">Loyalty Added @ 8%</th>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <th className="p-3">Policy Year</th>
+                      <th className="p-3">Age</th>
+                      <th className="p-3">Premium</th>
+                      <th className="p-3">Base (A)</th>
+                      <th className="p-3">Booster (B)</th>
+                      <th className="p-3">Total (A+B)</th>
+                      <th className="p-3">Accrued GA</th>
+                      <th className="p-3">Death Benefit</th>
+                      <th className="p-3">Min GSV</th>
+                      <th className="p-3">Special SV</th>
+                      <th className="p-3">Surrender Value</th>
+                    </tr>
+                  )}
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300 font-mono">
                   {cashflowTimeline.map((row, idx) => (
                     <tr key={idx} className="hover:bg-slate-850/50 transition-colors">
                       <td className="p-3 font-bold text-slate-400">Yr {row.policyYear}</td>
-                      <td className="p-3 text-slate-400">{row.annuitantAge}</td>
+                      <td className="p-3 text-slate-400">{row.age || row.annuitantAge}</td>
                       <td className="p-3">{row.premiumPaid > 0 ? `₹${row.premiumPaid.toLocaleString('en-IN')}` : '-'}</td>
-                      <td className="p-3">{row.baseAnnuity > 0 ? `₹${row.baseAnnuity.toLocaleString('en-IN')}` : '-'}</td>
-                      <td className="p-3">{row.annuityBooster > 0 ? `₹${row.annuityBooster.toLocaleString('en-IN')}` : '-'}</td>
-                      <td className="p-3 font-bold text-teal-400">{row.annuityPayout > 0 ? `₹${row.annuityPayout.toLocaleString('en-IN')}` : '-'}</td>
-                      <td className="p-3 text-indigo-400">{row.accruedGA > 0 ? `₹${row.accruedGA.toLocaleString('en-IN')}` : '-'}</td>
-                      <td className="p-3 font-semibold text-white">₹{row.deathBenefit.toLocaleString('en-IN')}</td>
-                      <td className="p-3">₹{(row.minGsv || 0).toLocaleString('en-IN')}</td>
-                      <td className="p-3">₹{(row.specialSv || 0).toLocaleString('en-IN')}</td>
-                      <td className="p-3 font-semibold">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
+                      
+                      {quote.plan_interest?.includes('Supreme') || quote.calculation_result_snapshot?.planName?.includes('Supreme') ? (
+                        <>
+                          <td className="p-3 font-bold text-amber-500">₹{(row.fundValue4 || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3 font-bold text-teal-400">₹{(row.fundValue8 || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3">₹{(row.deathBenefit4 || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3">₹{(row.deathBenefit8 || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3 text-indigo-400">{row.loyaltyAdded8 > 0 ? `+₹${row.loyaltyAdded8.toLocaleString('en-IN')}` : '-'}</td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="p-3">{row.baseAnnuity > 0 ? `₹${row.baseAnnuity.toLocaleString('en-IN')}` : '-'}</td>
+                          <td className="p-3">{row.annuityBooster > 0 ? `₹${row.annuityBooster.toLocaleString('en-IN')}` : '-'}</td>
+                          <td className="p-3 font-bold text-teal-400">{row.annuityPayout > 0 ? `₹${row.annuityPayout.toLocaleString('en-IN')}` : '-'}</td>
+                          <td className="p-3 text-indigo-400">{row.accruedGA > 0 ? `₹${row.accruedGA.toLocaleString('en-IN')}` : '-'}</td>
+                          <td className="p-3 font-semibold text-white">₹{row.deathBenefit.toLocaleString('en-IN')}</td>
+                          <td className="p-3">₹{(row.minGsv || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3">₹{(row.specialSv || 0).toLocaleString('en-IN')}</td>
+                          <td className="p-3 font-semibold">₹{row.surrenderValue.toLocaleString('en-IN')}</td>
+                        </>
+                      )}
                     </tr>
                   ))}
                 </tbody>

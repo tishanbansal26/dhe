@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Search, Users, Phone, BarChart, Settings, ShieldCheck, Building2, BriefcaseMedical, Shield, AlertCircle, Calendar, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { supabase } from '../lib/supabase';
@@ -19,9 +20,6 @@ export default function AdminPortal() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'leads', 'agents', 'companies', 'plans', 'policies', 'claims', 'renewals'
   
-  useEffect(() => {
-    document.title = 'Admin Portal - Radhe Investments';
-  }, []);
 
   const [agents, setAgents] = useState([]);
   const [leads, setLeads] = useState([]);
@@ -120,6 +118,10 @@ export default function AdminPortal() {
   if (!agentProfile || agentProfile.role !== 'admin') {
     return (
       <div className="pt-32 pb-20 min-h-screen">
+        <Helmet>
+          <title>Admin Dashboard | Radhe Investments</title>
+          <meta name="robots" content="noindex, nofollow" />
+        </Helmet>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-700/50 pb-6 gap-4">
             <div className="w-64 h-10 bg-slate-800/50 rounded-xl animate-pulse"></div>
@@ -146,6 +148,10 @@ export default function AdminPortal() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen">
+      <Helmet>
+        <title>Admin Dashboard | Radhe Investments</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

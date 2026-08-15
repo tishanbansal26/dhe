@@ -7,7 +7,7 @@ import WhyChooseUs from '../components/WhyChooseUs';
 import BannerAd from '../components/BannerAd';
 import CallbackForm from '../components/CallbackForm';
 import SEO from '../components/SEO';
-import { generateOrganizationSchema, generateLocalBusinessSchema } from '../lib/schema';
+import { generateOrganizationSchema, generateLocalBusinessSchema, generateSiteNavigationSchema } from '../lib/schema';
 import QuoteRequestModal from '../components/QuoteRequestModal';
 import PopularSearches from '../components/seo/PopularSearches';
 import { useSiteSettings } from '../lib/useSiteSettings';
@@ -61,15 +61,19 @@ export default function Home() {
   return (
     <>
       <SEO 
-        title="Radhe Investments | Insurance & Financial Protection in Mansa, Punjab"
-        description="Radhe Investments provides expert health, life, and term insurance services in Mansa, Punjab. Compare quotes and get expert financial advice today."
+        title="Radhe Investments — #1 Insurance & Financial Advisory in Mansa, Punjab | Health, Life, Term & Pension Plans"
+        description="Compare & buy health, life, term, motor and pension insurance plans from 50+ top Indian insurers. IRDAI-registered insurance advisory in Mansa, Punjab. Free expert consultation — Call +91 96036 10000."
         canonicalUrl="https://www.radheinv.site/"
+        keywords="Radhe Investments, Insurance Mansa Punjab, Health Insurance Punjab, Term Life Insurance Mansa, Best Insurance Agent Punjab, Motor Insurance Punjab, Pension Plans India, ULIP Plans, Insurance Advisor Bathinda, Financial Planner Mansa, Compare Insurance Plans India, IRDAI Registered Agent, Life Insurance Mansa, Investment Plans Punjab"
       >
         <script type="application/ld+json">
           {JSON.stringify(generateOrganizationSchema())}
         </script>
         <script type="application/ld+json">
           {JSON.stringify(generateLocalBusinessSchema())}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(generateSiteNavigationSchema())}
         </script>
       </SEO>
       <QuoteRequestModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} />

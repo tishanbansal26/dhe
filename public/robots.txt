@@ -1,13 +1,33 @@
+# Radhe Investments — robots.txt
+# https://www.radheinv.site
+
 User-agent: *
 Allow: /
+Allow: /category/
+Allow: /calculators/
+Allow: /claims/
+Allow: /compare
+Allow: /plan/
+Allow: /quote-generator
+
+# Block private/admin areas
 Disallow: /admin/
 Disallow: /portal/
 Disallow: /employee/
-Disallow: /api/
+Disallow: /dashboard
+Disallow: /product-builder
+Disallow: /review-dashboard
 
-# Block all crawlers from the admin/portal subdomains specifically if they ignore the protocol
-User-agent: *
+# Block auth & token URLs
 Disallow: /*?*login*
 Disallow: /*?*token*
+Disallow: /*?*redirect*
 
+# Block internal search with no query
+Disallow: /search$
+
+# Sitemap
 Sitemap: https://www.radheinv.site/sitemap.xml
+
+# Crawl delay (optional, respected by Bing/Yandex)
+Crawl-delay: 2

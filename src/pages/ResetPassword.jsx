@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useNavigate } from 'react-router-dom';
 import { Lock, ShieldAlert, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -12,8 +13,6 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = 'Reset Password - Radhe Investments';
-    
     // Check if we actually have a session from the reset link
     // The reset link logs the user in automatically to allow password update
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -62,6 +61,10 @@ export default function ResetPassword() {
 
   return (
     <div className="pt-32 pb-20 min-h-screen flex items-center justify-center">
+      <Helmet>
+        <title>Reset Password | Radhe Investments</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
       <div className="w-full max-w-md p-8 glass-panel rounded-3xl border border-slate-700/50">
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
