@@ -53,7 +53,7 @@ export default function Navbar() {
               <div className="ml-10 flex items-baseline space-x-6 lg:space-x-8">
               <a 
                 href={isHome ? '#home' : '/'} 
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-300 hover:text-white px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap"
                 onClick={(e) => {
                   if (isHome) {
                     e.preventDefault();
@@ -65,7 +65,7 @@ export default function Navbar() {
               </a>
               <a 
                 href={isHome ? '#products' : '/#products'} 
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-300 hover:text-white px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap"
                 onClick={(e) => {
                   if (isHome) {
                     e.preventDefault();
@@ -77,24 +77,24 @@ export default function Navbar() {
               </a>
               <Link 
                 to="/compare"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1"
+                className="text-gray-300 hover:text-white px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1 whitespace-nowrap"
               >
                 <Layers className="w-4 h-4 text-teal-400" /> Compare
               </Link>
               <Link 
                 to="/calculators"
-                className="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-300 hover:text-white px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap hidden lg:block"
               >
                 Calculators
               </Link>
               <Link 
                 to="/quote-generator"
-                className="text-teal-400 hover:text-teal-300 px-3 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1"
+                className="text-teal-400 hover:text-teal-300 px-2 lg:px-3 py-2 rounded-md text-sm font-bold transition-colors flex items-center gap-1 whitespace-nowrap"
               >
                 <Calculator className="w-4 h-4" /> Instant Quote
               </Link>
               
-              <div className="relative flex items-center">
+              <div className="relative flex items-center hidden xl:flex">
                 <Search className="w-4 h-4 text-gray-400 absolute left-3" />
                 <input 
                   type="text" 
@@ -102,12 +102,12 @@ export default function Navbar() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
                   placeholder="Search plans..." 
-                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-36 transition-all focus:w-56"
+                  className="bg-slate-800/50 border border-slate-700 rounded-full pl-9 pr-4 py-1.5 text-xs text-white focus:outline-none focus:border-teal-500 w-36 transition-all focus:w-48"
                 />
               </div>
               
               <div className="relative group">
-                <button className="flex items-center gap-1 text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">
+                <button className="flex items-center gap-1 text-gray-300 hover:text-white px-2 lg:px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap">
                   Claims
                   <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                 </button>
@@ -123,11 +123,11 @@ export default function Navbar() {
               </div>
 
               {userProfile?.role === 'customer' ? (
-                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">My Dashboard</Link>
+                <Link to="/dashboard" className="text-teal-300 hover:text-teal-100 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl text-xs lg:text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">My Dashboard</Link>
               ) : agentProfile?.role === 'admin' ? (
-                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10 whitespace-nowrap">Admin Portal</Link>
+                <Link to="/admin" className="text-rose-300 hover:text-rose-100 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl text-xs lg:text-sm font-medium transition-colors border border-rose-500/30 bg-rose-500/10 whitespace-nowrap">Admin Portal</Link>
               ) : agentProfile ? (
-                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-4 py-2 rounded-xl text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">Employee Portal</Link>
+                <Link to="/employee" className="text-teal-300 hover:text-teal-100 px-3 lg:px-4 py-1.5 lg:py-2 rounded-xl text-xs lg:text-sm font-medium transition-colors border border-teal-500/30 bg-teal-500/10 whitespace-nowrap">Employee Portal</Link>
               ) : null}
             </div>
           </div>
