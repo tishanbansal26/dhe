@@ -7,6 +7,11 @@ import { useAuth } from '../lib/AuthContext';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import LeadDetailsModal from '../components/LeadDetailsModal';
+import IsolatedBoundary from '../components/resilience/IsolatedBoundary';
+import StatusBadge from '../components/ui/StatusBadge';
+import ActionableEmptyState from '../components/ui/ActionableEmptyState';
+import { executeResilientQuery } from '../lib/resilience/apiClient';
+import { sanitizeString } from '../lib/security/validator';
 
 export default function EmployeePortal() {
   const { user } = useAuth();
@@ -46,9 +51,11 @@ export default function EmployeePortal() {
 
   const fetchAgents = async () => {
     try {
-      const { data, error } = await supabase.from('agents').select('*');
-      if (error) throw error;
-      setAgents(data || []);
+      const res = await executeResilientQuery('supabase_agents', () =>
+        supabase.from('agents').select('*'),
+        { cacheKey: 'employee_agents', fallbackData: [] }
+      );
+      setAgents(res.data || []);
     } catch (e) {
       console.error('Failed to fetch agents:', e);
       setAgents([]);
@@ -57,9 +64,11 @@ export default function EmployeePortal() {
 
   const fetchMarketingAssets = async () => {
     try {
-      const { data, error } = await supabase.from('marketing_assets').select('*');
-      if (error) throw error;
-      setMarketingAssets(data || []);
+      const res = await executeResilientQuery('supabase_marketing', () =>
+        supabase.from('marketing_assets').select('*'),
+        { cacheKey: 'employee_marketing', fallbackData: [] }
+      );
+      setMarketingAssets(res.data || []);
     } catch (e) {
       console.error('Failed to fetch marketing assets:', e);
       setMarketingAssets([]);
@@ -68,12 +77,14 @@ export default function EmployeePortal() {
   const [claims, setClaims] = useState([]);
   const fetchLeads = async () => {
     try {
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setLeads(data || []);
+      const res = await executeResilientQuery('supabase_leads', () =>
+        supabase
+          .from('leads')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        { cacheKey: 'employee_leads', fallbackData: [] }
+      );
+      setLeads(res.data || []);
     } catch (e) {
       console.error('Failed to fetch leads:', e);
       setLeads([]);
@@ -82,12 +93,14 @@ export default function EmployeePortal() {
 
   const fetchClaims = async () => {
     try {
-      const { data, error } = await supabase
-        .from('claims')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setClaims(data || []);
+      const res = await executeResilientQuery('supabase_claims', () =>
+        supabase
+          .from('claims')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        { cacheKey: 'employee_claims', fallbackData: [] }
+      );
+      setClaims(res.data || []);
     } catch (e) {
       console.error('Failed to fetch claims:', e);
       setClaims([]);
@@ -125,15 +138,15 @@ export default function EmployeePortal() {
     setIsSubmittingLead(true);
     try {
       const payload = {
-        name: newLeadForm.name.trim(),
-        phone: newLeadForm.phone.trim(),
-        email: newLeadForm.email.trim() || null,
+        name: sanitizeString(newLeadForm.name),
+        phone: sanitizeString(newLeadForm.phone),
+        email: sanitizeString(newLeadForm.email) || null,
         age: parseInt(newLeadForm.age) || 35,
         gender: newLeadForm.gender || 'male',
-        pincode: newLeadForm.pincode.trim() || null,
-        plan_interest: newLeadForm.plan_interest || 'General',
+        pincode: sanitizeString(newLeadForm.pincode) || null,
+        plan_interest: sanitizeString(newLeadForm.plan_interest) || 'General',
         status: newLeadForm.status || 'new',
-        notes: newLeadForm.notes.trim() || null
+        notes: sanitizeString(newLeadForm.notes) || null
       };
 
       const { data, error } = await supabase.from('leads').insert([payload]).select().single();

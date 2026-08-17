@@ -7,6 +7,11 @@ import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
 import DocumentUploader from '../components/DocumentUploader';
 import { useSiteSettings } from '../lib/useSiteSettings';
+import IsolatedBoundary from '../components/resilience/IsolatedBoundary';
+import StatusBadge from '../components/ui/StatusBadge';
+import ActionableEmptyState from '../components/ui/ActionableEmptyState';
+import { executeResilientQuery } from '../lib/resilience/apiClient';
+import { sanitizeString } from '../lib/security/validator';
 
 export default function CustomerDashboard() {
   const { user, customerProfile } = useAuth();
@@ -50,30 +55,39 @@ export default function CustomerDashboard() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch policies
-      const { data: pData } = await supabase
-        .from('policies')
-        .select('*, insurance_plans(name, category)')
-        .eq('customer_id', customerProfile.id);
-      if (pData) setPolicies(pData);
+      // 1. Resilient policies fetch with offline caching
+      const policiesRes = await executeResilientQuery('supabase_policies', () => 
+        supabase
+          .from('policies')
+          .select('*, insurance_plans(name, category)')
+          .eq('customer_id', customerProfile.id),
+        { cacheKey: `policies_${customerProfile.id}`, fallbackData: [] }
+      );
+      if (policiesRes.data) setPolicies(policiesRes.data);
 
-      // Fetch claims
-      const { data: cData } = await supabase
-        .from('claims')
-        .select('*, policies(policy_number, insurance_plans(name))')
-        .eq('customer_id', customerProfile.id);
-      if (cData) setClaims(cData);
+      // 2. Resilient claims fetch
+      const claimsRes = await executeResilientQuery('supabase_claims', () =>
+        supabase
+          .from('claims')
+          .select('*, policies(policy_number, insurance_plans(name))')
+          .eq('customer_id', customerProfile.id),
+        { cacheKey: `claims_${customerProfile.id}`, fallbackData: [] }
+      );
+      if (claimsRes.data) setClaims(claimsRes.data);
 
-      // Fetch documents
-      const { data: dData } = await supabase
-        .from('documents')
-        .select('*')
-        .eq('entity_type', 'customer')
-        .eq('entity_id', customerProfile.id);
-      if (dData) setDocuments(dData);
+      // 3. Resilient documents fetch
+      const docsRes = await executeResilientQuery('supabase_documents', () =>
+        supabase
+          .from('documents')
+          .select('*')
+          .eq('entity_type', 'customer')
+          .eq('entity_id', customerProfile.id),
+        { cacheKey: `docs_${customerProfile.id}`, fallbackData: [] }
+      );
+      if (docsRes.data) setDocuments(docsRes.data);
 
     } catch (err) {
-      console.error(err);
+      console.error('Customer dashboard fetch error:', err);
     } finally {
       setLoading(false);
     }
@@ -83,14 +97,19 @@ export default function CustomerDashboard() {
     e.preventDefault();
     setSavingProfile(true);
     try {
+      const cleanName = sanitizeString(profileForm.name);
+      const cleanPhone = sanitizeString(profileForm.phone);
+      const cleanAddress = sanitizeString(profileForm.address);
+      const cleanCity = sanitizeString(profileForm.city);
+
       const { error } = await supabase
         .from('customers')
         .update({
-          name: profileForm.name,
-          phone: profileForm.phone,
+          name: cleanName,
+          phone: cleanPhone,
           dob: profileForm.dob || null,
-          address: profileForm.address,
-          city: profileForm.city
+          address: cleanAddress,
+          city: cleanCity
         })
         .eq('id', customerProfile.id);
         
@@ -174,7 +193,7 @@ export default function CustomerDashboard() {
             </div>
           </div>
         ) : (
-          <>
+          <IsolatedBoundary name="Customer Dashboard Tab Content">
             {/* Policies Tab */}
             {activeTab === 'policies' && (() => {
               // Expiry calculation helper
@@ -529,8 +548,7 @@ export default function CustomerDashboard() {
                 </form>
               </div>
             )}
-
-          </>
+          </IsolatedBoundary>
         )}
       </div>
     </div>

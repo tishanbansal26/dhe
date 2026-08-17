@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Helmet } from 'react-helmet-async';
+import { executeResilientQuery } from '../lib/resilience/apiClient';
+import IsolatedBoundary from '../components/resilience/IsolatedBoundary';
 
 export default function QuoteGenerator() {
   const { planId: routePlanId } = useParams();
@@ -120,14 +122,17 @@ export default function QuoteGenerator() {
   async function fetchPlans() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('insurance_plans')
-        .select('*, insurance_companies(name, logo_url)')
-        .eq('active', true)
-        .order('name');
+      const res = await executeResilientQuery('supabase_insurance_plans', () =>
+        supabase
+          .from('insurance_plans')
+          .select('*, insurance_companies(name, logo_url)')
+          .eq('active', true)
+          .order('name'),
+        { cacheKey: 'active_insurance_plans', fallbackData: [] }
+      );
 
-      if (error) throw error;
-      setPlans(data || []);
+      const data = res.data || [];
+      setPlans(data);
 
       if (queryPlanId && data && data.length > 0) {
         const matched = data.find(p => p.id === queryPlanId);

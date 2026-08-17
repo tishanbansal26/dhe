@@ -14,7 +14,9 @@ import AdminClaims from '../components/admin/AdminClaims';
 import AdminRenewals from '../components/admin/AdminRenewals';
 import AdminAudit from '../components/admin/AdminAudit';
 import AdminSettings from '../components/admin/AdminSettings';
+import AdminSystemHealth from '../components/admin/AdminSystemHealth';
 import EmptyState from '../components/EmptyState';
+import IsolatedBoundary from '../components/resilience/IsolatedBoundary';
 export default function AdminPortal() {
   const { user, agentProfile } = useAuth();
   const navigate = useNavigate();
@@ -188,6 +190,9 @@ export default function AdminPortal() {
             <button onClick={() => setActiveTab('renewals')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === 'renewals' ? 'bg-yellow-500 text-slate-900' : 'text-gray-400 hover:text-white'}`}>
               <Calendar className="w-4 h-4" /> Renewals
             </button>
+            <button onClick={() => setActiveTab('health')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === 'health' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-gray-400 hover:text-white'}`}>
+              <Activity className="w-4 h-4 text-emerald-400" /> Health & Telemetry
+            </button>
             <button onClick={() => setActiveTab('audit')} className={`px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 whitespace-nowrap shrink-0 ${activeTab === 'audit' ? 'bg-slate-500 text-white' : 'text-gray-400 hover:text-white'}`}>
               <Settings className="w-4 h-4" /> Audit
             </button>
@@ -211,7 +216,9 @@ export default function AdminPortal() {
             <div className="glass-panel h-96 rounded-3xl border border-slate-700/50 animate-pulse"></div>
           </div>
         ) : (
-          <>
+          <IsolatedBoundary name="Admin Portal Active Tab">
+            {/* Health & Observability Tab */}
+            {activeTab === 'health' && <AdminSystemHealth />}
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <AdminOverview leads={leads} agents={agents} policies={policies} claims={claims} />
@@ -328,7 +335,7 @@ export default function AdminPortal() {
 
             {/* Content Tab */}
             {activeTab === 'content' && <AdminSettings />}
-          </>
+          </IsolatedBoundary>
         )}
       </div>
     </div>
