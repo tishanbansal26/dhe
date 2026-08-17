@@ -37,9 +37,10 @@ import SEO from '../components/SEO';
 import PopularSearches from '../components/seo/PopularSearches';
 import RelatedCalculators from '../components/seo/RelatedCalculators';
 import { generateBreadcrumbSchema } from '../lib/schema';
-import { getIrdaiCategoryStandards } from '../lib/irdaiStandards';
 import { Helmet } from 'react-helmet-async';
 import toast from 'react-hot-toast';
+import { executeResilientQuery } from '../lib/resilience/apiClient';
+import IsolatedBoundary from '../components/resilience/IsolatedBoundary';
 
 export default function PlanDetails() {
   const { id } = useParams();
@@ -61,14 +62,16 @@ export default function PlanDetails() {
   async function fetchPlan() {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('insurance_plans')
-        .select('*, insurance_companies(name, logo_url)')
-        .eq('id', id)
-        .single();
+      const res = await executeResilientQuery('supabase_plan_details', () =>
+        supabase
+          .from('insurance_plans')
+          .select('*, insurance_companies(name, logo_url)')
+          .eq('id', id)
+          .single(),
+        { cacheKey: `plan_details_${id}`, fallbackData: null }
+      );
         
-      if (error) throw error;
-      if (data) setPlan(data);
+      if (res.data) setPlan(res.data);
     } catch (err) {
       console.error('Error fetching plan:', err);
     } finally {
